@@ -7,13 +7,14 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ribeirosaimon/motion-go/pkg/health"
 )
 
 func TestGetUser(t *testing.T) {
 	// Cria um router do Gin vazio
 	r := gin.New()
 
-	NewHeathController(r)
+	health.NewHeathController(r)
 
 	req, err := http.NewRequest(http.MethodGet, "/health", nil)
 	if err != nil {
@@ -25,7 +26,7 @@ func TestGetUser(t *testing.T) {
 		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, w.Code)
 	}
 
-	var response = healthApiResponse{}
+	var response = health.NewHealthApiResponse()
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	if err != nil {
 		t.Errorf("Unmarshal erro: %s", err.Error())
