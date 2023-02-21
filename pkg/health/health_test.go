@@ -13,7 +13,7 @@ func TestGetUser(t *testing.T) {
 	// Cria um router do Gin vazio
 	r := gin.New()
 
-	NewHeathController()
+	NewHeathController(r)
 
 	req, err := http.NewRequest(http.MethodGet, "/health", nil)
 	if err != nil {
@@ -22,15 +22,18 @@ func TestGetUser(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
-		t.Errorf("Código HTTP de retorno esperado: %d; Código HTTP de retorno recebido: %d", http.StatusOK, w.Code)
+		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, w.Code)
 	}
 
-	var healthApiResponse map[string]string
-	err = json.Unmarshal(w.Body.Bytes(), &healthApiResponse)
+	var response = healthApiResponse{}
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	if err != nil {
-		t.Errorf("Erro ao decodificar o JSON de retorno: %s", err.Error())
+		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
-	if healthApiResponse["health"] != "true" {
-		t.Errorf("Dados de usuário incorretos no JSON de retorno: %s", w.Body.String())
+	if response.Ready != true {
+		t.Errorf("Status must be bool: %s", w.Body.String())
+	}
+	if &response.Time == nil {
+		t.Errorf("Time must be unlike nil: %s", w.Body.String())
 	}
 }
