@@ -3,12 +3,12 @@ package health
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/pkg/config/controllers"
 )
 
-func NewHeathController() {
-	controllers.NewMotionController(
+func NewHeathController(engine *gin.Engine) {
+	controllers.NewMotionController(engine,
 		controllers.NewMotionRouter(http.MethodGet, "/health", getHealthService),
-		controllers.NewMotionRouter(http.MethodGet, "/health2", getHealthService),
 	).Add()
 }

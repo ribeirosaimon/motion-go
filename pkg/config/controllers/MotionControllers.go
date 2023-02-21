@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/config"
 )
 
 type MotionRouter struct {
@@ -16,9 +15,9 @@ type motionController struct {
 	Handlers []MotionRouter
 }
 
-func NewMotionController(controllers ...MotionRouter) motionController {
+func NewMotionController(engine *gin.Engine, controllers ...MotionRouter) motionController {
 	return motionController{
-		Engine:   config.GetMotionEnginer(),
+		Engine:   engine,
 		Handlers: controllers,
 	}
 
