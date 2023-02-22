@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -32,9 +33,32 @@ func (m motionStructRepository[T]) FindById(s string) T {
 		if field.IsExported() {
 			field.Name = strings.ToLower(field.Name[:1]) + field.Name[1:]
 		}
-		fmt.Println(field.Name, field.Type)
+		var tag string
+		if value, ok := field.Tag.Lookup("json"); ok {
+			tag = tagTreatment(&value)
+		}
+		sqlField := createSqlField(field.Type)
+
+		fmt.Println(tag, sqlField)
 	}
 	return m.myStruct
+}
+
+func createSqlField(t reflect.Type) string {
+	kind := t.Kind()
+	switch kind {
+	case reflect.Uint, reflect.Int, reflect.Uint8, reflect.Int8,
+		reflect.Uint16, reflect.Int16, reflect.Uint32, reflect.Int32:
+		return "int"
+	case reflect.Uint64, reflect.Int64:
+		return "bigint"
+	case reflect.Bool:
+		return "boolean"
+	case reflect.String:
+		return "string"
+	default:
+		return "string"
+	}
 }
 
 func (m motionStructRepository[T]) FindAll() []T {
@@ -55,4 +79,13 @@ func (m motionStructRepository[T]) Save(t T) T {
 func (m motionStructRepository[T]) UpdateById(t T) T {
 	reflect.ValueOf(&t).Elem()
 	panic("implement me")
+}
+
+func tagTreatment(json *string) string {
+	stringNoOmitempty := strings.ReplaceAll(*json, "omitempty", "")
+	re := regexp.MustCompile("[A-Z]")
+	stringNoOmitempty = re.ReplaceAllStringFunc(stringNoOmitempty, func(match string) string {
+		return "_" + strings.ToLower(match)
+	})
+	return stringNoOmitempty
 }
