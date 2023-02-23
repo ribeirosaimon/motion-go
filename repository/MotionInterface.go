@@ -27,20 +27,7 @@ func newMotionRepository[T any]() motionRepository[T] {
 }
 
 func (m motionStructRepository[T]) FindById(s string) T {
-	elem := reflect.TypeOf(m.myStruct)
-	for i := 0; i < elem.NumField(); i++ {
-		field := elem.Field(i)
-		if field.IsExported() {
-			field.Name = strings.ToLower(field.Name[:1]) + field.Name[1:]
-		}
-		var tag string
-		if value, ok := field.Tag.Lookup("json"); ok {
-			tag = tagTreatment(&value)
-		}
-		sqlField := createSqlField(field.Type)
 
-		fmt.Println(tag, sqlField)
-	}
 	return m.myStruct
 }
 
@@ -62,18 +49,41 @@ func createSqlField(t reflect.Type) string {
 }
 
 func (m motionStructRepository[T]) FindAll() []T {
-	// TODO implement me
 	panic("implement me")
 }
 
 func (m motionStructRepository[T]) DeleteById(s string) bool {
-	// TODO implement me
-	panic("implement me")
+	return false
 }
 
-func (m motionStructRepository[T]) Save(t T) T {
-	// TODO implement me
-	panic("implement me")
+func (m motionStructRepository[T]) Save(structValue T) T {
+	elem := reflect.TypeOf(m.myStruct)
+
+	var insertFieldNames string
+	var insertFieldValues string
+
+	for i := 0; i < elem.NumField(); i++ {
+		field := elem.Field(i)
+		if field.IsExported() {
+			field.Name = strings.ToLower(field.Name[:1]) + field.Name[1:]
+		}
+		var fieldName string
+		if value, ok := field.Tag.Lookup("json"); ok {
+			fieldName = tagTreatment(&value)
+		}
+		fieldByName := reflect.ValueOf(structValue).Elem().FieldByName(field.Name)
+		if fieldByName. {
+
+		}
+		insertFieldNames += fieldName
+		insertFieldValues += fieldValue
+
+	}
+	insertSqlQuery := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s) ",
+		strings.ToLower(elem.Name()), insertFieldNames, insertFieldValues)
+
+	fmt.Println(insertSqlQuery)
+	return m.myStruct
 }
 
 func (m motionStructRepository[T]) UpdateById(t T) T {
