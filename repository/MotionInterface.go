@@ -78,10 +78,9 @@ func (m motionStructRepository[T]) Save(structValue T) T {
 		fieldValue := structReflection.FieldByName(reflectTypeOf.Field(i).Name)
 		name := reflectValueOf.FieldByName(reflectTypeOf.Field(i).Name)
 		s := fieldValue.Convert(name.Type()).Type()
-		fmt.Println(s)
-		converter os tipos para a sql string e tambem refatorar os nomes
+
 		insertFieldNames += fieldName
-		// insertFieldValues += fieldValue
+		insertFieldValues += s.String()
 
 	}
 	insertSqlQuery := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s) ",
