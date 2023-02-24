@@ -1,10 +1,11 @@
 package user
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/repository"
-	"time"
 )
 
 func getUserService(ctx *gin.Context) {
@@ -12,6 +13,7 @@ func getUserService(ctx *gin.Context) {
 
 	user := domain.User{
 		Name:        "Saimon",
+		Id:          123123,
 		LoginAttemp: 0,
 		LastLogin:   time.Now(),
 	}

@@ -57,13 +57,15 @@ func (m motionStructRepository[T]) DeleteById(s string) bool {
 }
 
 func (m motionStructRepository[T]) Save(structValue T) T {
-	elem := reflect.TypeOf(m.myStruct)
+	reflectTypeOf := reflect.TypeOf(m.myStruct)
+	reflectValueOf := reflect.ValueOf(m.myStruct)
 
 	var insertFieldNames string
 	var insertFieldValues string
 
-	for i := 0; i < elem.NumField(); i++ {
-		field := elem.Field(i)
+	for i := 0; i < reflectTypeOf.NumField(); i++ {
+		field := reflectTypeOf.Field(i)
+
 		if field.IsExported() {
 			field.Name = strings.ToLower(field.Name[:1]) + field.Name[1:]
 		}
@@ -71,16 +73,19 @@ func (m motionStructRepository[T]) Save(structValue T) T {
 		if value, ok := field.Tag.Lookup("json"); ok {
 			fieldName = tagTreatment(&value)
 		}
-		fieldByName := reflect.ValueOf(structValue).Elem().FieldByName(field.Name)
-		if fieldByName. {
+		structReflection := reflect.ValueOf(structValue)
 
-		}
+		fieldValue := structReflection.FieldByName(reflectTypeOf.Field(i).Name)
+		name := reflectValueOf.FieldByName(reflectTypeOf.Field(i).Name)
+		s := fieldValue.Convert(name.Type()).Type()
+		fmt.Println(s)
+		converter os tipos para a sql string e tambem refatorar os nomes
 		insertFieldNames += fieldName
-		insertFieldValues += fieldValue
+		// insertFieldValues += fieldValue
 
 	}
 	insertSqlQuery := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s) ",
-		strings.ToLower(elem.Name()), insertFieldNames, insertFieldValues)
+		strings.ToLower(reflectTypeOf.Name()), insertFieldNames, insertFieldValues)
 
 	fmt.Println(insertSqlQuery)
 	return m.myStruct
