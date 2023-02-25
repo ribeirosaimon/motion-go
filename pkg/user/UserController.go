@@ -10,5 +10,8 @@ import (
 func NewUserController(engine *gin.Engine) {
 	controllers.NewMotionController(engine,
 		controllers.NewMotionRouter(http.MethodGet, "/user", getUserService),
+		controllers.NewMotionRouter(http.MethodPost, "/user", saveUserService),
+		controllers.NewMotionRouter(http.MethodPut, "/user", updateUserService),
+		controllers.NewMotionRouter(http.MethodDelete, "/user", deleteUser),
 	).Add()
 }

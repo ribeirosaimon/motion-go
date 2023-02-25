@@ -1,16 +1,15 @@
 package database
 
 import (
-	"database/sql"
-
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func Connect() (*sql.DB, error) {
-	connStr := "postgres://postgres:frajolinha202@localhost:5432/motion?sslmode=mode"
-	db, err := sql.Open("postgres", connStr)
+func Connect() (*gorm.DB, error) {
+	dsn := "host=localhost user=postgres password=frajolinha202 dbname=motion port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		// tratamento de erro
 	}
 	return db, nil
 }

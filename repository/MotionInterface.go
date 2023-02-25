@@ -1,124 +1,77 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
-	"reflect"
-	"regexp"
-	"strings"
 
 	"github.com/ribeirosaimon/motion-go/pkg/config/database"
+	"gorm.io/gorm"
 )
 
-type motionRepository[T any] interface {
-	FindById(string) T
-	FindAll() []T
-	DeleteById(string) bool
-	Save(T) T
-	UpdateById(T) T
+type Entity interface {
+	GetId() interface{}
 }
 
-type motionStructRepository[T any] struct {
-	myStruct   T
-	connection *sql.DB
+type motionRepository[T Entity] interface {
+	FindById(interface{}) (T, error)
+	FindAll(int, int) ([]T, error)
+	DeleteById(interface{}) error
+	Save(T) (T, error)
 }
 
-func newMotionRepository[T any]() motionRepository[T] {
+type motionStructRepository[T Entity] struct {
+	myStruct Entity
+	database *gorm.DB
+}
+
+func newMotionRepository[T Entity]() motionRepository[T] {
 	var myStruct T
 	connect, err := database.Connect()
 	if err != nil {
 		panic(err)
 	}
 	return motionStructRepository[T]{
-		myStruct:   myStruct,
-		connection: connect,
+		myStruct: myStruct,
+		database: connect,
 	}
 }
 
-func (m motionStructRepository[T]) FindById(s string) T {
-
-	return m.myStruct
-}
-
-func convertFieldToValue(t reflect.Type) string {
-	kind := t.Kind()
-	switch kind {
-	case reflect.Uint, reflect.Int, reflect.Uint8, reflect.Int8,
-		reflect.Uint16, reflect.Int16, reflect.Uint32, reflect.Int32:
-		return "int"
-	case reflect.Uint64, reflect.Int64:
-		return "bigint"
-	case reflect.Bool:
-		return "boolean"
-	case reflect.String:
-		return "string"
-	default:
-		return "string"
+func (m motionStructRepository[T]) FindById(s interface{}) (T, error) {
+	var value T
+	if err := m.database.Find(&value, s).Error; err != nil {
+		return value, fmt.Errorf("%v not found", s)
 	}
+	return value, nil
 }
 
-func (m motionStructRepository[T]) FindAll() []T {
-	panic("implement me")
-}
-
-func (m motionStructRepository[T]) DeleteById(s string) bool {
-	return false
-}
-
-func (m motionStructRepository[T]) Save(structValue T) T {
-	defer m.connection.Close()
-	reflectValueOf := reflect.ValueOf(m.myStruct)
-	reflectTypeOf := reflectValueOf.Type()
-
-	var queryStringName, queryStringValue string
-
-	for i := 0; i < reflectTypeOf.NumField(); i++ {
-		var fieldName string
-		field := reflectTypeOf.Field(i)
-
-		if field.IsExported() {
-			fieldName = strings.ToLower(field.Name[:1]) + field.Name[1:]
-		}
-
-		if value, ok := field.Tag.Lookup("json"); ok {
-			fieldName = tagTreatment(&value)
-		}
-
-		structToSaveReflections := reflect.ValueOf(structValue)
-		fieldValue := structToSaveReflections.FieldByName(reflectTypeOf.Field(i).Name)
-
-		defaultValue := reflect.Zero(fieldValue.Type())
-
-		if !reflect.DeepEqual(fieldValue.Interface(), defaultValue.Interface()) && !fieldValue.IsZero() {
-			queryStringName += fmt.Sprintf("%s,", fieldName)
-			queryStringValue += fmt.Sprint(fieldValue, ",")
-		}
-
+func (m motionStructRepository[T]) FindAll(limit, page int) ([]T, error) {
+	var values []T
+	if err := m.database.Limit(limit).Offset(page).Find(&values).Error; err != nil {
+		return nil, fmt.Errorf("error in find all")
 	}
-	queryStringName = strings.TrimSuffix(queryStringName, ",")
-	queryStringValue = strings.TrimSuffix(queryStringValue, ",")
-	insertSqlQuery := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)",
-		strings.ToLower(reflectTypeOf.Name()), queryStringName, queryStringValue)
+	return values, nil
+}
 
-	_, err := m.connection.Exec(insertSqlQuery)
+func (m motionStructRepository[T]) DeleteById(s interface{}) error {
+
+	value, err := m.FindById(s)
 	if err != nil {
-		fmt.Errorf("error in execute query")
+		return err
 	}
-
-	return m.myStruct
+	tx := m.database.Delete(&value, s)
+	if tx.Error == nil && tx.RowsAffected > 0 {
+		return nil
+	}
+	return fmt.Errorf("error deleting value")
 }
 
-func (m motionStructRepository[T]) UpdateById(t T) T {
-	reflect.ValueOf(&t).Elem()
-	panic("implement me")
-}
+func (m motionStructRepository[T]) Save(structValue T) (T, error) {
+	var value T
+	if err := m.database.AutoMigrate(&value); err != nil {
+		return value, fmt.Errorf(err.Error())
+	}
+	if err := m.database.Save(&structValue).Error; err != nil {
+		return value, fmt.Errorf(err.Error())
+	}
+	return m.FindById(structValue.GetId())
 
-func tagTreatment(json *string) string {
-	stringNoOmitempty := strings.ReplaceAll(*json, "omitempty", "")
-	stringNoOmitempty = strings.ReplaceAll(stringNoOmitempty, ",", "")
-	re := regexp.MustCompile("[A-Z]")
-	stringNoOmitempty = re.ReplaceAllStringFunc(stringNoOmitempty, func(match string) string {
-		return "_" + strings.ToLower(match)
-	})
-	return stringNoOmitempty
 }

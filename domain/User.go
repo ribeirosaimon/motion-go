@@ -1,9 +1,14 @@
 package domain
 
-import "time"
+import (
+	"time"
 
-type User struct {
-	Id          uint64    `json:"id" motionDb:"id"`
+	"gorm.io/gorm"
+)
+
+type MotionUser struct {
+	gorm.Model
+	Id          uint64    `json:"id" gorm:"primary_key"`
 	Name        string    `json:"name,omitempty" `
 	Email       string    `json:"email,omitempty" `
 	LastName    string    `json:"lastName,omitempty"`
@@ -13,4 +18,8 @@ type User struct {
 	LoginAttemp uint8     `json:"loginAttemp,omitempty"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt,omitempty"`
+}
+
+func (user MotionUser) GetId() interface{} {
+	return user.Id
 }
