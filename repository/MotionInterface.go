@@ -1,10 +1,13 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 )
 
 type motionRepository[T any] interface {
@@ -16,13 +19,19 @@ type motionRepository[T any] interface {
 }
 
 type motionStructRepository[T any] struct {
-	myStruct T
+	myStruct   T
+	connection *sql.DB
 }
 
 func newMotionRepository[T any]() motionRepository[T] {
 	var myStruct T
+	connect, err := database.Connect()
+	if err != nil {
+		panic(err)
+	}
 	return motionStructRepository[T]{
-		myStruct: myStruct,
+		myStruct:   myStruct,
+		connection: connect,
 	}
 }
 
@@ -31,7 +40,7 @@ func (m motionStructRepository[T]) FindById(s string) T {
 	return m.myStruct
 }
 
-func createSqlField(t reflect.Type) string {
+func convertFieldToValue(t reflect.Type) string {
 	kind := t.Kind()
 	switch kind {
 	case reflect.Uint, reflect.Int, reflect.Uint8, reflect.Int8,
@@ -57,36 +66,45 @@ func (m motionStructRepository[T]) DeleteById(s string) bool {
 }
 
 func (m motionStructRepository[T]) Save(structValue T) T {
-	reflectTypeOf := reflect.TypeOf(m.myStruct)
+	defer m.connection.Close()
 	reflectValueOf := reflect.ValueOf(m.myStruct)
+	reflectTypeOf := reflectValueOf.Type()
 
-	var insertFieldNames string
-	var insertFieldValues string
+	var queryStringName, queryStringValue string
 
 	for i := 0; i < reflectTypeOf.NumField(); i++ {
+		var fieldName string
 		field := reflectTypeOf.Field(i)
 
 		if field.IsExported() {
-			field.Name = strings.ToLower(field.Name[:1]) + field.Name[1:]
+			fieldName = strings.ToLower(field.Name[:1]) + field.Name[1:]
 		}
-		var fieldName string
+
 		if value, ok := field.Tag.Lookup("json"); ok {
 			fieldName = tagTreatment(&value)
 		}
-		structReflection := reflect.ValueOf(structValue)
 
-		fieldValue := structReflection.FieldByName(reflectTypeOf.Field(i).Name)
-		name := reflectValueOf.FieldByName(reflectTypeOf.Field(i).Name)
-		s := fieldValue.Convert(name.Type()).Type()
+		structToSaveReflections := reflect.ValueOf(structValue)
+		fieldValue := structToSaveReflections.FieldByName(reflectTypeOf.Field(i).Name)
 
-		insertFieldNames += fieldName
-		insertFieldValues += s.String()
+		defaultValue := reflect.Zero(fieldValue.Type())
+
+		if !reflect.DeepEqual(fieldValue.Interface(), defaultValue.Interface()) && !fieldValue.IsZero() {
+			queryStringName += fmt.Sprintf("%s,", fieldName)
+			queryStringValue += fmt.Sprint(fieldValue, ",")
+		}
 
 	}
-	insertSqlQuery := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s) ",
-		strings.ToLower(reflectTypeOf.Name()), insertFieldNames, insertFieldValues)
+	queryStringName = strings.TrimSuffix(queryStringName, ",")
+	queryStringValue = strings.TrimSuffix(queryStringValue, ",")
+	insertSqlQuery := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)",
+		strings.ToLower(reflectTypeOf.Name()), queryStringName, queryStringValue)
 
-	fmt.Println(insertSqlQuery)
+	_, err := m.connection.Exec(insertSqlQuery)
+	if err != nil {
+		fmt.Errorf("error in execute query")
+	}
+
 	return m.myStruct
 }
 
@@ -97,6 +115,7 @@ func (m motionStructRepository[T]) UpdateById(t T) T {
 
 func tagTreatment(json *string) string {
 	stringNoOmitempty := strings.ReplaceAll(*json, "omitempty", "")
+	stringNoOmitempty = strings.ReplaceAll(stringNoOmitempty, ",", "")
 	re := regexp.MustCompile("[A-Z]")
 	stringNoOmitempty = re.ReplaceAllStringFunc(stringNoOmitempty, func(match string) string {
 		return "_" + strings.ToLower(match)

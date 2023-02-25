@@ -15,6 +15,7 @@ func getUserService(ctx *gin.Context) {
 		Name:        "Saimon",
 		Id:          123123,
 		LoginAttemp: 0,
+		LastName:    "Ribeiro",
 		LastLogin:   time.Now(),
 	}
 
