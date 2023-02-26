@@ -7,11 +7,15 @@ import (
 	"github.com/ribeirosaimon/motion-go/pkg/config/controllers"
 )
 
+type userController struct {
+	userService userService
+}
+
 func NewUserController(engine *gin.Engine) {
 	controllers.NewMotionController(engine,
-		controllers.NewMotionRouter(http.MethodGet, "/user", getUserService),
-		controllers.NewMotionRouter(http.MethodPost, "/user", saveUserService),
-		controllers.NewMotionRouter(http.MethodPut, "/user", updateUserService),
-		controllers.NewMotionRouter(http.MethodDelete, "/user", deleteUser),
+		controllers.NewMotionRouter(http.MethodGet, "/user", newUserService().getUserService),
+		controllers.NewMotionRouter(http.MethodPost, "/user", newUserService().saveUserService),
+		controllers.NewMotionRouter(http.MethodPut, "/user", newUserService().updateUserService),
+		controllers.NewMotionRouter(http.MethodDelete, "/user", newUserService().deleteUser),
 	).Add()
 }

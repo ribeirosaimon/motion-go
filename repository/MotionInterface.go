@@ -3,7 +3,6 @@ package repository
 import (
 	"fmt"
 
-	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +10,7 @@ type Entity interface {
 	GetId() interface{}
 }
 
-type motionRepository[T Entity] interface {
+type MotionRepository[T Entity] interface {
 	FindById(interface{}) (T, error)
 	FindAll(int, int) ([]T, error)
 	DeleteById(interface{}) error
@@ -23,15 +22,11 @@ type motionStructRepository[T Entity] struct {
 	database *gorm.DB
 }
 
-func newMotionRepository[T Entity]() motionRepository[T] {
+func newMotionRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] {
 	var myStruct T
-	connect, err := database.Connect()
-	if err != nil {
-		panic(err)
-	}
 	return motionStructRepository[T]{
 		myStruct: myStruct,
-		database: connect,
+		database: gormConnection,
 	}
 }
 
@@ -45,7 +40,8 @@ func (m motionStructRepository[T]) FindById(s interface{}) (T, error) {
 
 func (m motionStructRepository[T]) FindAll(limit, page int) ([]T, error) {
 	var values []T
-	if err := m.database.Limit(limit).Offset(page).Find(&values).Error; err != nil {
+	tx := m.database.Limit(limit).Offset(page).Find(&values)
+	if err := tx.Error; err != nil {
 		return nil, fmt.Errorf("error in find all")
 	}
 	return values, nil

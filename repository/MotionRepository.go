@@ -1,7 +1,10 @@
 package repository
 
-import "github.com/ribeirosaimon/motion-go/domain"
+import (
+	"github.com/ribeirosaimon/motion-go/domain"
+	"gorm.io/gorm"
+)
 
-func NewUserRepository() motionRepository[domain.MotionUser] {
-	return newMotionRepository[domain.MotionUser]()
+func NewUserRepository(conn *gorm.DB) MotionRepository[domain.MotionUser] {
+	return newMotionRepository[domain.MotionUser](conn)
 }
