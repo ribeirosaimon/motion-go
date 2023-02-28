@@ -66,14 +66,14 @@ func TestUpdateInRepository(t *testing.T) {
 		t.Errorf("Expected to save MotionUser but return error")
 	}
 	if userSaved.Name != userFound.Name {
-		t.Errorf("NAme must be %s but is %s", userSaved.Name, userFound.Name)
+		t.Errorf("Name must be %s but is %s", userSaved.Name, userFound.Name)
 	}
 	if userSaved.LoginCount != userFound.LoginCount {
-		t.Errorf("NAme must be %d but is %d", userSaved.LoginCount, userFound.LoginCount)
+		t.Errorf("Name must be %d but is %d", userSaved.LoginCount, userFound.LoginCount)
 	}
 }
 
-func TestFindAllInRepository(t *testing.T) {
+func TestByIdInRepository(t *testing.T) {
 	user := createUser()
 	userSaved, err := userRepository.Save(user)
 	if err != nil {
@@ -91,4 +91,23 @@ func TestFindAllInRepository(t *testing.T) {
 	if userSaved.LoginCount != userFound.LoginCount {
 		t.Errorf("NAme must be %d but is %d", userSaved.LoginCount, userFound.LoginCount)
 	}
+}
+
+func TestDeleteInRepository(t *testing.T) {
+	userSaved, err := userRepository.Save(createUser())
+	userRepository.Save(userSaved)
+	all, err := userRepository.FindAll(10, 0)
+	if len(all) == 0 {
+		t.Errorf("Erro saving user")
+	}
+	user := all[0]
+	err = userRepository.DeleteById(user.Id)
+	if err != nil {
+		t.Errorf("Expected to save MotionUser but return error")
+	}
+	_, err = userRepository.FindById(user.Id)
+	if err == nil {
+		t.Errorf("User should not be founded")
+	}
+
 }

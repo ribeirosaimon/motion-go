@@ -32,9 +32,11 @@ func newMotionRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] 
 
 func (m motionStructRepository[T]) FindById(s interface{}) (T, error) {
 	var value T
-	if err := m.database.Find(&value, s).Error; err != nil {
+	tx := m.database.Find(&value, s)
+	if tx.RowsAffected == 0 || tx.Error != nil {
 		return value, fmt.Errorf("%v not found", s)
 	}
+
 	return value, nil
 }
 
