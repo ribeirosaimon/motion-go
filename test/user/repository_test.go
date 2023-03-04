@@ -32,7 +32,13 @@ func createUser() domain.MotionUser {
 
 }
 func BenchmarkRepository(b *testing.B) {
-
+	for i := 0; i < b.N; i++ {
+		user := createUser()
+		user, err := userRepository.Save(user)
+		if err != nil {
+			b.Errorf("Erro saving %s", user.Name)
+		}
+	}
 }
 
 func TestSaveInRepository(t *testing.T) {
@@ -46,7 +52,7 @@ func TestSaveInRepository(t *testing.T) {
 		t.Errorf("Expected to save MotionUser but return error")
 	}
 	if userSaved.Name != userFound.Name {
-		t.Errorf("NAme must be %s but is %s", userSaved.Name, userFound.Name)
+		t.Errorf("Name must be %s but is %s", userSaved.Name, userFound.Name)
 	}
 	if userSaved.LoginCount != userFound.LoginCount {
 		t.Errorf("NAme must be %d but is %d", userSaved.LoginCount, userFound.LoginCount)
