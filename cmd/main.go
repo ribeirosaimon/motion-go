@@ -9,6 +9,7 @@ var motionEngine *gin.Engine
 
 func main() {
 	motionEngine = gin.Default()
+
 	routers.MotionRouters(motionEngine)
 	motionEngine.Run(":8080")
 }
