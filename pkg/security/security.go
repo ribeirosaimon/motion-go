@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type RoleEnum string
@@ -34,4 +35,17 @@ func Authorization(roles ...RoleEnum) gin.HandlerFunc {
 		exceptions.Unauthorized(c)
 		fmt.Println("you not have permision")
 	}
+}
+
+func EncryptPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+func CheckPassword(password string, storedPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(password))
+	return err
 }

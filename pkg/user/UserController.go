@@ -7,10 +7,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/pkg/config/controllers"
 )
 
-type userController struct {
-	userService userService
-}
-
 func NewUserController(engine *gin.Engine) {
 	controllers.NewMotionController(engine,
 		controllers.NewMotionRouter(http.MethodGet, "/user", newUserService().getUserService),

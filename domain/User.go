@@ -9,8 +9,9 @@ import (
 type MotionUser struct {
 	gorm.Model
 	Id          uint64    `json:"id" gorm:"primary_key"`
-	Name        string    `json:"name,omitempty" `
-	Email       string    `json:"email,omitempty" `
+	Name        string    `json:"name,omitempty"`
+	Email       string    `json:"email"`
+	Password    string    `json:"-"`
 	LastName    string    `json:"lastName,omitempty"`
 	Birthday    time.Time `json:"bithday,omitempty"`
 	LastLogin   time.Time `json:"lastLogin,omitempty"`

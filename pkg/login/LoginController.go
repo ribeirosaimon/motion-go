@@ -9,7 +9,7 @@ import (
 
 func NewLoginController(engine *gin.Engine) {
 	controllers.NewMotionController(engine,
-		controllers.NewMotionRouter(http.MethodGet, "/login", loginService),
-		controllers.NewMotionRouter(http.MethodGet, "/sign-up", signUpService),
+		controllers.NewMotionRouter(http.MethodPost, "/login", NewLoginService().loginUserService),
+		controllers.NewMotionRouter(http.MethodPost, "/sign-up", NewLoginService().signUpService),
 	).Add()
 }
