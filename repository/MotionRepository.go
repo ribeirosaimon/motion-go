@@ -8,3 +8,7 @@ import (
 func NewUserRepository(conn *gorm.DB) MotionRepository[domain.MotionUser] {
 	return newMotionRepository[domain.MotionUser](conn)
 }
+
+func NewSessionRepository(conn *gorm.DB) MotionRepository[domain.Session] {
+	return newMotionRepository[domain.Session](conn)
+}

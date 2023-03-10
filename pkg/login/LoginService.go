@@ -1,7 +1,7 @@
 package login
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
@@ -27,15 +27,21 @@ func (l loginService) loginUserService(c *gin.Context) {
 	if err := c.Bind(&body); err != nil {
 		exceptions.BodyError(c)
 	}
-	id, err := l.userRepository.FindById(8)
+	user, err := l.userRepository.FindById(8)
 	if err != nil {
 		return
 	}
-	err = security.CheckPassword(body.Password, id.Password)
+	err = security.CheckPassword(body.Password, user.Password)
 	if err != nil {
-		fmt.Println(err)
+		exceptions.InternalServer(c, err.Error())
 	}
-	http.Created(c, "deu bom")
+	user.LoginCount += 1
+	user.LastLogin = time.Now()
+	save, err := l.userRepository.Save(user)
+	if err != nil {
+		exceptions.InternalServer(c, err.Error())
+	}
+	http.Created(c, save)
 }
 
 func (l loginService) signUpService(c *gin.Context) {

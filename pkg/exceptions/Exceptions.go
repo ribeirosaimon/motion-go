@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	notFound   int = 401
-	badRequest int = 400
+	notFound            int = 401
+	badRequest          int = 400
+	internalServererror int = 500
 )
 
 type exceptions struct {
@@ -42,6 +43,16 @@ func FieldError(c *gin.Context, field string) {
 	e := exceptions{
 		Status:  badRequest,
 		Message: fmt.Sprintf("bad field error: %s", field),
+		Date:    time.Now(),
+	}
+	c.JSON(badRequest, e)
+	c.Abort()
+}
+
+func InternalServer(c *gin.Context, field string) {
+	e := exceptions{
+		Status:  internalServererror,
+		Message: fmt.Sprintf("Internal server error: %s", field),
 		Date:    time.Now(),
 	}
 	c.JSON(badRequest, e)

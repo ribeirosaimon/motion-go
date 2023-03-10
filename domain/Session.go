@@ -14,3 +14,7 @@ type Session struct {
 	role      security.RoleEnum `json:"role"`
 	lastLogin time.Time         `json:"lastLogin"`
 }
+
+func (s Session) GetId() interface{} {
+	return s.id
+}
