@@ -12,8 +12,10 @@ type Entity interface {
 
 type MotionRepository[T Entity] interface {
 	FindById(interface{}) (T, error)
+	FindByField(string, interface{}) (T, error)
 	FindAll(int, int) ([]T, error)
 	DeleteById(interface{}) error
+	FindWithPreloads(string, interface{}) (T, error)
 	Save(T) (T, error)
 }
 
@@ -28,6 +30,26 @@ func newMotionRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] 
 		myStruct: myStruct,
 		database: gormConnection,
 	}
+}
+
+func (m motionStructRepository[T]) FindWithPreloads(preloads string, s interface{}) (T, error) {
+	var value T
+	tx := m.database.Preload(preloads).Find(&value, s)
+	if tx.RowsAffected == 0 || tx.Error != nil {
+		return value, fmt.Errorf("%v not found", s)
+	}
+
+	return value, nil
+}
+
+func (m motionStructRepository[T]) FindByField(field string, fieldvalue interface{}) (T, error) {
+	var value T
+	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
+	if tx.RowsAffected == 0 || tx.Error != nil {
+		return value, fmt.Errorf("%v not found", fieldvalue)
+	}
+
+	return value, nil
 }
 
 func (m motionStructRepository[T]) FindById(s interface{}) (T, error) {
@@ -50,7 +72,6 @@ func (m motionStructRepository[T]) FindAll(limit, page int) ([]T, error) {
 }
 
 func (m motionStructRepository[T]) DeleteById(s interface{}) error {
-
 	value, err := m.FindById(s)
 	if err != nil {
 		return err
