@@ -12,10 +12,13 @@ type healthApiResponse struct {
 	Time  time.Time `json:"time"`
 }
 
-func getHealthService(c *gin.Context) {
-	response := healthApiResponse{
+func NewHealthApiResponse() healthApiResponse {
+	return healthApiResponse{
 		Ready: true,
 		Time:  time.Now(),
 	}
-	http.Ok(c, response)
+}
+
+func getHealthService(c *gin.Context) {
+	http.Ok(c, NewHealthApiResponse())
 }

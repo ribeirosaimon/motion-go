@@ -1,8 +1,13 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Profile struct {
+	gorm.Model
 	id           uint64       `json:"id"`
 	name         string       `json:"name"`
 	familyName   string       `json:"familyName"`
