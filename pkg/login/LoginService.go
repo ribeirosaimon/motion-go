@@ -1,6 +1,7 @@
 package login
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -8,44 +9,72 @@ import (
 	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"github.com/ribeirosaimon/motion-go/pkg/config/http"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
+	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
+	"github.com/ribeirosaimon/motion-go/pkg/session"
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
 type loginService struct {
 	userRepository repository.MotionRepository[domain.MotionUser]
+	profileService profile.Service
+	sessionService session.Service
+	closeDb        *sql.DB
 }
 
 func NewLoginService() loginService {
-	userRepository := repository.NewUserRepository(database.Connect())
-	return loginService{userRepository: userRepository}
+	connect, s := database.Connect()
+	return loginService{
+		userRepository: repository.NewUserRepository(connect),
+		profileService: profile.NewProfileService(),
+		sessionService: session.NewLoginService(),
+		closeDb:        s,
+	}
 }
 
 func (l loginService) loginUserService(c *gin.Context) {
-	var body loginDto
+	var body LoginDto
+	defer l.closeDb.Close()
 
 	if err := c.Bind(&body); err != nil {
 		exceptions.BodyError(c)
 	}
-	user, err := l.userRepository.FindById(8)
+	user, err := l.userRepository.FindByField("email", body.Email)
 	if err != nil {
+		exceptions.Unauthorized(c)
 		return
 	}
 	err = security.CheckPassword(body.Password, user.Password)
 	if err != nil {
 		exceptions.InternalServer(c, err.Error())
+		return
 	}
 	user.LoginCount += 1
 	user.LastLogin = time.Now()
-	save, err := l.userRepository.Save(user)
+	savedUser, err := l.userRepository.Save(user)
 	if err != nil {
 		exceptions.InternalServer(c, err.Error())
+		return
 	}
-	http.Created(c, save)
+	profileUser, err := l.profileService.FindProfileByUserId(savedUser.Id)
+	if err != nil {
+		exceptions.InternalServer(c, err.Error())
+		return
+	}
+
+	userSession, err := l.sessionService.SaveUserSession(profileUser)
+	if err != nil {
+		exceptions.InternalServer(c, err.Error())
+		return
+	}
+
+	http.Created(c, userSession.SessionId)
 }
 
 func (l loginService) signUpService(c *gin.Context) {
-	var body signUpDto
+	var body SignUpDto
+	defer l.closeDb.Close()
+
 	if err := c.Bind(&body); err != nil {
 		exceptions.BodyError(c)
 	}
@@ -72,15 +101,21 @@ func (l loginService) signUpService(c *gin.Context) {
 		exceptions.BodyError(c)
 		return
 	}
-	http.Created(c, savedUser)
+
+	profileUser, err := l.profileService.SaveProfileUser(savedUser)
+	if err != nil {
+		exceptions.BodyError(c)
+		return
+	}
+	http.Created(c, profileUser)
 }
 
-type signUpDto struct {
-	loginDto
+type SignUpDto struct {
+	LoginDto
 	Name string `json:"name"`
 }
 
-type loginDto struct {
+type LoginDto struct {
 	Email    string `json:"email"`
 	Password string `json:"password,omitempty"`
 }

@@ -22,7 +22,7 @@ type exceptions struct {
 func Unauthorized(c *gin.Context) {
 	e := exceptions{
 		Status:  notFound,
-		Message: "not found",
+		Message: "you not have permission",
 		Date:    time.Now(),
 	}
 	c.JSON(notFound, e)

@@ -2,19 +2,15 @@ package domain
 
 import (
 	"time"
-
-	"github.com/ribeirosaimon/motion-go/pkg/security"
-	"gorm.io/gorm"
 )
 
 type Session struct {
-	gorm.Model
-	id        uint64            `json:"id"`
-	profileId Profile           `json:"profileId"`
-	role      security.RoleEnum `json:"role"`
-	lastLogin time.Time         `json:"lastLogin"`
+	Id        uint64    `json:"id" gorm:"primary_key"`
+	SessionId string    `json:"sessionId" gorm:"foreignkey:Id"`
+	ProfileId uint64    `json:"profileId"`
+	LastLogin time.Time `json:"lastLogin"`
 }
 
 func (s Session) GetId() interface{} {
-	return s.id
+	return s.Id
 }

@@ -15,7 +15,8 @@ type userService struct {
 }
 
 func newUserService() userService {
-	userRepository := repository.NewUserRepository(database.Connect())
+	connect, _ := database.Connect()
+	userRepository := repository.NewUserRepository(connect)
 	return userService{
 		userRepository: userRepository,
 	}

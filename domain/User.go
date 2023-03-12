@@ -2,15 +2,12 @@ package domain
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type MotionUser struct {
-	gorm.Model
 	Id          uint64    `json:"id" gorm:"primary_key"`
 	Name        string    `json:"name,omitempty"`
-	Email       string    `json:"email"`
+	Email       string    `json:"email" gorm:"unique"`
 	Password    string    `json:"-"`
 	LastName    string    `json:"lastName,omitempty"`
 	Birthday    time.Time `json:"bithday,omitempty"`

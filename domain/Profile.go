@@ -2,22 +2,33 @@ package domain
 
 import (
 	"time"
-
-	"github.com/ribeirosaimon/motion-go/pkg/security"
-	"gorm.io/gorm"
 )
 
 type Profile struct {
-	gorm.Model
-	id         uint64              `json:"id"`
-	name       string              `json:"name"`
-	familyName string              `json:"familyName"`
-	age        uint8               `json:"age"`
-	birthday   time.Time           `json:"birthday"`
-	status     Status              `json:"status"`
-	roles      []security.RoleEnum `json:"roles"`
-	createdAt  time.Time           `json:"createdAt"`
-	updatedAt  time.Time           `json:"updatedAt"`
+	Id         uint64     `json:"id" gorm:"primary_key"`
+	Name       string     `json:"name"`
+	FamilyName string     `json:"familyName"`
+	Age        uint8      `json:"age"`
+	Birthday   time.Time  `json:"birthday"`
+	Status     Status     `json:"status"`
+	UserId     uint64     `json:"userId"`
+	User       MotionUser `json:"user" gorm:"foreignkey:Id"`
+	Roles      []Role     `json:"roles" gorm:"many2many:profile_roles"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
+}
+
+func (p Profile) HaveRole(role RoleEnum) bool {
+	for _, a := range p.Roles {
+		if a.Name == role {
+			return true
+		}
+	}
+	return false
+}
+
+func (p Profile) GetId() interface{} {
+	return p.Id
 }
 
 type Status string
@@ -27,3 +38,5 @@ const (
 	INACTIVE        = "INACTIVE"
 	BANISH          = "BANISH"
 )
+
+type RoleList []string

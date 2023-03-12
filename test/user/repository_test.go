@@ -1,39 +1,17 @@
 package user
 
 import (
-	"fmt"
-	"math/rand"
-	"strconv"
 	"testing"
-	"time"
 
-	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/repository"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
 var userRepository = repository.NewUserRepository(util.ConnectDatabaseTest())
 
-func createUser() domain.MotionUser {
-	rand.Seed(time.Now().UnixNano())
-	nameRandom := strconv.Itoa(rand.Intn(1000000))
-	lastNameRandom := strconv.Itoa(rand.Intn(1000000))
-	emailRandom := fmt.Sprintf("%s@email.com", strconv.Itoa(rand.Intn(1000000)))
-	LoginAttempRandom := uint8(rand.Intn(10))
-	loginCountRandom := uint64(rand.Intn(101))
-
-	return domain.MotionUser{
-		Name:        nameRandom,
-		LastName:    lastNameRandom,
-		LoginCount:  loginCountRandom,
-		Email:       emailRandom,
-		LoginAttemp: LoginAttempRandom,
-	}
-
-}
 func BenchmarkRepository(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		user := createUser()
+		user := util.CreateUser()
 		user, err := userRepository.Save(user)
 		if err != nil {
 			b.Errorf("Erro saving %s", user.Name)
@@ -42,7 +20,7 @@ func BenchmarkRepository(b *testing.B) {
 }
 
 func TestSaveInRepository(t *testing.T) {
-	user := createUser()
+	user := util.CreateUser()
 	userSaved, err := userRepository.Save(user)
 	if err != nil {
 		t.Errorf("Expected to save MotionUser but return error")
@@ -60,7 +38,7 @@ func TestSaveInRepository(t *testing.T) {
 }
 
 func TestUpdateInRepository(t *testing.T) {
-	user := createUser()
+	user := util.CreateUser()
 	userSaved, err := userRepository.Save(user)
 	if err != nil {
 		t.Errorf("Expected to save MotionUser but return error")
@@ -80,7 +58,7 @@ func TestUpdateInRepository(t *testing.T) {
 }
 
 func TestByIdInRepository(t *testing.T) {
-	user := createUser()
+	user := util.CreateUser()
 	userSaved, err := userRepository.Save(user)
 	if err != nil {
 		t.Errorf("Expected to save MotionUser but return error")
@@ -100,7 +78,7 @@ func TestByIdInRepository(t *testing.T) {
 }
 
 func TestDeleteInRepository(t *testing.T) {
-	userSaved, err := userRepository.Save(createUser())
+	userSaved, err := userRepository.Save(util.CreateUser())
 	userRepository.Save(userSaved)
 	all, err := userRepository.FindAll(10, 0)
 	if len(all) == 0 {
