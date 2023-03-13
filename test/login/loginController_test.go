@@ -1,16 +1,23 @@
 package login
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/ribeirosaimon/motion-go/repository"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-func TestLoginController(t *testing.T) {
-	user := util.SetUpToTest()
+var userRepository = repository.NewUserRepository(util.ConnectDatabaseTest())
 
-	_, err := util.CreateLoginInApi(user.Name, user.Password)
+func TestLoginController(t *testing.T) {
+	user := util.SaveUserInDb()
+	id, err := userRepository.FindById(user.Id)
+	sid, err := userRepository.FindAll(10, 0)
 	if err != nil {
-		t.Error(err)
+		panic(err)
 	}
+	fmt.Println(sid)
+	session := util.GetUserSession(id)
+	fmt.Println(session)
 }

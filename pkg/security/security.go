@@ -39,26 +39,39 @@ func Authorization(roles ...domain.Role) gin.HandlerFunc {
 				// get Profile by sessionId
 				profile, err := profile.NewProfileService().FindProfileByUserId(savedSession.ProfileId)
 				if err != nil {
-					exceptions.Unauthorized(c)
+					exceptions.Forbidden(c)
 					return
 				}
 				// verify if profile have loggedRole send by heder
 				if !profile.HaveRole(motionLoggedRole.Name) || err != nil {
-					exceptions.Unauthorized(c)
+					exceptions.Forbidden(c)
 					return
 				}
 				for _, v := range roles {
 					if profile.HaveRole(v.Name) {
+						putLoggedUserInContext(c, motionLoggedRole, profile)
 						c.Next()
 						return
 					}
 				}
 			} else {
-				exceptions.Unauthorized(c)
+				exceptions.Forbidden(c)
 			}
 		}
-		exceptions.Unauthorized(c)
+		exceptions.Forbidden(c)
 	}
+}
+
+func putLoggedUserInContext(c *gin.Context, roleLoggedser domain.Role, p domain.Profile) {
+	var loggedUser LoggedUser
+	loggedUser.UserId = p.UserId
+	loggedUser.Name = p.Name
+	loggedUser.Role = roleLoggedser
+
+	c.Set("loggedUser", loggedUser)
+}
+func GetLoggedUser(c *gin.Context) LoggedUser {
+	return c.MustGet("loggedUser").(LoggedUser)
 }
 
 func EncryptPassword(password string) (string, error) {
@@ -72,4 +85,10 @@ func EncryptPassword(password string) (string, error) {
 func CheckPassword(password string, storedPassword string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(password))
 	return err
+}
+
+type LoggedUser struct {
+	Name   string      `json:"name"`
+	UserId uint64      `json:"loggedId"`
+	Role   domain.Role `json:"role"`
 }

@@ -10,6 +10,6 @@ func ConnectDatabaseTest() *gorm.DB {
 	if err != nil {
 		panic("erro connection Db")
 	}
-
+	
 	return db
 }

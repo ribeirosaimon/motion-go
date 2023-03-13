@@ -11,9 +11,8 @@ import (
 
 func NewHeathController(engine *gin.Engine) {
 	controllers.NewMotionController(engine,
-		controllers.NewMotionRouter(http.MethodGet, "/health",
-			getHealthService,
-			security.Authorization(domain.Role{Name: domain.USER},
-				domain.Role{Name: domain.ADMIN})),
+		controllers.NewMotionRouter(http.MethodGet, "/health", getHealthService,
+			security.Authorization(domain.Role{Name: domain.USER}, domain.Role{Name: domain.ADMIN})),
+		controllers.NewMotionRouter(http.MethodGet, "/open-health", getOpenHealthService),
 	).Add()
 }
