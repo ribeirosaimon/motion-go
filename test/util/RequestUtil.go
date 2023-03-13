@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/repository"
 	"io"
 	"math/rand"
 	"net/http"
@@ -44,6 +45,12 @@ func CreateEngineRequest(method, path string, body io.Reader,
 
 func SignUp() (domain.Session, error) {
 	user := CreateUser()
+	//jsonValues := make(map[string]string)
+	//
+	//jsonValues["email"] = user.Email
+	//jsonValues["name"] = user.Name
+	//jsonValues["password"] = user.Password
+
 	jsonData, err := json.Marshal(user)
 	if err != nil {
 		panic(err)
@@ -69,19 +76,37 @@ func SignUp() (domain.Session, error) {
 	return response, nil
 }
 
-func CreateUser() domain.MotionUser {
+func CreateUser() login.SignUpDto {
+	createRoles()
 	rand.Seed(time.Now().UnixNano())
 	nameRandom := strconv.Itoa(rand.Intn(1000000))
 	password := strconv.Itoa(rand.Intn(1000000))
-	lastNameRandom := strconv.Itoa(rand.Intn(1000000))
 	emailRandom := fmt.Sprintf("%s@email.com", strconv.Itoa(rand.Intn(1000000)))
-	LoginAttempRandom := uint8(rand.Intn(10))
-	loginCountRandom := uint64(rand.Intn(101))
+	//lastNameRandom := strconv.Itoa(rand.Intn(1000000))
+	//LoginAttempRandom := uint8(rand.Intn(10))
+	//loginCountRandom := uint64(rand.Intn(101))
 
-	return login.SignUpDto{
-		Name: nameRandom,
-		LoginDto: {
-			Emai
+	var dto login.SignUpDto
+	dto.Name = nameRandom
+	dto.Password = password
+	dto.Email = emailRandom
+	return dto
+}
+
+func createRoles() {
+	roleRepository := repository.NewRoleRepository(ConnectDatabaseTest())
+	roles := []domain.Role{
+		{
+			Name: domain.ADMIN,
+		}, {
+			Name: domain.USER,
 		},
 	}
+	_, err := roleRepository.FindAll(0, 10)
+	if err != nil {
+		for _, i := range roles {
+			roleRepository.Save(i)
+		}
+	}
+
 }

@@ -34,9 +34,8 @@ func NewLoginService() loginService {
 
 func (l loginService) loginUserService(c *gin.Context) {
 	var body LoginDto
-	defer l.closeDb.Close()
 
-	if err := c.Bind(&body); err != nil {
+	if err := c.BindJSON(&body); err != nil {
 		exceptions.BodyError(c)
 	}
 	user, err := l.userRepository.FindByField("email", body.Email)
@@ -75,7 +74,7 @@ func (l loginService) signUpService(c *gin.Context) {
 	var body SignUpDto
 	defer l.closeDb.Close()
 
-	if err := c.Bind(&body); err != nil {
+	if err := c.BindJSON(&body); err != nil {
 		exceptions.BodyError(c)
 	}
 	if body.Email == "" {

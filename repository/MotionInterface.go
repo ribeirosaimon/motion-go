@@ -36,7 +36,7 @@ func (m motionStructRepository[T]) FindWithPreloads(preloads string, s interface
 	var value T
 	tx := m.database.Preload(preloads).Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf("%v not found", s)
+		return value, fmt.Errorf(tx.Error.Error())
 	}
 
 	return value, nil
@@ -46,7 +46,7 @@ func (m motionStructRepository[T]) FindByField(field string, fieldvalue interfac
 	var value T
 	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf("%v not found", fieldvalue)
+		return value, fmt.Errorf(tx.Error.Error())
 	}
 
 	return value, nil
@@ -56,7 +56,7 @@ func (m motionStructRepository[T]) FindById(s interface{}) (T, error) {
 	var value T
 	tx := m.database.Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf("%v not found", s)
+		return value, fmt.Errorf(tx.Error.Error())
 	}
 
 	return value, nil
@@ -66,7 +66,7 @@ func (m motionStructRepository[T]) FindAll(limit, page int) ([]T, error) {
 	var values []T
 	tx := m.database.Limit(limit).Offset(page).Find(&values)
 	if err := tx.Error; err != nil {
-		return nil, fmt.Errorf("error in find all")
+		return nil, fmt.Errorf(tx.Error.Error())
 	}
 	return values, nil
 }
@@ -80,7 +80,7 @@ func (m motionStructRepository[T]) DeleteById(s interface{}) error {
 	if tx.Error == nil && tx.RowsAffected > 0 {
 		return nil
 	}
-	return fmt.Errorf("error deleting value")
+	return fmt.Errorf(tx.Error.Error())
 }
 
 func (m motionStructRepository[T]) Save(structValue T) (T, error) {

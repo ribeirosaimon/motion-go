@@ -10,12 +10,14 @@ import (
 
 type Service struct {
 	profileRepository repository.MotionRepository[domain.Profile]
+	roleRepository    repository.MotionRepository[domain.Role]
 }
 
 func NewProfileService() Service {
 	connect, _ := database.Connect()
 	return Service{
 		profileRepository: repository.NewProfileRepository(connect),
+		roleRepository:    repository.NewRoleRepository(connect),
 	}
 
 }
@@ -24,9 +26,11 @@ func (l Service) SaveProfileUser(user domain.MotionUser) (domain.Profile, error)
 
 	profile.Name = user.Name
 
-	profile.Roles = []domain.Role{
-		{Name: domain.USER},
+	field, err := l.roleRepository.FindByField("name", domain.USER)
+	if err != nil {
+		return domain.Profile{}, err
 	}
+	profile.Roles = []domain.Role{field}
 
 	profile.Status = domain.ACTIVE
 	profile.Birthday = user.Birthday
