@@ -2,11 +2,11 @@ package login
 
 import (
 	"database/sql"
+	"gorm.io/gorm"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"github.com/ribeirosaimon/motion-go/pkg/config/http"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
@@ -22,13 +22,12 @@ type loginService struct {
 	closeDb        *sql.DB
 }
 
-func NewLoginService() loginService {
-	connect, s := database.Connect()
+func NewLoginService(conn *gorm.DB, close *sql.DB) loginService {
 	return loginService{
-		userRepository: repository.NewUserRepository(connect),
+		userRepository: repository.NewUserRepository(conn),
 		profileService: profile.NewProfileService(),
 		sessionService: session.NewLoginService(),
-		closeDb:        s,
+		closeDb:        close,
 	}
 }
 

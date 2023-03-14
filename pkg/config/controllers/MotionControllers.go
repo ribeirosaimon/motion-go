@@ -16,7 +16,8 @@ type motionController struct {
 	Handlers []MotionRouter
 }
 
-func NewMotionController(engine *gin.Engine, controllers ...MotionRouter) motionController {
+func NewMotionController(engine *gin.Engine,
+	controllers ...MotionRouter) motionController {
 	return motionController{
 		Engine:   engine,
 		Handlers: controllers,
