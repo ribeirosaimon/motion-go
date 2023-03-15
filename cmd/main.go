@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"github.com/ribeirosaimon/motion-go/pkg/routers"
@@ -11,22 +13,24 @@ import (
 var motionEngine *gin.Engine
 
 func main() {
+	p := properties.MustLoadFile("config.properties", properties.UTF8)
 	setUpRoles()
 	motionEngine = gin.Default()
 	routers.MotionRouters(motionEngine)
-	motionEngine.Run(":8080")
+	serverPort := p.GetInt("server.port", 8080)
+	motionEngine.Run(fmt.Sprintf(":%d", serverPort))
 }
 
 func setUpRoles() {
-	connect, s := database.Connect()
-	defer s.Close()
+	connect, close := database.Connect()
 	roleRepository := repository.NewRoleRepository(connect)
-	allRoles := []domain.RoleEnum{domain.ADMIN, domain.USER}
+	allRoles := []domain.RoleEnum{domain.USER, domain.ADMIN}
 	for _, i := range allRoles {
-		_, err := roleRepository.FindByField("name", i)
-		if err != nil {
+		existByName := roleRepository.ExistByField("name", i)
+		if !existByName {
 			roleRepository.Save(domain.Role{Name: i})
 		}
 
 	}
+	close.Close()
 }
