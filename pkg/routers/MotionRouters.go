@@ -2,13 +2,12 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"github.com/ribeirosaimon/motion-go/pkg/login"
-	"github.com/ribeirosaimon/motion-go/pkg/user"
 )
 
 func MotionRouters(engine *gin.Engine) {
-	health.NewHeathController(engine)
-	user.NewUserController(engine)
-	login.NewLoginController(engine)
+	health.NewHealthRouter(engine, database.Connect)
+	login.NewLoginRouter(engine, database.Connect)
 }

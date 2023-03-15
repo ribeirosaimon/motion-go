@@ -4,10 +4,9 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/config/database"
-	"github.com/ribeirosaimon/motion-go/pkg/config/http"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
@@ -22,100 +21,71 @@ type loginService struct {
 	closeDb        *sql.DB
 }
 
-func NewLoginService() loginService {
-	connect, s := database.Connect()
+func NewLoginService(conn *gorm.DB, close *sql.DB) loginService {
 	return loginService{
-		userRepository: repository.NewUserRepository(connect),
-		profileService: profile.NewProfileService(),
-		sessionService: session.NewLoginService(),
-		closeDb:        s,
+		userRepository: repository.NewUserRepository(conn),
+		profileService: profile.NewProfileService(conn, close),
+		sessionService: session.NewLoginService(conn, close),
+		closeDb:        close,
 	}
 }
 
-func (l loginService) loginUserService(c *gin.Context) {
-	var body LoginDto
+func (l loginService) loginService(loginDto LoginDto) (domain.Session, *exceptions.Error) {
 	defer l.closeDb.Close()
-
-	if err := c.Bind(&body); err != nil {
-		exceptions.BodyError(c)
-	}
-	user, err := l.userRepository.FindByField("email", body.Email)
+	user, err := l.userRepository.FindByField("email", loginDto.Email)
 	if err != nil {
-		exceptions.Unauthorized(c)
-		return
+		return domain.Session{}, exceptions.Unauthorized()
 	}
-	err = security.CheckPassword(body.Password, user.Password)
+	err = security.CheckPassword(loginDto.Password, user.Password)
 	if err != nil {
-		exceptions.InternalServer(c, err.Error())
-		return
+		return domain.Session{}, exceptions.FieldError("password")
 	}
 	user.LoginCount += 1
 	user.LastLogin = time.Now()
 	savedUser, err := l.userRepository.Save(user)
 	if err != nil {
-		exceptions.InternalServer(c, err.Error())
-		return
+		return domain.Session{}, exceptions.Unauthorized()
 	}
 	profileUser, err := l.profileService.FindProfileByUserId(savedUser.Id)
 	if err != nil {
-		exceptions.InternalServer(c, err.Error())
-		return
+		return domain.Session{}, exceptions.InternalServer(err.Error())
 	}
 
 	userSession, err := l.sessionService.SaveUserSession(profileUser)
 	if err != nil {
-		exceptions.InternalServer(c, err.Error())
-		return
+		return domain.Session{}, exceptions.InternalServer(err.Error())
 	}
-
-	http.Created(c, userSession.SessionId)
+	return userSession, nil
 }
 
-func (l loginService) signUpService(c *gin.Context) {
-	var body SignUpDto
+func (l loginService) signUpService(signupDto SignUpDto) (domain.Profile, *exceptions.Error) {
 	defer l.closeDb.Close()
 
-	if err := c.Bind(&body); err != nil {
-		exceptions.BodyError(c)
+	if signupDto.Email == "" {
+		return domain.Profile{}, exceptions.FieldError("email")
 	}
-	if body.Email == "" {
-		exceptions.FieldError(c, "email")
-		return
+
+	if signupDto.Email == "" {
+		return domain.Profile{}, exceptions.FieldError("password")
 	}
-	if body.Password == "" {
-		exceptions.FieldError(c, "password")
-		return
-	}
+
 	var user domain.MotionUser
-	password, err := security.EncryptPassword(body.Password)
+	password, err := security.EncryptPassword(signupDto.Password)
 	if err != nil {
-		exceptions.FieldError(c, "password")
-		return
+		return domain.Profile{}, exceptions.BodyError()
 	}
-	user.Name = body.Name
+	user.Name = signupDto.Name
 	user.Password = password
-	user.Email = body.Email
+	user.Email = signupDto.Email
 
 	savedUser, err := l.userRepository.Save(user)
 	if err != nil {
-		exceptions.BodyError(c)
-		return
+		return domain.Profile{}, exceptions.InternalServer(err.Error())
 	}
 
 	profileUser, err := l.profileService.SaveProfileUser(savedUser)
 	if err != nil {
-		exceptions.BodyError(c)
-		return
+		return domain.Profile{}, exceptions.InternalServer(err.Error())
 	}
-	http.Created(c, profileUser)
-}
-
-type SignUpDto struct {
-	LoginDto
-	Name string `json:"name"`
-}
-
-type LoginDto struct {
-	Email    string `json:"email"`
-	Password string `json:"password,omitempty"`
+	return profileUser, nil
 }

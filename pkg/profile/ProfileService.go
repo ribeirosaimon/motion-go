@@ -1,32 +1,38 @@
 package profile
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"github.com/ribeirosaimon/motion-go/repository"
+	"gorm.io/gorm"
 )
 
 type Service struct {
 	profileRepository repository.MotionRepository[domain.Profile]
+	roleRepository    repository.MotionRepository[domain.Role]
+	closeDb           *sql.DB
 }
 
-func NewProfileService() Service {
-	connect, _ := database.Connect()
+func NewProfileService(conn *gorm.DB, close *sql.DB) Service {
 	return Service{
-		profileRepository: repository.NewProfileRepository(connect),
+		profileRepository: repository.NewProfileRepository(conn),
+		roleRepository:    repository.NewRoleRepository(conn),
+		closeDb:           close,
 	}
 
 }
 func (l Service) SaveProfileUser(user domain.MotionUser) (domain.Profile, error) {
 	var profile domain.Profile
-
+	defer l.closeDb.Close()
 	profile.Name = user.Name
 
-	profile.Roles = []domain.Role{
-		{Name: domain.USER},
+	field, err := l.roleRepository.FindByField("name", domain.USER)
+	if err != nil {
+		return domain.Profile{}, err
 	}
+	profile.Roles = []domain.Role{field}
 
 	profile.Status = domain.ACTIVE
 	profile.Birthday = user.Birthday

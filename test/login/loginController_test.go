@@ -6,11 +6,12 @@ import (
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-func TestLoginController(t *testing.T) {
-	user := util.SetUpToTest()
+func TestLoginAndSignUpController(t *testing.T) {
+	defer util.RemoveDatabase()
+	_, err := util.SignUp()
 
-	_, err := util.CreateLoginInApi(user.Name, user.Password)
 	if err != nil {
-		t.Error(err)
+		t.Errorf(err.Error())
 	}
+
 }
