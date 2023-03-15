@@ -13,6 +13,7 @@ type Entity interface {
 type MotionRepository[T Entity] interface {
 	FindById(interface{}) (T, error)
 	FindByField(string, interface{}) (T, error)
+	ExistByField(string, interface{}) bool
 	FindAll(int, int) ([]T, error)
 	DeleteById(interface{}) error
 	FindWithPreloads(string, interface{}) (T, error)
@@ -30,6 +31,15 @@ func newMotionRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] 
 		myStruct: myStruct,
 		database: gormConnection,
 	}
+}
+
+func (m motionStructRepository[T]) ExistByField(field string, fieldvalue interface{}) bool {
+	var value T
+	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
+	if tx.RowsAffected > 0 {
+		return true
+	}
+	return false
 }
 
 func (m motionStructRepository[T]) FindWithPreloads(preloads string, s interface{}) (T, error) {
