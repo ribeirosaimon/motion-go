@@ -8,6 +8,6 @@ import (
 )
 
 func MotionRouters(engine *gin.Engine) {
-	health.NewHealthRouter(engine)
+	health.NewHealthRouter(engine, database.Connect)
 	login.NewLoginRouter(engine, database.Connect)
 }
