@@ -1,24 +1,27 @@
 package session
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"github.com/ribeirosaimon/motion-go/repository"
+	"gorm.io/gorm"
 )
 
 type Service struct {
 	sessionRepository repository.MotionRepository[domain.Session]
 	roleRepository    repository.MotionRepository[domain.Role]
+	closeDb           *sql.DB
 }
 
-func NewLoginService() Service {
-	connect, _ := database.Connect()
-	return Service{sessionRepository: repository.NewSessionRepository(connect),
-		roleRepository: repository.NewRoleRepository(connect)}
+func NewLoginService(conn *gorm.DB, close *sql.DB) Service {
+	return Service{sessionRepository: repository.NewSessionRepository(conn),
+		roleRepository: repository.NewRoleRepository(conn),
+		closeDb:        close,
+	}
 }
 
 func (s Service) SaveUserSession(user domain.Profile) (domain.Session, error) {

@@ -1,15 +1,16 @@
 package security
 
 import (
+	"database/sql"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/config/database"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/repository"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func haveRole(role domain.Role, roles []domain.Role) bool {
@@ -21,10 +22,9 @@ func haveRole(role domain.Role, roles []domain.Role) bool {
 	return false
 }
 
-func Authorization(roles ...domain.Role) gin.HandlerFunc {
+func Authorization(dbConn func() (*gorm.DB, *sql.DB), roles ...domain.Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		connect, close := database.Connect()
-		defer close.Close()
+		connect, close := dbConn()
 		authHeader := c.GetHeader("Authorization")
 		motionValues := c.GetHeader("MotionRole")
 
@@ -37,14 +37,14 @@ func Authorization(roles ...domain.Role) gin.HandlerFunc {
 				// verify if exist this Role
 				motionLoggedRole, err := repository.NewRoleRepository(connect).FindByField("name", motionValues)
 				// get Profile by sessionId
-				profile, err := profile.NewProfileService().FindProfileByUserId(savedSession.ProfileId)
+				profile, err := profile.NewProfileService(connect, close).FindProfileByUserId(savedSession.ProfileId)
 				if err != nil {
-					exceptions.Forbidden(c)
+					exceptions.Forbidden().Throw(c)
 					return
 				}
 				// verify if profile have loggedRole send by heder
 				if !profile.HaveRole(motionLoggedRole.Name) || err != nil {
-					exceptions.Forbidden(c)
+					exceptions.Forbidden().Throw(c)
 					return
 				}
 				for _, v := range roles {
@@ -55,10 +55,10 @@ func Authorization(roles ...domain.Role) gin.HandlerFunc {
 					}
 				}
 			} else {
-				exceptions.Forbidden(c)
+				exceptions.Forbidden().Throw(c)
 			}
 		}
-		exceptions.Forbidden(c)
+		exceptions.Forbidden().Throw(c)
 	}
 }
 

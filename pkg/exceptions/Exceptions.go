@@ -8,58 +8,58 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type exceptions struct {
+type Error struct {
 	Status  int       `json:"status"`
 	Message string    `json:"message"`
 	Date    time.Time `json:"date"`
 }
 
-func Unauthorized(c *gin.Context) {
-	e := exceptions{
+func (e Error) Error() string {
+	return e.Message
+}
+
+func Unauthorized() *Error {
+	return &Error{
 		Status:  http.StatusConflict,
 		Message: "you not have permission",
 		Date:    time.Now(),
 	}
-	c.JSON(http.StatusConflict, e)
-	c.Abort()
+
 }
 
-func BodyError(c *gin.Context) {
-	e := exceptions{
+func BodyError() *Error {
+	return &Error{
 		Status:  http.StatusBadRequest,
 		Message: "bad request",
 		Date:    time.Now(),
 	}
-	c.JSON(http.StatusBadRequest, e)
-	c.Abort()
 }
 
-func FieldError(c *gin.Context, field string) {
-	e := exceptions{
+func FieldError(field string) *Error {
+	return &Error{
 		Status:  http.StatusBadRequest,
 		Message: fmt.Sprintf("bad field error: %s", field),
 		Date:    time.Now(),
 	}
-	c.JSON(http.StatusBadRequest, e)
-	c.Abort()
 }
 
-func InternalServer(c *gin.Context, field string) {
-	e := exceptions{
+func InternalServer(field string) *Error {
+	return &Error{
 		Status:  http.StatusInternalServerError,
 		Message: fmt.Sprintf("Internal server error: %s", field),
 		Date:    time.Now(),
 	}
-	c.JSON(http.StatusInternalServerError, e)
-	c.Abort()
 }
 
-func Forbidden(c *gin.Context) {
-	e := exceptions{
+func Forbidden() *Error {
+	return &Error{
 		Status:  http.StatusForbidden,
 		Message: fmt.Sprintf("Forbidden"),
 		Date:    time.Now(),
 	}
-	c.JSON(http.StatusForbidden, e)
+}
+
+func (e Error) Throw(c *gin.Context) {
+	c.JSON(e.Status, e)
 	c.Abort()
 }
