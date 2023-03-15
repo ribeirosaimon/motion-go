@@ -1,20 +1,17 @@
 package login
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-func TestLoginController(t *testing.T) {
+func TestLoginAndSignUpController(t *testing.T) {
 	defer util.RemoveDatabase()
-	sesion, err := util.SignUp()
+	_, err := util.SignUp()
 
 	if err != nil {
-		panic(err)
+		t.Errorf(err.Error())
 	}
-
-	fmt.Println(sesion)
 
 }
