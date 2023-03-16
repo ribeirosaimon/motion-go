@@ -2,6 +2,7 @@ package login
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/config/http"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 )
@@ -42,7 +43,8 @@ func (l loginController) login(c *gin.Context) {
 
 type SignUpDto struct {
 	LoginDto
-	Name string `json:"name"`
+	Name  string            `json:"name"`
+	Roles []domain.RoleEnum `json:"roles"`
 }
 
 type LoginDto struct {

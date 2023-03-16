@@ -83,7 +83,7 @@ func (l loginService) signUpService(signupDto SignUpDto) (domain.Profile, *excep
 		return domain.Profile{}, exceptions.InternalServer(err.Error())
 	}
 
-	profileUser, err := l.profileService.SaveProfileUser(savedUser)
+	profileUser, err := l.profileService.SaveProfileUser(savedUser, signupDto.Roles)
 	if err != nil {
 		return domain.Profile{}, exceptions.InternalServer(err.Error())
 	}

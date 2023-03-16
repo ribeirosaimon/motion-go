@@ -22,10 +22,7 @@ func ConnectDatabaseTest() (*gorm.DB, *sql.DB) {
 }
 
 func RemoveDatabase() {
-	err := os.Remove(fmt.Sprintf("%s/test.db", getCurrentDirectory()))
-	if err != nil {
-		panic(err)
-	}
+	os.Remove(fmt.Sprintf("%s/test.db", getCurrentDirectory()))
 }
 func getCurrentDirectory() string {
 	_, filename, _, ok := runtime.Caller(0)
