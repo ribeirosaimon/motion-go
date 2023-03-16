@@ -2,22 +2,33 @@ package domain
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Profile struct {
-	gorm.Model
-	id           uint64       `json:"id"`
-	name         string       `json:"name"`
-	familyName   string       `json:"familyName"`
-	age          uint8        `json:"age"`
-	birthday     time.Time    `json:"birthday"`
-	sharedBy     SharedBy     `json:"sharedBy"`
-	relationship Relationship `json:"relationship"`
-	status       Status       `json:"status"`
-	createdAt    time.Time    `json:"createdAt"`
-	updatedAt    time.Time    `json:"updatedAt"`
+	Id         uint64     `json:"id" gorm:"primary_key"`
+	Name       string     `json:"name"`
+	FamilyName string     `json:"familyName"`
+	Age        uint8      `json:"age"`
+	Birthday   time.Time  `json:"birthday"`
+	Status     Status     `json:"status"`
+	UserId     uint64     `json:"userId"`
+	User       MotionUser `json:"user" gorm:"foreignkey:Id"`
+	Roles      []Role     `json:"roles" gorm:"many2many:profile_roles;"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
+}
+
+func (p Profile) HaveRole(role RoleEnum) bool {
+	for _, a := range p.Roles {
+		if a.Name == role {
+			return true
+		}
+	}
+	return false
+}
+
+func (p Profile) GetId() interface{} {
+	return p.Id
 }
 
 type Status string
@@ -28,17 +39,4 @@ const (
 	BANISH          = "BANISH"
 )
 
-type SharedBy string
-
-const (
-	ME      SharedBy = "ME"
-	FRIENDS          = "FRIENDS"
-	ALL              = "ALL"
-)
-
-type Relationship string
-
-const (
-	MARIED Relationship = "MARIED"
-	SINGLE              = "SINGLE"
-)
+type RoleList []string

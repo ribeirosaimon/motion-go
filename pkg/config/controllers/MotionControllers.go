@@ -5,9 +5,10 @@ import (
 )
 
 type MotionRouter struct {
-	Path    string
-	Method  string
-	Service func(ctx *gin.Context)
+	Path       string
+	Method     string
+	Service    func(*gin.Context)
+	Middleware []gin.HandlerFunc
 }
 
 type motionController struct {
@@ -15,23 +16,29 @@ type motionController struct {
 	Handlers []MotionRouter
 }
 
-func NewMotionController(engine *gin.Engine, controllers ...MotionRouter) motionController {
+func NewMotionController(engine *gin.Engine,
+	controllers ...MotionRouter) motionController {
 	return motionController{
 		Engine:   engine,
 		Handlers: controllers,
 	}
 
 }
-func NewMotionRouter(method, path string, service func(engine *gin.Context)) MotionRouter {
+func NewMotionRouter(method, path string, service func(*gin.Context),
+	middleware ...gin.HandlerFunc) MotionRouter {
 	return MotionRouter{
-		Method:  method,
-		Path:    path,
-		Service: service,
+		Method:     method,
+		Path:       path,
+		Service:    service,
+		Middleware: middleware,
 	}
 }
 
 func (e motionController) Add() {
+
 	for _, controller := range e.Handlers {
-		e.Engine.Handle(controller.Method, controller.Path, controller.Service)
+		handlerFunc := gin.HandlerFunc(controller.Service)
+		controller.Middleware = append(controller.Middleware, handlerFunc)
+		e.Engine.Handle(controller.Method, controller.Path, controller.Middleware...)
 	}
 }

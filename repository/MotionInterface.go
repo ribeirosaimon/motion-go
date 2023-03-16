@@ -12,8 +12,11 @@ type Entity interface {
 
 type MotionRepository[T Entity] interface {
 	FindById(interface{}) (T, error)
+	FindByField(string, interface{}) (T, error)
+	ExistByField(string, interface{}) bool
 	FindAll(int, int) ([]T, error)
 	DeleteById(interface{}) error
+	FindWithPreloads(string, interface{}) (T, error)
 	Save(T) (T, error)
 }
 
@@ -30,11 +33,40 @@ func newMotionRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] 
 	}
 }
 
+func (m motionStructRepository[T]) ExistByField(field string, fieldvalue interface{}) bool {
+	var value T
+	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
+	if tx.RowsAffected > 0 {
+		return true
+	}
+	return false
+}
+
+func (m motionStructRepository[T]) FindWithPreloads(preloads string, s interface{}) (T, error) {
+	var value T
+	tx := m.database.Preload(preloads).Find(&value, s)
+	if tx.RowsAffected == 0 || tx.Error != nil {
+		return value, fmt.Errorf(tx.Error.Error())
+	}
+
+	return value, nil
+}
+
+func (m motionStructRepository[T]) FindByField(field string, fieldvalue interface{}) (T, error) {
+	var value T
+	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
+	if tx.RowsAffected == 0 || tx.Error != nil {
+		return value, fmt.Errorf(tx.Error.Error())
+	}
+
+	return value, nil
+}
+
 func (m motionStructRepository[T]) FindById(s interface{}) (T, error) {
 	var value T
 	tx := m.database.Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf("%v not found", s)
+		return value, fmt.Errorf(tx.Error.Error())
 	}
 
 	return value, nil
@@ -44,13 +76,12 @@ func (m motionStructRepository[T]) FindAll(limit, page int) ([]T, error) {
 	var values []T
 	tx := m.database.Limit(limit).Offset(page).Find(&values)
 	if err := tx.Error; err != nil {
-		return nil, fmt.Errorf("error in find all")
+		return nil, fmt.Errorf(tx.Error.Error())
 	}
 	return values, nil
 }
 
 func (m motionStructRepository[T]) DeleteById(s interface{}) error {
-
 	value, err := m.FindById(s)
 	if err != nil {
 		return err
@@ -59,7 +90,7 @@ func (m motionStructRepository[T]) DeleteById(s interface{}) error {
 	if tx.Error == nil && tx.RowsAffected > 0 {
 		return nil
 	}
-	return fmt.Errorf("error deleting value")
+	return fmt.Errorf(tx.Error.Error())
 }
 
 func (m motionStructRepository[T]) Save(structValue T) (T, error) {

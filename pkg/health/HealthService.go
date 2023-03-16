@@ -3,22 +3,33 @@ package health
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/config/http"
+	"github.com/ribeirosaimon/motion-go/pkg/security"
 )
 
 type healthApiResponse struct {
-	Ready bool      `json:"ready"`
-	Time  time.Time `json:"time"`
+	Ready      bool                `json:"ready"`
+	Time       time.Time           `json:"time"`
+	LoggedUser security.LoggedUser `json:"loggedUser"`
 }
 
-func NewHealthApiResponse() healthApiResponse {
+type healthService struct{}
+
+func NewHealthService() healthService {
+	return healthService{}
+}
+
+func (s healthService) getOpenHealthService() healthApiResponse {
 	return healthApiResponse{
 		Ready: true,
 		Time:  time.Now(),
 	}
+
 }
 
-func getHealthService(c *gin.Context) {
-	http.Ok(c, NewHealthApiResponse())
+func (s healthService) getHealthService(loggedUser security.LoggedUser) healthApiResponse {
+	return healthApiResponse{
+		Ready:      true,
+		Time:       time.Now(),
+		LoggedUser: loggedUser,
+	}
 }
