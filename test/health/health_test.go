@@ -2,21 +2,29 @@ package health
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
+var healthRouter = func(engine *gin.Engine) {
+	health.NewHealthRouter(engine, util.ConnectDatabaseTest)
+}
+
 func BenchmarkController(b *testing.B) {
+	start := time.Now()
 	resp, req, err := util.CreateEngineRequest(http.MethodGet, "/open-health",
-		nil, health.NewHeathController, "")
+		nil, healthRouter, "")
 	if resp.Code != http.StatusOK {
-		b.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
+		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
 	}
 	if err != nil {
 		b.Error("error in request")
@@ -26,14 +34,16 @@ func BenchmarkController(b *testing.B) {
 		response := httptest.NewRecorder()
 
 		// Processa a solicitação HTTP usando o roteador do Gin
-		util.GetEnginer().ServeHTTP(response, req)
+		gin.New().ServeHTTP(response, req)
 	}
+	duration := time.Since(start)
+	util.SuccessTest(fmt.Sprintf("Its all ok! Time: %f", float64(duration.Microseconds())/1000))
 }
 
 func TestOpenController(t *testing.T) {
 
 	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/open-health",
-		nil, health.NewHeathController, "")
+		nil, healthRouter, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
@@ -54,7 +64,7 @@ func TestOpenController(t *testing.T) {
 
 func TestCloseControllerSendError(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/health",
-		nil, health.NewHeathController, "")
+		nil, healthRouter, "")
 	if err != nil {
 		t.Errorf("erro")
 	}
@@ -65,9 +75,10 @@ func TestCloseControllerSendError(t *testing.T) {
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
-	session, err := util.SignUp()
+	defer util.RemoveDatabase()
+	session, err := util.SignUp(domain.USER, domain.ADMIN)
 	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/health",
-		nil, health.NewHeathController, session.SessionId)
+		nil, healthRouter, session.SessionId)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)

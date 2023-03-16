@@ -1,6 +1,7 @@
 package login
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ribeirosaimon/motion-go/test/util"
@@ -8,10 +9,10 @@ import (
 
 func TestLoginAndSignUpController(t *testing.T) {
 	defer util.RemoveDatabase()
-	_, err := util.SignUp()
+	session, err := util.SignUp()
 
 	if err != nil {
-		t.Errorf(err.Error())
+		util.ErrorTest(err.Error())
 	}
-
+	util.SuccessTest(fmt.Sprintf("Expeted one session id: %s", session.SessionId))
 }

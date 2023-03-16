@@ -23,16 +23,18 @@ func NewProfileService(conn *gorm.DB, close *sql.DB) Service {
 	}
 
 }
-func (l Service) SaveProfileUser(user domain.MotionUser) (domain.Profile, error) {
+func (l Service) SaveProfileUser(user domain.MotionUser, roles []domain.RoleEnum) (domain.Profile, error) {
 	var profile domain.Profile
 	defer l.closeDb.Close()
 	profile.Name = user.Name
 
-	field, err := l.roleRepository.FindByField("name", domain.USER)
-	if err != nil {
-		return domain.Profile{}, err
+	for _, role := range roles {
+		field, err := l.roleRepository.FindByField("name", role)
+		if err != nil {
+			return domain.Profile{}, err
+		}
+		profile.Roles = []domain.Role{field}
 	}
-	profile.Roles = []domain.Role{field}
 
 	profile.Status = domain.ACTIVE
 	profile.Birthday = user.Birthday

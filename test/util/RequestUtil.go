@@ -17,35 +17,29 @@ import (
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
-var enginer *gin.Engine
-
-func GetEnginer() *gin.Engine {
-	return enginer
-}
-
 func CreateEngineRequest(method, path string, body io.Reader,
 	controller func(*gin.Engine), session string) (
 	*httptest.ResponseRecorder, *http.Request, error) {
-	ginEngine := gin.New()
-	controller(ginEngine)
+	enginer := gin.New()
+	controller(enginer)
 
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
 		return nil, nil, err
 	}
 	if session != "" {
-		req.Header.Add("Authorization", session)
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", session))
 		req.Header.Add("MotionRole", "ADMIN")
 	}
 
 	w := httptest.NewRecorder()
-	ginEngine.ServeHTTP(w, req)
+	enginer.ServeHTTP(w, req)
 
 	return w, req, nil
 }
 
-func SignUp() (domain.Session, error) {
-	user := CreateUser()
+func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
+	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
 	var loginRouter = func(engine *gin.Engine) {
 		login.NewLoginRouter(engine, ConnectDatabaseTest)
@@ -74,7 +68,7 @@ func SignUp() (domain.Session, error) {
 	return response, nil
 }
 
-func CreateUser() login.SignUpDto {
+func CreateUser(roles ...domain.RoleEnum) login.SignUpDto {
 	createRoles()
 	rand.Seed(time.Now().UnixNano())
 	nameRandom := strconv.Itoa(rand.Intn(1000000))
@@ -85,6 +79,8 @@ func CreateUser() login.SignUpDto {
 	dto.Name = nameRandom
 	dto.Password = password
 	dto.Email = emailRandom
+	dto.Roles = roles
+
 	return dto
 }
 
@@ -105,5 +101,12 @@ func createRoles() {
 			roleRepository.Save(i)
 		}
 	}
+}
 
+func SuccessTest(info string) {
+	fmt.Println(fmt.Sprintf("\033[32mSuccess:\033[0m %s.\"", info))
+}
+
+func ErrorTest(info string) {
+	fmt.Println(fmt.Sprintf("\033[31mError:\033[0m %s.\"", info))
 }
