@@ -33,10 +33,12 @@ func (l loginController) login(c *gin.Context) {
 
 	if err := c.BindJSON(&signupDto); err != nil {
 		exceptions.BodyError().Throw(c)
+		return
 	}
 	session, err := l.service.loginService(signupDto)
 	if err != nil {
 		err.Throw(c)
+		return
 	}
 	http.Created(c, session)
 }

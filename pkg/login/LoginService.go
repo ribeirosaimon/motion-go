@@ -31,7 +31,6 @@ func NewLoginService(conn *gorm.DB, close *sql.DB) loginService {
 }
 
 func (l loginService) loginService(loginDto LoginDto) (domain.Session, *exceptions.Error) {
-	defer l.closeDb.Close()
 	user, err := l.userRepository.FindByField("email", loginDto.Email)
 	if err != nil {
 		return domain.Session{}, exceptions.Unauthorized()
@@ -59,7 +58,6 @@ func (l loginService) loginService(loginDto LoginDto) (domain.Session, *exceptio
 }
 
 func (l loginService) signUpService(signupDto SignUpDto) (domain.Profile, *exceptions.Error) {
-	defer l.closeDb.Close()
 
 	if signupDto.Email == "" {
 		return domain.Profile{}, exceptions.FieldError("email")
