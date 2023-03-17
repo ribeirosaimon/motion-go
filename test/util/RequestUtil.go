@@ -18,10 +18,10 @@ import (
 )
 
 func CreateEngineRequest(method, path string, body io.Reader,
-	controller func(*gin.Engine), session string) (
+	controller func(group *gin.RouterGroup), session string) (
 	*httptest.ResponseRecorder, *http.Request, error) {
 	enginer := gin.New()
-	controller(enginer)
+	controller(enginer.Group(""))
 
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -41,13 +41,13 @@ func CreateEngineRequest(method, path string, body io.Reader,
 func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
 	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
-	var loginRouter = func(engine *gin.Engine) {
-		login.NewLoginRouter(engine, ConnectDatabaseTest)
+	var loginRouter = func(engine *gin.RouterGroup) {
+		login.NewLoginRouter(engine.Group("/api/v1"), ConnectDatabaseTest)
 	}
 	if err != nil {
 		panic(err)
 	}
-	sigUpResponse, _, err := CreateEngineRequest(http.MethodPost, "/sign-up",
+	sigUpResponse, _, err := CreateEngineRequest(http.MethodPost, "/api/v1/auth/sign-up",
 		bytes.NewReader(jsonData), loginRouter, "")
 	var signProfileResponse = domain.Profile{}
 	err = json.Unmarshal(sigUpResponse.Body.Bytes(), &signProfileResponse)
@@ -56,7 +56,7 @@ func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
 	}
 	dto := login.LoginDto{Email: user.Email, Password: user.Password}
 	jsonLoginDto, err := json.Marshal(dto)
-	resp, _, err := CreateEngineRequest(http.MethodPost, "/login",
+	resp, _, err := CreateEngineRequest(http.MethodPost, "/api/v1/auth/login",
 		bytes.NewReader(jsonLoginDto), loginRouter, "")
 
 	var response = domain.Session{}

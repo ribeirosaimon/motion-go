@@ -1,4 +1,4 @@
-package health
+package test
 
 import (
 	"encoding/json"
@@ -15,13 +15,13 @@ import (
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var healthRouter = func(engine *gin.Engine) {
-	health.NewHealthRouter(engine, util.ConnectDatabaseTest)
+var healthRouter = func(engine *gin.RouterGroup) {
+	health.NewHealthRouter(engine.Group("/api/v1"), util.ConnectDatabaseTest)
 }
 
 func BenchmarkController(b *testing.B) {
 	start := time.Now()
-	resp, req, err := util.CreateEngineRequest(http.MethodGet, "/open-health",
+	resp, req, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/open",
 		nil, healthRouter, "")
 	if resp.Code != http.StatusOK {
 		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
@@ -42,7 +42,7 @@ func BenchmarkController(b *testing.B) {
 
 func TestOpenController(t *testing.T) {
 
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/open-health",
+	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/open",
 		nil, healthRouter, "")
 
 	if resp.Code != http.StatusOK {
@@ -63,7 +63,7 @@ func TestOpenController(t *testing.T) {
 }
 
 func TestCloseControllerSendError(t *testing.T) {
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/health",
+	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/close",
 		nil, healthRouter, "")
 	if err != nil {
 		t.Errorf("erro")
@@ -77,23 +77,23 @@ func TestCloseControllerSendError(t *testing.T) {
 func TestCloseControllerSuccess(t *testing.T) {
 	defer util.RemoveDatabase()
 	session, err := util.SignUp(domain.USER, domain.ADMIN)
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/health",
+	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/close",
 		nil, healthRouter, session.SessionId)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
+		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
 	}
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
 	if err != nil {
-		t.Errorf("Unmarshal erro: %s", err.Error())
+		util.ErrorTest(fmt.Sprintf("Unmarshal erro: %s", err.Error()))
 	}
 	if response.Ready != true {
-		t.Errorf("Status must be bool: %s", resp.Body.String())
+		util.ErrorTest(fmt.Sprintf("Status must be bool: %s", resp.Body.String()))
 	}
 	if &response.Time == nil {
-		t.Errorf("Time must be unlike nil: %s", resp.Body.String())
+		util.ErrorTest(fmt.Sprintf("Time must be unlike nil: %s", resp.Body.String()))
 	}
 }
 

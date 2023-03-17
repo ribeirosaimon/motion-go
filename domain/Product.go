@@ -7,4 +7,5 @@ type Product struct {
 	Name  string          `json:"name"`
 	Price decimal.Decimal `json:"price"`
 	Image string          `json:"image"`
+	BasicSQL
 }
