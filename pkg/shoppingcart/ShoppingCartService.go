@@ -2,6 +2,7 @@ package shoppingcart
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/domain"
@@ -25,7 +26,20 @@ func NewShoppingCartService(conn *gorm.DB, close *sql.DB) service {
 	}
 }
 
+func (s service) loadShoppingCart(user security.LoggedUser) (domain.ShoppingCart, error) {
+	cart, err := s.shoppingCartRepository.FindByField("profile_id", user.UserId)
+	if err != nil {
+		return domain.ShoppingCart{}, err
+	}
+	return cart, nil
+}
+
 func (s service) createShoppingCart(loggedUser security.LoggedUser) (domain.ShoppingCart, error) {
+	_, err := s.loadShoppingCart(loggedUser)
+	if err == nil {
+		return domain.ShoppingCart{}, errors.New("you already have a shopping cart")
+	}
+
 	var shoppingCart domain.ShoppingCart
 
 	user, err := s.profileService.FindProfileByUserId(loggedUser.UserId)

@@ -1,7 +1,11 @@
 package shoppingcart
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/ribeirosaimon/motion-go/pkg/config/motionHttp"
+	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 )
 
@@ -15,5 +19,20 @@ func NewShoppingCartController(shoppingCartService service) controller {
 
 func (s controller) createShoppingCart(c *gin.Context) {
 	loggedUser := security.GetLoggedUser(c)
-	s.shoppingCartService.createShoppingCart(loggedUser)
+	_, err := s.shoppingCartService.createShoppingCart(loggedUser)
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(c)
+		return
+	}
+	c.Status(http.StatusCreated)
+}
+
+func (s controller) getShoppingCart(c *gin.Context) {
+	loggedUser := security.GetLoggedUser(c)
+	cart, err := s.shoppingCartService.loadShoppingCart(loggedUser)
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(c)
+		return
+	}
+	motionHttp.Created(c, cart)
 }

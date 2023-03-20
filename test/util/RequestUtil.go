@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ import (
 )
 
 func CreateEngineRequest(method, path string, body io.Reader,
-	controller func(group *gin.RouterGroup), session string) (
+	controller func(group *gin.RouterGroup), session string, role domain.RoleEnum) (
 	*httptest.ResponseRecorder, *http.Request, error) {
 	enginer := gin.New()
 	controller(enginer.Group(""))
@@ -29,7 +30,7 @@ func CreateEngineRequest(method, path string, body io.Reader,
 	}
 	if session != "" {
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", session))
-		req.Header.Add("MotionRole", "ADMIN")
+		req.Header.Add("MotionRole", string(role))
 	}
 
 	w := httptest.NewRecorder()
@@ -38,7 +39,7 @@ func CreateEngineRequest(method, path string, body io.Reader,
 	return w, req, nil
 }
 
-func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
+func SignUp(loggedRole domain.RoleEnum, roles ...domain.RoleEnum) (string, error) {
 	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
 	var loginRouter = func(engine *gin.RouterGroup) {
@@ -48,7 +49,7 @@ func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
 		panic(err)
 	}
 	sigUpResponse, _, err := CreateEngineRequest(http.MethodPost, "/api/v1/auth/sign-up",
-		bytes.NewReader(jsonData), loginRouter, "")
+		bytes.NewReader(jsonData), loginRouter, "", loggedRole)
 	var signProfileResponse = domain.Profile{}
 	err = json.Unmarshal(sigUpResponse.Body.Bytes(), &signProfileResponse)
 	if err != nil {
@@ -57,15 +58,9 @@ func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
 	dto := login.LoginDto{Email: user.Email, Password: user.Password}
 	jsonLoginDto, err := json.Marshal(dto)
 	resp, _, err := CreateEngineRequest(http.MethodPost, "/api/v1/auth/login",
-		bytes.NewReader(jsonLoginDto), loginRouter, "")
+		bytes.NewReader(jsonLoginDto), loginRouter, "", loggedRole)
 
-	var response = domain.Session{}
-	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	if err != nil {
-		return domain.Session{}, err
-	}
-
-	return response, nil
+	return strings.Replace(string(resp.Body.Bytes()), "\"", "", -1), nil
 }
 
 func CreateUser(roles ...domain.RoleEnum) login.SignUpDto {

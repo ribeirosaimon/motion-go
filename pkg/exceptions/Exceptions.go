@@ -51,6 +51,21 @@ func InternalServer(field string) *Error {
 	}
 }
 
+func NotFound() *Error {
+	return &Error{
+		Status:  http.StatusConflict,
+		Message: fmt.Sprintf("Not Found"),
+		Date:    time.Now(),
+	}
+}
+
+func MotionError(err string) *Error {
+	return &Error{
+		Status:  http.StatusConflict,
+		Message: fmt.Sprintf(err),
+		Date:    time.Now(),
+	}
+}
 func Forbidden() *Error {
 	return &Error{
 		Status:  http.StatusForbidden,
