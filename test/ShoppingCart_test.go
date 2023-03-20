@@ -5,23 +5,18 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var shoppingCartRouter = func(engine *gin.RouterGroup) {
-	shoppingcart.NewShoppingCartRouter(engine.Group("/api/v1"), util.ConnectDatabaseTest)
-}
-
 var token string
 
+enginer = gin.
 func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
-	defer util.RemoveDatabase()
 
-	resp, _, err := util.CreateEngineRequest(http.MethodPost, "/api/v1/shopping-cart/create",
-		nil, shoppingCartRouter, token, domain.USER)
+	resp, _, err := util.CreateEngineRequest(enginer, http.MethodPost, "/api/v1/shopping-cart/create",
+		nil, token, domain.USER)
 
 	if err != nil {
 		util.ErrorTest(err.Error())
@@ -34,24 +29,24 @@ func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
 }
 
 func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
-	defer util.RemoveDatabase()
 	// creating a new shopping cart
 	TestHaveToCreateShoppingCartAndReturnOk(t)
 
-	resp, _, err := util.CreateEngineRequest(http.MethodPost, "/api/v1/shopping-cart/create",
-		nil, shoppingCartRouter, token, domain.USER)
+	resp, _, err := util.CreateEngineRequest(enginer, http.MethodPost, "/api/v1/shopping-cart/create",
+		nil, token, domain.USER)
 
 	if err == nil {
-		util.ErrorTest(err.Error())
+		util.ErrorTest("Need to return a error")
 	}
 
-	if resp.Code == http.StatusCreated {
+	if resp.Code != http.StatusConflict {
 		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusCreated, resp.Code))
 	}
 }
 
 func init() {
-	session, err := util.SignUp(domain.USER, domain.ADMIN, domain.USER)
+	shoppingcart.NewShoppingCartRouter(enginer.Group("/api/v1"), util.ConnectDatabaseTest)
+	session, err := util.SignUp(enginer, domain.USER, domain.ADMIN, domain.USER)
 	if err != nil {
 		util.ErrorTest(err.Error())
 	}

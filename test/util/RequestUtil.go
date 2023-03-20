@@ -18,11 +18,13 @@ import (
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
-func CreateEngineRequest(method, path string, body io.Reader,
-	controller func(group *gin.RouterGroup), session string, role domain.RoleEnum) (
+func GetEnginer() *gin.Engine {
+	return gin.New()
+
+}
+func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reader, session string,
+	role domain.RoleEnum) (
 	*httptest.ResponseRecorder, *http.Request, error) {
-	enginer := gin.New()
-	controller(enginer.Group(""))
 
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -39,17 +41,26 @@ func CreateEngineRequest(method, path string, body io.Reader,
 	return w, req, nil
 }
 
-func SignUp(loggedRole domain.RoleEnum, roles ...domain.RoleEnum) (string, error) {
+func SignUp(enginer *gin.Engine, loggedRole domain.RoleEnum, roles ...domain.RoleEnum) (string, error) {
 	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
-	var loginRouter = func(engine *gin.RouterGroup) {
-		login.NewLoginRouter(engine.Group("/api/v1"), ConnectDatabaseTest)
+
+	contains := false
+	for _, route := range enginer.Routes() {
+		if strings.Contains(route.Path, "/api/v1/auth") {
+			contains = true
+			break
+		}
 	}
+	if !contains {
+		login.NewLoginRouter(enginer.Group("/api/v1"), ConnectDatabaseTest)
+	}
+
 	if err != nil {
 		panic(err)
 	}
-	sigUpResponse, _, err := CreateEngineRequest(http.MethodPost, "/api/v1/auth/sign-up",
-		bytes.NewReader(jsonData), loginRouter, "", loggedRole)
+	sigUpResponse, _, err := CreateEngineRequest(enginer, http.MethodPost, "/api/v1/auth/sign-up",
+		bytes.NewReader(jsonData), "", loggedRole)
 	var signProfileResponse = domain.Profile{}
 	err = json.Unmarshal(sigUpResponse.Body.Bytes(), &signProfileResponse)
 	if err != nil {
@@ -57,8 +68,8 @@ func SignUp(loggedRole domain.RoleEnum, roles ...domain.RoleEnum) (string, error
 	}
 	dto := login.LoginDto{Email: user.Email, Password: user.Password}
 	jsonLoginDto, err := json.Marshal(dto)
-	resp, _, err := CreateEngineRequest(http.MethodPost, "/api/v1/auth/login",
-		bytes.NewReader(jsonLoginDto), loginRouter, "", loggedRole)
+	resp, _, err := CreateEngineRequest(enginer, http.MethodPost, "/api/v1/auth/login",
+		bytes.NewReader(jsonLoginDto), "", loggedRole)
 
 	return strings.Replace(string(resp.Body.Bytes()), "\"", "", -1), nil
 }

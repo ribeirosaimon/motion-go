@@ -15,14 +15,10 @@ import (
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var healthRouter = func(engine *gin.RouterGroup) {
-	health.NewHealthRouter(engine.Group("/api/v1"), util.ConnectDatabaseTest)
-}
-
 func BenchmarkController(b *testing.B) {
 	start := time.Now()
-	resp, req, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/open",
-		nil, healthRouter, "", domain.USER)
+	resp, req, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/open",
+		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
 		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
 	}
@@ -42,8 +38,8 @@ func BenchmarkController(b *testing.B) {
 
 func TestOpenController(t *testing.T) {
 
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/open",
-		nil, healthRouter, "", domain.USER)
+	resp, _, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/open",
+		nil, "", domain.USER)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
@@ -63,8 +59,8 @@ func TestOpenController(t *testing.T) {
 }
 
 func TestCloseControllerSendError(t *testing.T) {
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/close",
-		nil, healthRouter, "", domain.USER)
+	resp, _, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/close",
+		nil, "", domain.USER)
 	if err != nil {
 		t.Errorf("erro")
 	}
@@ -75,10 +71,10 @@ func TestCloseControllerSendError(t *testing.T) {
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
-	defer util.RemoveDatabase()
-	session, err := util.SignUp(domain.USER, domain.ADMIN, domain.USER)
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/api/v1/health/close",
-		nil, healthRouter, session, domain.USER)
+
+	session, err := util.SignUp(enginer, domain.USER, domain.ADMIN, domain.USER)
+	resp, _, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/close",
+		nil, session, domain.USER)
 
 	if resp.Code != http.StatusOK {
 		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
@@ -101,4 +97,8 @@ type healthApiResponse struct {
 	Ready      bool                `json:"ready"`
 	Time       time.Time           `json:"time"`
 	LoggedUSer security.LoggedUser `json:"loggedUser"`
+}
+
+func init() {
+	health.NewHealthRouter(enginer.Group("/api/v1"), util.ConnectDatabaseTest)
 }
