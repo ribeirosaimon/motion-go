@@ -18,13 +18,24 @@ import (
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
-func GetEnginer() *gin.Engine {
-	return gin.New()
-
+func createLoginRouter(enginer *gin.Engine) {
+	login.NewLoginRouter(enginer.Group("/api/v1"), ConnectDatabaseTest)
 }
+
 func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reader, session string,
 	role domain.RoleEnum) (
 	*httptest.ResponseRecorder, *http.Request, error) {
+
+	contains := false
+	for _, route := range enginer.Routes() {
+		if strings.Contains(route.Path, "/api/v1/auth") {
+			contains = true
+			break
+		}
+	}
+	if !contains {
+		createLoginRouter(enginer)
+	}
 
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -53,7 +64,7 @@ func SignUp(enginer *gin.Engine, loggedRole domain.RoleEnum, roles ...domain.Rol
 		}
 	}
 	if !contains {
-		login.NewLoginRouter(enginer.Group("/api/v1"), ConnectDatabaseTest)
+		createLoginRouter(enginer)
 	}
 
 	if err != nil {

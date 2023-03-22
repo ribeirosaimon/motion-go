@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
 	"github.com/ribeirosaimon/motion-go/test/util"
@@ -12,10 +13,11 @@ import (
 
 var token string
 
-enginer = gin.
+var shoppingCartEnginer = gin.New()
+
 func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
 
-	resp, _, err := util.CreateEngineRequest(enginer, http.MethodPost, "/api/v1/shopping-cart/create",
+	resp, _, err := util.CreateEngineRequest(shoppingCartEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
 		nil, token, domain.USER)
 
 	if err != nil {
@@ -32,7 +34,7 @@ func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
 	// creating a new shopping cart
 	TestHaveToCreateShoppingCartAndReturnOk(t)
 
-	resp, _, err := util.CreateEngineRequest(enginer, http.MethodPost, "/api/v1/shopping-cart/create",
+	resp, _, err := util.CreateEngineRequest(shoppingCartEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
 		nil, token, domain.USER)
 
 	if err == nil {
@@ -45,8 +47,8 @@ func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
 }
 
 func init() {
-	shoppingcart.NewShoppingCartRouter(enginer.Group("/api/v1"), util.ConnectDatabaseTest)
-	session, err := util.SignUp(enginer, domain.USER, domain.ADMIN, domain.USER)
+	shoppingcart.NewShoppingCartRouter(shoppingCartEnginer.Group("/api/v1"), util.ConnectDatabaseTest)
+	session, err := util.SignUp(shoppingCartEnginer, domain.USER, domain.ADMIN, domain.USER)
 	if err != nil {
 		util.ErrorTest(err.Error())
 	}

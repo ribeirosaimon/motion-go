@@ -15,9 +15,11 @@ import (
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
+var healthEnginer = gin.New()
+
 func BenchmarkController(b *testing.B) {
 	start := time.Now()
-	resp, req, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/open",
+	resp, req, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
 		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
@@ -38,7 +40,7 @@ func BenchmarkController(b *testing.B) {
 
 func TestOpenController(t *testing.T) {
 
-	resp, _, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/open",
+	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 
 	if resp.Code != http.StatusOK {
@@ -59,7 +61,7 @@ func TestOpenController(t *testing.T) {
 }
 
 func TestCloseControllerSendError(t *testing.T) {
-	resp, _, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/close",
+	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, "", domain.USER)
 	if err != nil {
 		t.Errorf("erro")
@@ -72,8 +74,8 @@ func TestCloseControllerSendError(t *testing.T) {
 
 func TestCloseControllerSuccess(t *testing.T) {
 
-	session, err := util.SignUp(enginer, domain.USER, domain.ADMIN, domain.USER)
-	resp, _, err := util.CreateEngineRequest(util.GetEnginer(), http.MethodGet, "/api/v1/health/close",
+	session, err := util.SignUp(healthEnginer, domain.USER, domain.ADMIN, domain.USER)
+	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, session, domain.USER)
 
 	if resp.Code != http.StatusOK {
@@ -100,5 +102,5 @@ type healthApiResponse struct {
 }
 
 func init() {
-	health.NewHealthRouter(enginer.Group("/api/v1"), util.ConnectDatabaseTest)
+	health.NewHealthRouter(healthEnginer.Group("/api/v1"), util.ConnectDatabaseTest)
 }

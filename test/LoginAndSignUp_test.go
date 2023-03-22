@@ -9,10 +9,10 @@ import (
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var enginer = gin.New()
+var signUpEnginer = gin.New()
 
 func TestLoginAndSignUpController(t *testing.T) {
-	session, err := util.SignUp(enginer, domain.USER, domain.ADMIN, domain.USER)
+	session, err := util.SignUp(signUpEnginer, domain.USER, domain.ADMIN, domain.USER)
 
 	if err != nil {
 		util.ErrorTest(err.Error())
