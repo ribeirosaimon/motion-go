@@ -3,6 +3,7 @@ package test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
@@ -19,6 +19,7 @@ var healthEnginer = gin.New()
 
 func BenchmarkController(b *testing.B) {
 	start := time.Now()
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, req, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
@@ -39,7 +40,8 @@ func BenchmarkController(b *testing.B) {
 }
 
 func TestOpenController(t *testing.T) {
-
+	t.Log("Test open controller")
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 
@@ -61,19 +63,22 @@ func TestOpenController(t *testing.T) {
 }
 
 func TestCloseControllerSendError(t *testing.T) {
+	t.Log("Test close controller send error")
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, "", domain.USER)
 	if err != nil {
-		t.Errorf("erro")
+		util.ErrorTest(fmt.Sprintf("erro"))
 	}
 	if resp.Code != http.StatusForbidden {
-		t.Errorf("Expected Http status: %d; but is received: %d",
-			http.StatusForbidden, resp.Code)
+		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d",
+			http.StatusForbidden, resp.Code))
 	}
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
-
+	t.Log("Test close controller sucess")
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
 	session, err := util.SignUp(healthEnginer, domain.USER, domain.ADMIN, domain.USER)
 	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, session, domain.USER)
@@ -99,8 +104,4 @@ type healthApiResponse struct {
 	Ready      bool                `json:"ready"`
 	Time       time.Time           `json:"time"`
 	LoggedUSer security.LoggedUser `json:"loggedUser"`
-}
-
-func init() {
-	health.NewHealthRouter(healthEnginer.Group("/api/v1"), util.ConnectDatabaseTest)
 }

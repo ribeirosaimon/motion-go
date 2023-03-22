@@ -27,6 +27,10 @@ func NewShoppingCartService(conn *gorm.DB, close *sql.DB) service {
 }
 
 func (s service) loadShoppingCart(user security.LoggedUser) (domain.ShoppingCart, error) {
+	exist := s.shoppingCartRepository.ExistByField("profile_id", user.UserId)
+	if !exist {
+		return domain.ShoppingCart{}, errors.New("not found")
+	}
 	cart, err := s.shoppingCartRepository.FindByField("profile_id", user.UserId)
 	if err != nil {
 		return domain.ShoppingCart{}, err

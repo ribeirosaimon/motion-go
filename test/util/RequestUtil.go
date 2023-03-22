@@ -2,8 +2,10 @@ package util
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"gorm.io/gorm"
 	"io"
 	"math/rand"
 	"net/http"
@@ -18,24 +20,11 @@ import (
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
-func createLoginRouter(enginer *gin.Engine) {
-	login.NewLoginRouter(enginer.Group("/api/v1"), ConnectDatabaseTest)
-}
-
 func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reader, session string,
 	role domain.RoleEnum) (
 	*httptest.ResponseRecorder, *http.Request, error) {
 
-	contains := false
-	for _, route := range enginer.Routes() {
-		if strings.Contains(route.Path, "/api/v1/auth") {
-			contains = true
-			break
-		}
-	}
-	if !contains {
-		createLoginRouter(enginer)
-	}
+	AddController(enginer, "/api/v1/auth", login.NewLoginRouter)
 
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -56,16 +45,7 @@ func SignUp(enginer *gin.Engine, loggedRole domain.RoleEnum, roles ...domain.Rol
 	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
 
-	contains := false
-	for _, route := range enginer.Routes() {
-		if strings.Contains(route.Path, "/api/v1/auth") {
-			contains = true
-			break
-		}
-	}
-	if !contains {
-		createLoginRouter(enginer)
-	}
+	AddController(enginer, "/api/v1/auth", login.NewLoginRouter)
 
 	if err != nil {
 		panic(err)
@@ -120,10 +100,24 @@ func createRoles() {
 	}
 }
 
-func SuccessTest(info string) {
-	fmt.Println(fmt.Sprintf("\033[32mSuccess:\033[0m %s.\"", info))
+func SuccessTest(info string) string {
+	return fmt.Sprintf("\033[32mSuccess:\033[0m %s.\"", info)
 }
 
-func ErrorTest(info string) {
-	fmt.Println(fmt.Sprintf("\033[31mError:\033[0m %s.\"", info))
+func ErrorTest(info string) string {
+	return fmt.Sprintf("\033[31mError:\033[0m %s.\"", info)
+}
+
+func AddController(enginer *gin.Engine, subs string, f func(engine *gin.RouterGroup,
+	conn func() (*gorm.DB, *sql.DB))) {
+	contains := false
+	for _, route := range enginer.Routes() {
+		if strings.Contains(route.Path, subs) {
+			contains = true
+			break
+		}
+	}
+	if !contains {
+		f(enginer.Group("/api/v1"), ConnectDatabaseTest)
+	}
 }
