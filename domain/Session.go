@@ -9,6 +9,7 @@ type Session struct {
 	SessionId string    `json:"sessionId" gorm:"foreignkey:Id"`
 	ProfileId uint64    `json:"profileId"`
 	LastLogin time.Time `json:"lastLogin"`
+	BasicSQL
 }
 
 func (s Session) GetId() interface{} {

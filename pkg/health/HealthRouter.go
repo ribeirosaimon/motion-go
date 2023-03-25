@@ -11,11 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewHealthRouter(engine *gin.Engine, conn func() (*gorm.DB, *sql.DB)) {
+func NewHealthRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.DB)) {
 	service := NewHealthService()
-	controllers.NewMotionController(engine,
-		controllers.NewMotionRouter(http.MethodGet, "/health", NewHealthController(service).closeHealth,
+	group := engine.Group("/health")
+	controllers.NewMotionController(group,
+		controllers.NewMotionRouter(http.MethodGet, "/close", NewHealthController(service).closeHealth,
 			security.Authorization(conn, domain.Role{Name: domain.USER}, domain.Role{Name: domain.ADMIN})),
-		controllers.NewMotionRouter(http.MethodGet, "/open-health", NewHealthController(service).openHealth),
+		controllers.NewMotionRouter(http.MethodGet, "/open", NewHealthController(service).openHealth),
 	).Add()
 }
