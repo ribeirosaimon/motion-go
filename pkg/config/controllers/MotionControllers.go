@@ -12,11 +12,11 @@ type MotionRouter struct {
 }
 
 type motionController struct {
-	Engine   *gin.Engine
+	Engine   *gin.RouterGroup
 	Handlers []MotionRouter
 }
 
-func NewMotionController(engine *gin.Engine,
+func NewMotionController(engine *gin.RouterGroup,
 	controllers ...MotionRouter) motionController {
 	return motionController{
 		Engine:   engine,

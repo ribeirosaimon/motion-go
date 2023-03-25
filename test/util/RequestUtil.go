@@ -2,13 +2,16 @@ package util
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"gorm.io/gorm"
 	"io"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,11 +20,11 @@ import (
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
-func CreateEngineRequest(method, path string, body io.Reader,
-	controller func(*gin.Engine), session string) (
+func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reader, session string,
+	role domain.RoleEnum) (
 	*httptest.ResponseRecorder, *http.Request, error) {
-	enginer := gin.New()
-	controller(enginer)
+
+	AddController(enginer, "/api/v1/auth", login.NewLoginRouter)
 
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -29,7 +32,7 @@ func CreateEngineRequest(method, path string, body io.Reader,
 	}
 	if session != "" {
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", session))
-		req.Header.Add("MotionRole", "ADMIN")
+		req.Header.Add("MotionRole", string(role))
 	}
 
 	w := httptest.NewRecorder()
@@ -38,17 +41,17 @@ func CreateEngineRequest(method, path string, body io.Reader,
 	return w, req, nil
 }
 
-func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
+func SignUp(enginer *gin.Engine, loggedRole domain.RoleEnum, roles ...domain.RoleEnum) (string, error) {
 	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
-	var loginRouter = func(engine *gin.Engine) {
-		login.NewLoginRouter(engine, ConnectDatabaseTest)
-	}
+
+	AddController(enginer, "/api/v1/auth", login.NewLoginRouter)
+
 	if err != nil {
 		panic(err)
 	}
-	sigUpResponse, _, err := CreateEngineRequest(http.MethodPost, "/sign-up",
-		bytes.NewReader(jsonData), loginRouter, "")
+	sigUpResponse, _, err := CreateEngineRequest(enginer, http.MethodPost, "/api/v1/auth/sign-up",
+		bytes.NewReader(jsonData), "", loggedRole)
 	var signProfileResponse = domain.Profile{}
 	err = json.Unmarshal(sigUpResponse.Body.Bytes(), &signProfileResponse)
 	if err != nil {
@@ -56,16 +59,10 @@ func SignUp(roles ...domain.RoleEnum) (domain.Session, error) {
 	}
 	dto := login.LoginDto{Email: user.Email, Password: user.Password}
 	jsonLoginDto, err := json.Marshal(dto)
-	resp, _, err := CreateEngineRequest(http.MethodPost, "/login",
-		bytes.NewReader(jsonLoginDto), loginRouter, "")
+	resp, _, err := CreateEngineRequest(enginer, http.MethodPost, "/api/v1/auth/login",
+		bytes.NewReader(jsonLoginDto), "", loggedRole)
 
-	var response = domain.Session{}
-	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	if err != nil {
-		return domain.Session{}, err
-	}
-
-	return response, nil
+	return strings.Replace(string(resp.Body.Bytes()), "\"", "", -1), nil
 }
 
 func CreateUser(roles ...domain.RoleEnum) login.SignUpDto {
@@ -103,10 +100,24 @@ func createRoles() {
 	}
 }
 
-func SuccessTest(info string) {
-	fmt.Println(fmt.Sprintf("\033[32mSuccess:\033[0m %s.\"", info))
+func SuccessTest(info string) string {
+	return fmt.Sprintf("\033[32mSuccess:\033[0m %s.\"", info)
 }
 
-func ErrorTest(info string) {
-	fmt.Println(fmt.Sprintf("\033[31mError:\033[0m %s.\"", info))
+func ErrorTest(info string) string {
+	return fmt.Sprintf("\033[31mError:\033[0m %s.\"", info)
+}
+
+func AddController(enginer *gin.Engine, subs string, f func(engine *gin.RouterGroup,
+	conn func() (*gorm.DB, *sql.DB))) {
+	contains := false
+	for _, route := range enginer.Routes() {
+		if strings.Contains(route.Path, subs) {
+			contains = true
+			break
+		}
+	}
+	if !contains {
+		f(enginer.Group("/api/v1"), ConnectDatabaseTest)
+	}
 }

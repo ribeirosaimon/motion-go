@@ -25,7 +25,7 @@ func NewProfileService(conn *gorm.DB, close *sql.DB) Service {
 }
 func (l Service) SaveProfileUser(user domain.MotionUser, roles []domain.RoleEnum) (domain.Profile, error) {
 	var profile domain.Profile
-	defer l.closeDb.Close()
+
 	profile.Name = user.Name
 
 	for _, role := range roles {

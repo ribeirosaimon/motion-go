@@ -14,8 +14,7 @@ type Profile struct {
 	UserId     uint64     `json:"userId"`
 	User       MotionUser `json:"user" gorm:"foreignkey:Id"`
 	Roles      []Role     `json:"roles" gorm:"many2many:profile_roles;"`
-	CreatedAt  time.Time  `json:"createdAt"`
-	UpdatedAt  time.Time  `json:"updatedAt"`
+	BasicSQL
 }
 
 func (p Profile) HaveRole(role RoleEnum) bool {

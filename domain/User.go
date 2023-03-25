@@ -14,8 +14,7 @@ type MotionUser struct {
 	LastLogin   time.Time `json:"lastLogin,omitempty"`
 	LoginCount  uint64    `json:"loginCount"`
 	LoginAttemp uint8     `json:"loginAttemp,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt,omitempty"`
+	BasicSQL
 }
 
 func (user MotionUser) GetId() interface{} {

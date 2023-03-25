@@ -1,8 +1,9 @@
-package health
+package test
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,19 +11,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var healthRouter = func(engine *gin.Engine) {
-	health.NewHealthRouter(engine, util.ConnectDatabaseTest)
-}
+var healthEnginer = gin.New()
 
 func BenchmarkController(b *testing.B) {
 	start := time.Now()
-	resp, req, err := util.CreateEngineRequest(http.MethodGet, "/open-health",
-		nil, healthRouter, "")
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, req, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
+		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
 		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
 	}
@@ -41,9 +40,10 @@ func BenchmarkController(b *testing.B) {
 }
 
 func TestOpenController(t *testing.T) {
-
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/open-health",
-		nil, healthRouter, "")
+	t.Log("Test open controller")
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
+		nil, "", domain.USER)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
@@ -63,37 +63,40 @@ func TestOpenController(t *testing.T) {
 }
 
 func TestCloseControllerSendError(t *testing.T) {
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/health",
-		nil, healthRouter, "")
+	t.Log("Test close controller send error")
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
+		nil, "", domain.USER)
 	if err != nil {
-		t.Errorf("erro")
+		util.ErrorTest(fmt.Sprintf("erro"))
 	}
 	if resp.Code != http.StatusForbidden {
-		t.Errorf("Expected Http status: %d; but is received: %d",
-			http.StatusForbidden, resp.Code)
+		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d",
+			http.StatusForbidden, resp.Code))
 	}
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
-	defer util.RemoveDatabase()
-	session, err := util.SignUp(domain.USER, domain.ADMIN)
-	resp, _, err := util.CreateEngineRequest(http.MethodGet, "/health",
-		nil, healthRouter, session.SessionId)
+	t.Log("Test close controller sucess")
+	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
+	session, err := util.SignUp(healthEnginer, domain.USER, domain.ADMIN, domain.USER)
+	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
+		nil, session, domain.USER)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
+		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
 	}
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
 	if err != nil {
-		t.Errorf("Unmarshal erro: %s", err.Error())
+		util.ErrorTest(fmt.Sprintf("Unmarshal erro: %s", err.Error()))
 	}
 	if response.Ready != true {
-		t.Errorf("Status must be bool: %s", resp.Body.String())
+		util.ErrorTest(fmt.Sprintf("Status must be bool: %s", resp.Body.String()))
 	}
 	if &response.Time == nil {
-		t.Errorf("Time must be unlike nil: %s", resp.Body.String())
+		util.ErrorTest(fmt.Sprintf("Time must be unlike nil: %s", resp.Body.String()))
 	}
 }
 

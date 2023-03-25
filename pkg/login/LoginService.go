@@ -30,36 +30,34 @@ func NewLoginService(conn *gorm.DB, close *sql.DB) loginService {
 	}
 }
 
-func (l loginService) loginService(loginDto LoginDto) (domain.Session, *exceptions.Error) {
-	defer l.closeDb.Close()
+func (l loginService) loginService(loginDto LoginDto) (string, *exceptions.Error) {
 	user, err := l.userRepository.FindByField("email", loginDto.Email)
 	if err != nil {
-		return domain.Session{}, exceptions.Unauthorized()
+		return "", exceptions.NotFound()
 	}
 	err = security.CheckPassword(loginDto.Password, user.Password)
 	if err != nil {
-		return domain.Session{}, exceptions.FieldError("password")
+		return "", exceptions.FieldError("password")
 	}
 	user.LoginCount += 1
 	user.LastLogin = time.Now()
 	savedUser, err := l.userRepository.Save(user)
 	if err != nil {
-		return domain.Session{}, exceptions.Unauthorized()
+		return "", exceptions.Unauthorized()
 	}
 	profileUser, err := l.profileService.FindProfileByUserId(savedUser.Id)
 	if err != nil {
-		return domain.Session{}, exceptions.InternalServer(err.Error())
+		return "", exceptions.InternalServer(err.Error())
 	}
 
 	userSession, err := l.sessionService.SaveUserSession(profileUser)
 	if err != nil {
-		return domain.Session{}, exceptions.InternalServer(err.Error())
+		return "", exceptions.InternalServer(err.Error())
 	}
-	return userSession, nil
+	return userSession.SessionId, nil
 }
 
 func (l loginService) signUpService(signupDto SignUpDto) (domain.Profile, *exceptions.Error) {
-	defer l.closeDb.Close()
 
 	if signupDto.Email == "" {
 		return domain.Profile{}, exceptions.FieldError("email")
