@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/domain"

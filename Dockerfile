@@ -1,12 +1,11 @@
-FROM golang:latest
+FROM golang:1.19-alpine as builder
 
-RUN mkdir "/app"
-WORKDIR "/app"
-
+WORKDIR /app
 COPY . .
+COPY go.mod .
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o server ./cmd/main.go
 
-RUN go mod tidy
-
-EXPOSE 8080
-
-CMD ["go", "run", "cmd/main.go"]
+FROM scratch
+COPY --from=builder /app/server .
+COPY --from=builder /app/config.properties .
+CMD ["./server"]
