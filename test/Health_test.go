@@ -3,11 +3,12 @@ package test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/pkg/health"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
@@ -15,12 +16,10 @@ import (
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var healthEnginer = gin.New()
-
 func BenchmarkController(b *testing.B) {
 	start := time.Now()
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, req, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, req, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
 		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
@@ -41,8 +40,8 @@ func BenchmarkController(b *testing.B) {
 
 func TestOpenController(t *testing.T) {
 	t.Log("Test open controller")
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 
 	if resp.Code != http.StatusOK {
@@ -64,8 +63,8 @@ func TestOpenController(t *testing.T) {
 
 func TestCloseControllerSendError(t *testing.T) {
 	t.Log("Test close controller send error")
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, "", domain.USER)
 	if err != nil {
 		util.ErrorTest(fmt.Sprintf("erro"))
@@ -78,9 +77,9 @@ func TestCloseControllerSendError(t *testing.T) {
 
 func TestCloseControllerSuccess(t *testing.T) {
 	t.Log("Test close controller sucess")
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	session, err := util.SignUp(healthEnginer, domain.USER, domain.ADMIN, domain.USER)
-	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	session, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, session, domain.USER)
 
 	if resp.Code != http.StatusOK {
