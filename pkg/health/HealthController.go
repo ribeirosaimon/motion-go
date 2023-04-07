@@ -2,7 +2,7 @@ package health
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/config/motionHttp"
+	motionHttp "github.com/ribeirosaimon/motion-go/pkg/httpresponse"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 )
 

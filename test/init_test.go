@@ -22,7 +22,8 @@ func getToken() string {
 }
 
 func init() {
+	testEnginer = gin.New()
 	util.RemoveDatabase()
 	MyToken = getToken()
-	testEnginer = gin.New()
+
 }

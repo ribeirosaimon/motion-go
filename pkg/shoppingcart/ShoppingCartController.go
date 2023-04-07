@@ -1,10 +1,10 @@
 package shoppingcart
 
 import (
+	"github.com/ribeirosaimon/motion-go/pkg/httpresponse"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/config/motionHttp"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 )
@@ -34,5 +34,5 @@ func (s controller) getShoppingCart(c *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
-	motionHttp.Created(c, cart)
+	httpresponse.Created(c, cart)
 }

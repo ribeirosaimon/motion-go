@@ -3,8 +3,8 @@ package login
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/config/motionHttp"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
+	"github.com/ribeirosaimon/motion-go/pkg/httpresponse"
 )
 
 type loginController struct {
@@ -27,7 +27,7 @@ func (l loginController) signUp(c *gin.Context) {
 		err.Throw(c)
 		return
 	}
-	motionHttp.Created(c, profile)
+	httpresponse.Created(c, profile)
 }
 
 func (l loginController) login(c *gin.Context) {
@@ -42,7 +42,7 @@ func (l loginController) login(c *gin.Context) {
 		err.Throw(c)
 		return
 	}
-	motionHttp.Created(c, session)
+	httpresponse.Created(c, session)
 }
 
 type SignUpDto struct {

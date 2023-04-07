@@ -1,4 +1,4 @@
-package motionHttp
+package httpresponse
 
 import "github.com/gin-gonic/gin"
 
