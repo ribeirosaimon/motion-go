@@ -24,3 +24,7 @@ func NewRoleRepository(conn *gorm.DB) MotionRepository[domain.Role] {
 func NewShoppingCartRepository(conn *gorm.DB) MotionRepository[domain.ShoppingCart] {
 	return newMotionRepository[domain.ShoppingCart](conn)
 }
+
+func NewProductRepository(conn *gorm.DB) MotionRepository[domain.Product] {
+	return newMotionRepository[domain.Product](conn)
+}

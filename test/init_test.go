@@ -15,15 +15,14 @@ func getToken() string {
 
 	token, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
 	if err != nil {
-		util.ErrorTest(err.Error())
+		panic(err)
 	}
 
 	return token
 }
 
 func init() {
-	testEnginer = gin.New()
 	util.RemoveDatabase()
+	testEnginer = gin.New()
 	MyToken = getToken()
-
 }

@@ -19,5 +19,9 @@ func NewShoppingCartRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.
 			security.Authorization(conn, domain.Role{Name: domain.USER})),
 		config.NewMotionRouter(http.MethodGet, "", NewShoppingCartController(service).getShoppingCart,
 			security.Authorization(conn, domain.Role{Name: domain.USER})),
+		config.NewMotionRouter(http.MethodDelete, "", NewShoppingCartController(service).excludeShoppingCart,
+			security.Authorization(conn, domain.Role{Name: domain.USER})),
+		config.NewMotionRouter(http.MethodPost, "", NewShoppingCartController(service).addProductInShoppingCart,
+			security.Authorization(conn, domain.Role{Name: domain.USER})),
 	).Add()
 }

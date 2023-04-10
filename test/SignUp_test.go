@@ -12,7 +12,7 @@ func TestLoginAndSignUpController(t *testing.T) {
 	session, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
 
 	if err != nil {
-		util.ErrorTest(err.Error())
+		panic(err)
 	}
 	util.SuccessTest(fmt.Sprintf("Expeted one session id: %s", session))
 }

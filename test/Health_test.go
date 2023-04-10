@@ -22,7 +22,7 @@ func BenchmarkController(b *testing.B) {
 	resp, req, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
-		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
+		// util.ErrorTest(b, http.StatusOK, resp.Code)
 	}
 	if err != nil {
 		b.Error("error in request")
@@ -44,21 +44,13 @@ func TestOpenController(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 
-	if resp.Code != http.StatusOK {
-		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
-	}
+	util.ErrorTest(t, resp.Code, http.StatusOK)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	if err != nil {
-		t.Errorf("Unmarshal erro: %s", err.Error())
-	}
-	if response.Ready != true {
-		t.Errorf("Status must be bool: %s", resp.Body.String())
-	}
-	if &response.Time == nil {
-		t.Errorf("Time must be unlike nil: %s", resp.Body.String())
-	}
+	util.ErrorTest(t, nil, err)
+	util.ErrorTest(t, response.Ready, true)
+	util.ErrorTest(t, response.Time, nil)
 }
 
 func TestCloseControllerSendError(t *testing.T) {
@@ -66,13 +58,8 @@ func TestCloseControllerSendError(t *testing.T) {
 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, "", domain.USER)
-	if err != nil {
-		util.ErrorTest(fmt.Sprintf("erro"))
-	}
-	if resp.Code != http.StatusForbidden {
-		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d",
-			http.StatusForbidden, resp.Code))
-	}
+	util.ErrorTest(t, nil, err)
+	util.ErrorTest(t, http.StatusForbidden, resp.Code)
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
@@ -82,21 +69,13 @@ func TestCloseControllerSuccess(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, session, domain.USER)
 
-	if resp.Code != http.StatusOK {
-		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
-	}
+	util.ErrorTest(t, http.StatusOK, resp.Code)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	if err != nil {
-		util.ErrorTest(fmt.Sprintf("Unmarshal erro: %s", err.Error()))
-	}
-	if response.Ready != true {
-		util.ErrorTest(fmt.Sprintf("Status must be bool: %s", resp.Body.String()))
-	}
-	if &response.Time == nil {
-		util.ErrorTest(fmt.Sprintf("Time must be unlike nil: %s", resp.Body.String()))
-	}
+	util.ErrorTest(t, err, nil)
+	util.ErrorTest(t, response.Ready, true)
+	util.ErrorTest(t, &response.Time, nil)
 }
 
 type healthApiResponse struct {

@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -20,9 +19,7 @@ func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
 		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
 
-	if resp.Code != http.StatusCreated {
-		t.Errorf(util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusCreated, resp.Code)))
-	}
+	util.ErrorTest(t, http.StatusCreated, resp.Code)
 
 }
 
@@ -32,11 +29,18 @@ func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
 		nil, MyToken, domain.USER)
 
-	if err != nil {
-		t.Errorf(util.ErrorTest("Need to return a error"))
-	}
+	util.ErrorTest(t, err, nil)
+	util.ErrorTest(t, http.StatusCreated, resp.Code)
+}
 
-	if resp.Code != http.StatusConflict {
-		t.Errorf(util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusCreated, resp.Code)))
+func TestHaveToDeleteShoppingCartAndReturnOk(t *testing.T) {
+	TestHaveToCreateShoppingCartAndReturnOk(t)
+	util.AddController(testEnginer, "/api/v1/shopping-cart", shoppingcart.NewShoppingCartRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodDelete, "/api/v1/shopping-cart",
+		nil, MyToken, domain.USER)
+	if err != nil {
+		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
+	util.ErrorTest(t, http.StatusOK, resp.Code)
+	util.ErrorTest(t, "", resp.Body.String())
 }
