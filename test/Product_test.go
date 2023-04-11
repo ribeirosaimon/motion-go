@@ -12,7 +12,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func HaveToAddProductAndReturnOk(t *testing.T) {
+func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	util.AddController(testEnginer, "/api/v1/product", product.NewProductRouter)
 	bd1, _ := decimal.NewFromString("123.456")
 	productDto := product.ProductDto{
@@ -23,8 +23,8 @@ func HaveToAddProductAndReturnOk(t *testing.T) {
 	jsonData, err := json.Marshal(productDto)
 
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/product",
-		bytes.NewReader(jsonData), MyToken, domain.ADMIN)
-	util.ErrorTest(t, http.StatusOK, resp.Code)
+		bytes.NewReader(jsonData), TokenAdmin, domain.ADMIN)
+
 	if err != nil {
 		t.Error("error in request")
 	}
@@ -33,5 +33,6 @@ func HaveToAddProductAndReturnOk(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	util.ErrorTest(t, resp.Code, http.StatusOK)
 	util.ErrorTest(t, productResponse.Image, productDto.Image)
 }

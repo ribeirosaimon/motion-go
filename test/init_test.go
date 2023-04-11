@@ -7,13 +7,21 @@ import (
 )
 
 var (
-	MyToken     string
+	TokenUser   string
+	TokenAdmin  string
 	testEnginer *gin.Engine
 )
 
-func getToken() string {
+func getToken(role domain.RoleEnum) string {
+	var token string
+	var err error
 
-	token, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
+	if role == domain.USER {
+		token, err = util.SignUp(testEnginer, domain.USER, domain.USER)
+	} else if role == domain.ADMIN {
+		token, err = util.SignUp(testEnginer, domain.ADMIN, domain.ADMIN)
+	}
+
 	if err != nil {
 		panic(err)
 	}
@@ -24,5 +32,6 @@ func getToken() string {
 func init() {
 	util.RemoveDatabase()
 	testEnginer = gin.New()
-	MyToken = getToken()
+	TokenUser = getToken(domain.USER)
+	TokenAdmin = getToken(domain.ADMIN)
 }
