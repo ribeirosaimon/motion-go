@@ -50,7 +50,7 @@ func TestOpenController(t *testing.T) {
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
 	util.ErrorTest(t, nil, err)
 	util.ErrorTest(t, response.Ready, true)
-	util.ErrorTest(t, response.Time, nil)
+	util.ErrorTest(t, response.Time.Day(), time.Now().Day())
 }
 
 func TestCloseControllerSendError(t *testing.T) {
@@ -75,7 +75,7 @@ func TestCloseControllerSuccess(t *testing.T) {
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
 	util.ErrorTest(t, err, nil)
 	util.ErrorTest(t, response.Ready, true)
-	util.ErrorTest(t, &response.Time, nil)
+	util.ErrorTest(t, response.Time.Day(), time.Now().Day())
 }
 
 type healthApiResponse struct {

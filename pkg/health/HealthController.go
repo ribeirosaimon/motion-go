@@ -7,10 +7,10 @@ import (
 )
 
 type healthController struct {
-	service healthService
+	service *healthService
 }
 
-func NewHealthController(service healthService) healthController {
+func NewHealthController(service *healthService) healthController {
 	return healthController{service: service}
 }
 func (c healthController) openHealth(ctx *gin.Context) {

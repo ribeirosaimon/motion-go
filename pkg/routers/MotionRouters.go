@@ -2,6 +2,7 @@ package routers
 
 import (
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/pkg/product"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
@@ -18,4 +19,5 @@ func MotionRouters(engine *gin.Engine) {
 	health.NewHealthRouter(apiVersion, config.Connect)
 	login.NewLoginRouter(apiVersion, config.Connect)
 	shoppingcart.NewShoppingCartRouter(apiVersion, config.Connect)
+	product.NewProductRouter(apiVersion, config.Connect)
 }

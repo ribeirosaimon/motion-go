@@ -19,7 +19,7 @@ func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
 		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
 
-	util.ErrorTest(t, http.StatusCreated, resp.Code)
+	util.ErrorTest(t, resp.Code, http.StatusCreated)
 
 }
 
@@ -30,11 +30,11 @@ func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
 		nil, MyToken, domain.USER)
 
 	util.ErrorTest(t, err, nil)
-	util.ErrorTest(t, http.StatusCreated, resp.Code)
+	util.ErrorTest(t, resp.Code, http.StatusConflict)
 }
 
 func TestHaveToDeleteShoppingCartAndReturnOk(t *testing.T) {
-	TestHaveToCreateShoppingCartAndReturnOk(t)
+	//TestHaveToCreateShoppingCartAndReturnOk(t)
 	util.AddController(testEnginer, "/api/v1/shopping-cart", shoppingcart.NewShoppingCartRouter)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodDelete, "/api/v1/shopping-cart",
 		nil, MyToken, domain.USER)
