@@ -8,10 +8,10 @@ import (
 )
 
 type loginController struct {
-	service loginService
+	service *loginService
 }
 
-func NewLoginControler(service loginService) loginController {
+func NewLoginControler(service *loginService) loginController {
 	return loginController{service: service}
 }
 

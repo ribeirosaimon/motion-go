@@ -7,10 +7,10 @@ import (
 )
 
 type controller struct {
-	productService service
+	productService *service
 }
 
-func NewProductController(pService service) controller {
+func NewProductController(pService *service) controller {
 	return controller{productService: pService}
 }
 

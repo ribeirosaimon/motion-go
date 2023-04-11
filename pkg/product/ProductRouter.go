@@ -15,7 +15,7 @@ func NewProductRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.DB)) 
 	service := NewShoppingCartService(conn())
 	group := engine.Group("/product")
 	config.NewMotionController(group,
-		config.NewMotionRouter(http.MethodPost, "", NewProductController(service).saveProduct,
+		config.NewMotionRouter(http.MethodPost, "", NewProductController(&service).saveProduct,
 			security.Authorization(conn, domain.Role{Name: domain.ADMIN})),
 	).Add()
 }

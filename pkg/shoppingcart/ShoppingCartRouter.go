@@ -15,13 +15,13 @@ func NewShoppingCartRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.
 	service := NewShoppingCartService(conn())
 	group := engine.Group("/shopping-cart")
 	config.NewMotionController(group,
-		config.NewMotionRouter(http.MethodPost, "/create", NewShoppingCartController(service).createShoppingCart,
+		config.NewMotionRouter(http.MethodPost, "/create", NewShoppingCartController(&service).createShoppingCart,
 			security.Authorization(conn, domain.Role{Name: domain.USER})),
-		config.NewMotionRouter(http.MethodGet, "", NewShoppingCartController(service).getShoppingCart,
+		config.NewMotionRouter(http.MethodGet, "", NewShoppingCartController(&service).getShoppingCart,
 			security.Authorization(conn, domain.Role{Name: domain.USER})),
-		config.NewMotionRouter(http.MethodDelete, "", NewShoppingCartController(service).excludeShoppingCart,
+		config.NewMotionRouter(http.MethodDelete, "", NewShoppingCartController(&service).excludeShoppingCart,
 			security.Authorization(conn, domain.Role{Name: domain.USER})),
-		config.NewMotionRouter(http.MethodPost, "", NewShoppingCartController(service).addProductInShoppingCart,
+		config.NewMotionRouter(http.MethodPost, "", NewShoppingCartController(&service).addProductInShoppingCart,
 			security.Authorization(conn, domain.Role{Name: domain.USER})),
 	).Add()
 }

@@ -27,7 +27,7 @@ type motionStructRepository[T Entity] struct {
 
 func newMotionRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] {
 	var myStruct T
-	return motionStructRepository[T]{
+	return &motionStructRepository[T]{
 		myStruct: myStruct,
 		database: gormConnection,
 	}

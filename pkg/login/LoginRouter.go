@@ -15,7 +15,7 @@ func NewLoginRouter(engine *gin.RouterGroup,
 
 	service := NewLoginService(conn())
 	config.NewMotionController(engine.Group("auth"),
-		config.NewMotionRouter(http.MethodPost, "/login", NewLoginControler(service).login),
-		config.NewMotionRouter(http.MethodPost, "/sign-up", NewLoginControler(service).signUp),
+		config.NewMotionRouter(http.MethodPost, "/login", NewLoginControler(&service).login),
+		config.NewMotionRouter(http.MethodPost, "/sign-up", NewLoginControler(&service).signUp),
 	).Add()
 }

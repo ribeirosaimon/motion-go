@@ -11,10 +11,10 @@ import (
 )
 
 type controller struct {
-	shoppingCartService service
+	shoppingCartService *service
 }
 
-func NewShoppingCartController(shoppingCartService service) controller {
+func NewShoppingCartController(shoppingCartService *service) controller {
 	return controller{shoppingCartService: shoppingCartService}
 }
 
