@@ -22,7 +22,7 @@ func BenchmarkController(b *testing.B) {
 	resp, req, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
-		// util.ErrorTest(b, http.StatusOK, resp.Code)
+		// util.AssertEquals(b, http.StatusOK, resp.Code)
 	}
 	if err != nil {
 		b.Error("error in request")
@@ -44,13 +44,13 @@ func TestOpenController(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 
-	util.ErrorTest(t, resp.Code, http.StatusOK)
+	util.AssertEquals(t, resp.Code, http.StatusOK)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	util.ErrorTest(t, nil, err)
-	util.ErrorTest(t, response.Ready, true)
-	util.ErrorTest(t, response.Time.Day(), time.Now().Day())
+	util.AssertEquals(t, nil, err)
+	util.AssertEquals(t, response.Ready, true)
+	util.AssertEquals(t, response.Time.Day(), time.Now().Day())
 }
 
 func TestCloseControllerSendError(t *testing.T) {
@@ -58,8 +58,8 @@ func TestCloseControllerSendError(t *testing.T) {
 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, "", domain.USER)
-	util.ErrorTest(t, nil, err)
-	util.ErrorTest(t, http.StatusForbidden, resp.Code)
+	util.AssertEquals(t, nil, err)
+	util.AssertEquals(t, http.StatusForbidden, resp.Code)
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
@@ -69,13 +69,13 @@ func TestCloseControllerSuccess(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, session, domain.USER)
 
-	util.ErrorTest(t, http.StatusOK, resp.Code)
+	util.AssertEquals(t, http.StatusOK, resp.Code)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	util.ErrorTest(t, err, nil)
-	util.ErrorTest(t, response.Ready, true)
-	util.ErrorTest(t, response.Time.Day(), time.Now().Day())
+	util.AssertEquals(t, err, nil)
+	util.AssertEquals(t, response.Ready, true)
+	util.AssertEquals(t, response.Time.Day(), time.Now().Day())
 }
 
 type healthApiResponse struct {

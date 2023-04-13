@@ -3,6 +3,7 @@ package product
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
+	motionHttp "github.com/ribeirosaimon/motion-go/pkg/httpresponse"
 	"github.com/shopspring/decimal"
 )
 
@@ -21,7 +22,28 @@ func (c controller) saveProduct(ctx *gin.Context) {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	c.productService.saveProduct(productDto)
+	product, err := c.productService.saveProduct(productDto)
+	if err != nil {
+		exceptions.InternalServer(err.Error()).Throw(ctx)
+		return
+	}
+	motionHttp.Created(ctx, product)
+}
+
+func (c controller) updateProduct(ctx *gin.Context) {
+	var productDto ProductDto
+	id := ctx.Param("id")
+
+	if err := ctx.BindJSON(&productDto); err != nil {
+		exceptions.BodyError().Throw(ctx)
+		return
+	}
+	product, err := c.productService.updateProduct(productDto, id)
+	if err != nil {
+		exceptions.InternalServer(err.Error()).Throw(ctx)
+		return
+	}
+	motionHttp.Ok(ctx, product)
 }
 
 type ProductDto struct {

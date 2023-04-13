@@ -19,7 +19,7 @@ func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
 		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
 
-	util.ErrorTest(t, resp.Code, http.StatusCreated)
+	util.AssertEquals(t, resp.Code, http.StatusCreated)
 
 }
 
@@ -29,8 +29,8 @@ func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
 		nil, TokenUser, domain.USER)
 
-	util.ErrorTest(t, err, nil)
-	util.ErrorTest(t, resp.Code, http.StatusConflict)
+	util.AssertEquals(t, err, nil)
+	util.AssertEquals(t, resp.Code, http.StatusConflict)
 }
 
 func TestHaveToDeleteShoppingCartAndReturnOk(t *testing.T) {
@@ -41,6 +41,6 @@ func TestHaveToDeleteShoppingCartAndReturnOk(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
-	util.ErrorTest(t, http.StatusOK, resp.Code)
-	util.ErrorTest(t, "", resp.Body.String())
+	util.AssertEquals(t, http.StatusOK, resp.Code)
+	util.AssertEquals(t, "", resp.Body.String())
 }

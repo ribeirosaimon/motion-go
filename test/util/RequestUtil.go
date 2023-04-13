@@ -107,14 +107,22 @@ func SuccessTest(info string) string {
 	return fmt.Sprintf("\033[32mSuccess:\033[0m %s.\"", info)
 }
 
-func ErrorTest(t *testing.T, v1, v2 interface{}) {
+func AssertEquals(t *testing.T, v1, v2 interface{}) {
 	// Obtém informações sobre a chamada anterior
 	_, _, line, _ := runtime.Caller(1)
 
 	if v1 != v2 {
 		t.Errorf("\033[31mError in line %d:\033[0m.\" Expected: %s but received: %s\n", line, v1, v2)
 	}
+}
 
+func AssertNotEquals(t *testing.T, v1, v2 interface{}) {
+	// Obtém informações sobre a chamada anterior
+	_, _, line, _ := runtime.Caller(1)
+
+	if v1 == v2 {
+		t.Errorf("\033[31mError in line %d:\033[0m.\" Expected: %s but received: %s\n", line, v1, v2)
+	}
 }
 
 func AddController(enginer *gin.Engine, subs string, f func(engine *gin.RouterGroup,

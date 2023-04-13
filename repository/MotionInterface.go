@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -46,7 +47,7 @@ func (m motionStructRepository[T]) FindWithPreloads(preloads string, s interface
 	var value T
 	tx := m.database.Preload(preloads).Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf(tx.Error.Error())
+		return value, errors.New("values not found")
 	}
 
 	return value, nil
@@ -56,7 +57,7 @@ func (m motionStructRepository[T]) FindByField(field string, fieldvalue interfac
 	var value T
 	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf(tx.Error.Error())
+		return value, errors.New("values not found")
 	}
 
 	return value, nil
