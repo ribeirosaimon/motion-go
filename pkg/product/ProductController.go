@@ -1,6 +1,8 @@
 package product
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 	motionHttp "github.com/ribeirosaimon/motion-go/pkg/httpresponse"
@@ -31,8 +33,14 @@ func (c controller) saveProduct(ctx *gin.Context) {
 }
 
 func (c controller) updateProduct(ctx *gin.Context) {
+
 	var productDto ProductDto
-	id := ctx.Param("id")
+
+	id, err := strconv.ParseInt(ctx.Params.ByName("id"), 10, 64)
+	if err != nil {
+		exceptions.BodyError().Throw(ctx)
+		return
+	}
 
 	if err := ctx.BindJSON(&productDto); err != nil {
 		exceptions.BodyError().Throw(ctx)
@@ -40,7 +48,7 @@ func (c controller) updateProduct(ctx *gin.Context) {
 	}
 	product, err := c.productService.updateProduct(productDto, id)
 	if err != nil {
-		exceptions.InternalServer(err.Error()).Throw(ctx)
+		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
 	motionHttp.Ok(ctx, product)

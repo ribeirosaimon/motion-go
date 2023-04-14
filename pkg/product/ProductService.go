@@ -2,6 +2,7 @@ package product
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/domain"
@@ -21,7 +22,7 @@ func NewShoppingCartService(conn *gorm.DB, close *sql.DB) service {
 	}
 }
 
-func (s service) getProduct(id string) (domain.Product, error) {
+func (s service) getProduct(id int64) (domain.Product, error) {
 	byId, err := s.productRepository.FindById(id)
 	if err != nil || byId.Status == domain.INACTIVE {
 		return domain.Product{}, err
@@ -41,10 +42,10 @@ func (s service) saveProduct(dto ProductDto) (domain.Product, error) {
 	return s.productRepository.Save(product)
 }
 
-func (s service) updateProduct(dto ProductDto, id string) (domain.Product, error) {
+func (s service) updateProduct(dto ProductDto, id int64) (domain.Product, error) {
 	product, err := s.getProduct(id)
 	if err != nil {
-		return domain.Product{}, err
+		return domain.Product{}, errors.New("product not found")
 	}
 
 	product.Name = dto.Name

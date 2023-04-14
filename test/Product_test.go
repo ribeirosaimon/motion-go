@@ -42,7 +42,7 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	idProduct = productResponse.Id
 }
 
-func TestHaveToAddProductAndReturnError(t *testing.T) {
+func TestHaveToPutProductAndReturnOk(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
 
 	bd1, _ := decimal.NewFromString("321.61")
@@ -74,3 +74,4 @@ func TestHaveToAddProductAndReturnError(t *testing.T) {
 	util.AssertEquals(t, productResponse.Image, productDto.Image)
 	util.AssertEquals(t, productResponse.Id, idProduct)
 
+}
