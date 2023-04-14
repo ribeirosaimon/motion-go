@@ -3,6 +3,7 @@ package test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/magiconair/properties/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -44,13 +45,13 @@ func TestOpenController(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 
-	util.AssertEquals(t, resp.Code, http.StatusOK)
+	assert.Equal(t, resp.Code, http.StatusOK)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	util.AssertEquals(t, nil, err)
-	util.AssertEquals(t, response.Ready, true)
-	util.AssertEquals(t, response.Time.Day(), time.Now().Day())
+	assert.Equal(t, nil, err)
+	assert.Equal(t, response.Ready, true)
+	assert.Equal(t, response.Time.Day(), time.Now().Day())
 }
 
 func TestCloseControllerSendError(t *testing.T) {
@@ -58,8 +59,8 @@ func TestCloseControllerSendError(t *testing.T) {
 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, "", domain.USER)
-	util.AssertEquals(t, nil, err)
-	util.AssertEquals(t, http.StatusForbidden, resp.Code)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusForbidden, resp.Code)
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
@@ -69,13 +70,13 @@ func TestCloseControllerSuccess(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, session, domain.USER)
 
-	util.AssertEquals(t, http.StatusOK, resp.Code)
+	assert.Equal(t, http.StatusOK, resp.Code)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	util.AssertEquals(t, err, nil)
-	util.AssertEquals(t, response.Ready, true)
-	util.AssertEquals(t, response.Time.Day(), time.Now().Day())
+	assert.Equal(t, err, nil)
+	assert.Equal(t, response.Ready, true)
+	assert.Equal(t, response.Time.Day(), time.Now().Day())
 }
 
 type healthApiResponse struct {

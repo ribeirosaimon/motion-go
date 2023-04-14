@@ -1,6 +1,7 @@
 package test
 
 import (
+	"github.com/magiconair/properties/assert"
 	"net/http"
 	"testing"
 
@@ -19,7 +20,7 @@ func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
 		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
 
-	util.AssertEquals(t, resp.Code, http.StatusCreated)
+	assert.Equal(t, resp.Code, http.StatusCreated)
 
 }
 
@@ -29,8 +30,8 @@ func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
 		nil, TokenUser, domain.USER)
 
-	util.AssertEquals(t, err, nil)
-	util.AssertEquals(t, resp.Code, http.StatusConflict)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, resp.Code, http.StatusConflict)
 }
 
 func TestHaveToDeleteShoppingCartAndReturnOk(t *testing.T) {
@@ -41,6 +42,6 @@ func TestHaveToDeleteShoppingCartAndReturnOk(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
-	util.AssertEquals(t, http.StatusOK, resp.Code)
-	util.AssertEquals(t, "", resp.Body.String())
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, "", resp.Body.String())
 }

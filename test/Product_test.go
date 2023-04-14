@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/magiconair/properties/assert"
 	"net/http"
 	"testing"
 
@@ -36,9 +37,8 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	util.AssertEquals(t, resp.Code, http.StatusCreated)
-	util.AssertEquals(t, productResponse.Image, productDto.Image)
-	util.AssertNotEquals(t, &productResponse.Id, nil)
+	assert.Equal(t, resp.Code, http.StatusCreated)
+	assert.Equal(t, productResponse.Image, productDto.Image)
 	idProduct = productResponse.Id
 }
 
@@ -70,8 +70,7 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	util.AssertEquals(t, resp.Code, http.StatusOK)
-	util.AssertEquals(t, productResponse.Image, productDto.Image)
-	util.AssertEquals(t, productResponse.Id, idProduct)
-
+	assert.Equal(t, resp.Code, http.StatusOK)
+	assert.Equal(t, productResponse.Image, productDto.Image)
+	assert.Equal(t, productResponse.Id, idProduct)
 }
