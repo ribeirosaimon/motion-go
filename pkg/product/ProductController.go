@@ -36,7 +36,7 @@ func (c controller) updateProduct(ctx *gin.Context) {
 
 	var productDto ProductDto
 
-	id, err := strconv.ParseInt(ctx.Params.ByName("id"), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param("productId"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return

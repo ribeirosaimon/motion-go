@@ -57,7 +57,7 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 		panic(err)
 	}
 
-	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost,
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPut,
 		fmt.Sprintf("/api/v1/product/%d", idProduct),
 		bytes.NewReader(jsonData), TokenAdmin, domain.ADMIN)
 
