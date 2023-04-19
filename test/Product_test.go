@@ -75,3 +75,9 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 	util.AssertEquals(t, productResponse.Id, idProduct)
 
 }
+
+
+func TestHaveToDeleteProductAndReturnOk(t *testing.T) {
+	TestHaveToAddProductAndReturnOk(t)
+	.
+}

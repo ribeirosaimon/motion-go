@@ -54,6 +54,20 @@ func (c controller) updateProduct(ctx *gin.Context) {
 	motionHttp.Ok(ctx, product)
 }
 
+func (c controller) deleteProduct(ctx *gin.Context) {
+	id, err := strconv.ParseInt(ctx.Param("productId"), 10, 64)
+	if err != nil {
+		exceptions.BodyError().Throw(ctx)
+		return
+	}
+
+	if !c.productService.deleteProduct(id) {
+		exceptions.MotionError("cannot be deleted").Throw(ctx)
+		return
+	}
+	motionHttp.Ok(ctx, nil)
+}
+
 type ProductDto struct {
 	Name  string          `json:"name"`
 	Price decimal.Decimal `json:"price"`

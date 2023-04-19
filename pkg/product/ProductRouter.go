@@ -19,5 +19,7 @@ func NewProductRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.DB)) 
 			security.Authorization(conn, domain.Role{Name: domain.ADMIN})),
 		config.NewMotionRouter(http.MethodPut, "/:productId", NewProductController(&service).updateProduct,
 			security.Authorization(conn, domain.Role{Name: domain.ADMIN})),
+		config.NewMotionRouter(http.MethodDelete, "/:productId", NewProductController(&service).deleteProduct,
+			security.Authorization(conn, domain.Role{Name: domain.ADMIN})),
 	).Add()
 }

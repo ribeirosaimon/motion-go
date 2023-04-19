@@ -55,3 +55,16 @@ func (s service) updateProduct(dto ProductDto, id int64) (domain.Product, error)
 
 	return s.productRepository.Save(product)
 }
+
+func (s service) deleteProduct(id int64) bool {
+	product, err := s.productRepository.FindById(id)
+	if err != nil {
+		return false
+	}
+	product.Status = domain.INACTIVE
+	_, err = s.productRepository.Save(product)
+	if err != nil {
+		return false
+	}
+	return true
+}
