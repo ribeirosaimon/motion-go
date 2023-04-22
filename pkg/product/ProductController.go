@@ -26,7 +26,7 @@ func (c controller) saveProduct(ctx *gin.Context) {
 	}
 	product, err := c.productService.saveProduct(productDto)
 	if err != nil {
-		exceptions.InternalServer(err.Error()).Throw(ctx)
+		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
 	motionHttp.Created(ctx, product)
@@ -66,6 +66,20 @@ func (c controller) deleteProduct(ctx *gin.Context) {
 		return
 	}
 	motionHttp.Ok(ctx, nil)
+}
+
+func (c controller) getProduct(ctx *gin.Context) {
+	id, err := strconv.ParseInt(ctx.Param("productId"), 10, 64)
+	if err != nil {
+		exceptions.BodyError().Throw(ctx)
+		return
+	}
+	product, err := c.productService.getProduct(id)
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(ctx)
+		return
+	}
+	motionHttp.Ok(ctx, product)
 }
 
 type ProductDto struct {

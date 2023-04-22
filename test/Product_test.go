@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/magiconair/properties/assert"
 	"net/http"
 	"testing"
+
+	"github.com/magiconair/properties/assert"
 
 	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/product"
@@ -75,8 +76,43 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 	assert.Equal(t, productResponse.Id, idProduct)
 }
 
+func TestHaveToGetProductAndReturnOk(t *testing.T) {
+	TestHaveToAddProductAndReturnOk(t)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet,
+		fmt.Sprintf("/api/v1/product/%d", idProduct),
+		nil, TokenAdmin, domain.ADMIN)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, resp.Code, http.StatusOK)
+}
 
 func TestHaveToDeleteProductAndReturnOk(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
-	.
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodDelete,
+		fmt.Sprintf("/api/v1/product/%d", idProduct),
+		nil, TokenAdmin, domain.ADMIN)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, resp.Code, http.StatusOK)
+}
+
+func TestCanotSaveSameProduct(t *testing.T) {
+	TestHaveToAddProductAndReturnOk(t)
+	bd1, _ := decimal.NewFromString("3.46")
+	productDto := product.ProductDto{
+		Price: bd1,
+		Name:  "Teste",
+		Image: "http://teste",
+	}
+	jsonData, err := json.Marshal(productDto)
+
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/product",
+		bytes.NewReader(jsonData), TokenAdmin, domain.ADMIN)
+
+	if err != nil {
+		t.Error("error in request")
+	}
+	assert.Equal(t, resp.Code, http.StatusConflict)
 }

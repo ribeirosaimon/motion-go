@@ -33,6 +33,10 @@ func (s service) getProduct(id int64) (domain.Product, error) {
 func (s service) saveProduct(dto ProductDto) (domain.Product, error) {
 	var product domain.Product
 
+	if s.productRepository.ExistByField("name", dto.Name) {
+		return product, errors.New("this product already exists")
+	}
+
 	product.Name = dto.Name
 	product.Image = dto.Image
 	product.Price = dto.Price
