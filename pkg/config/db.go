@@ -1,4 +1,4 @@
-package database
+package config
 
 import (
 	"database/sql"
@@ -9,6 +9,19 @@ import (
 	"gorm.io/gorm"
 )
 
+var dbInstance *gorm.DB
+
+func createDbInstance(dsn string) *gorm.DB {
+	if dbInstance == nil {
+		dbInstance, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err != nil {
+			panic(err)
+		}
+		return dbInstance
+	}
+	return dbInstance
+}
+
 func Connect() (*gorm.DB, *sql.DB) {
 	p := properties.MustLoadFile("config.properties", properties.UTF8)
 	dbUsername := p.GetString("database.username", "")
@@ -18,7 +31,7 @@ func Connect() (*gorm.DB, *sql.DB) {
 	dbHost := p.GetString("database.host", "")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s "+
 		"dbname=%s port=%d sslmode=disable", dbHost, dbUsername, dbPassword, dbName, dbPort)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db := createDbInstance(dsn)
 	sqlDB, err := db.DB()
 	if err != nil {
 		panic("erro connection Db")

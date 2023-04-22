@@ -2,15 +2,15 @@ package health
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/config/motionHttp"
+	motionHttp "github.com/ribeirosaimon/motion-go/pkg/httpresponse"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 )
 
 type healthController struct {
-	service healthService
+	service *healthService
 }
 
-func NewHealthController(service healthService) healthController {
+func NewHealthController(service *healthService) healthController {
 	return healthController{service: service}
 }
 func (c healthController) openHealth(ctx *gin.Context) {

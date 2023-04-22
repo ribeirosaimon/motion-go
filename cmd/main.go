@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/config/database"
+	"github.com/ribeirosaimon/motion-go/pkg/config"
 	"github.com/ribeirosaimon/motion-go/pkg/routers"
 	"github.com/ribeirosaimon/motion-go/repository"
 )
@@ -23,7 +23,7 @@ func main() {
 }
 
 func setUpRoles() {
-	connect, close := database.Connect()
+	connect, close := config.Connect()
 	roleRepository := repository.NewRoleRepository(connect)
 	allRoles := []domain.RoleEnum{domain.USER, domain.ADMIN}
 	for _, i := range allRoles {

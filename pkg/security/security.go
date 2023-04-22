@@ -36,6 +36,10 @@ func Authorization(dbConn func() (*gorm.DB, *sql.DB), roles ...domain.Role) gin.
 				savedSession, err := repository.NewSessionRepository(connect).FindByField("session_id", bearerToken)
 				// verify if exist this Role
 				motionLoggedRole, err := repository.NewRoleRepository(connect).FindByField("name", motionValues)
+				if err != nil {
+					exceptions.FieldError("you no have motion roles").Throw(c)
+					return
+				}
 				// get Profile by sessionId
 				profile, err := profile.NewProfileService(connect, close).FindProfileByUserId(savedSession.ProfileId)
 				if err != nil {

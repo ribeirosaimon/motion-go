@@ -3,11 +3,13 @@ package test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/pkg/health"
+	"github.com/magiconair/properties/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/pkg/health"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
@@ -15,15 +17,13 @@ import (
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var healthEnginer = gin.New()
-
 func BenchmarkController(b *testing.B) {
 	start := time.Now()
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, req, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, req, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 	if resp.Code != http.StatusOK {
-		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
+		// util.AssertEquals(b, http.StatusOK, resp.Code)
 	}
 	if err != nil {
 		b.Error("error in request")
@@ -41,63 +41,42 @@ func BenchmarkController(b *testing.B) {
 
 func TestOpenController(t *testing.T) {
 	t.Log("Test open controller")
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/open",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
 		nil, "", domain.USER)
 
-	if resp.Code != http.StatusOK {
-		t.Errorf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code)
-	}
+	assert.Equal(t, resp.Code, http.StatusOK)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	if err != nil {
-		t.Errorf("Unmarshal erro: %s", err.Error())
-	}
-	if response.Ready != true {
-		t.Errorf("Status must be bool: %s", resp.Body.String())
-	}
-	if &response.Time == nil {
-		t.Errorf("Time must be unlike nil: %s", resp.Body.String())
-	}
+	assert.Equal(t, nil, err)
+	assert.Equal(t, response.Ready, true)
+	assert.Equal(t, response.Time.Day(), time.Now().Day())
 }
 
 func TestCloseControllerSendError(t *testing.T) {
 	t.Log("Test close controller send error")
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, "", domain.USER)
-	if err != nil {
-		util.ErrorTest(fmt.Sprintf("erro"))
-	}
-	if resp.Code != http.StatusForbidden {
-		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d",
-			http.StatusForbidden, resp.Code))
-	}
+	assert.Equal(t, nil, err)
+	assert.Equal(t, http.StatusForbidden, resp.Code)
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
 	t.Log("Test close controller sucess")
-	util.AddController(healthEnginer, "/api/v1/health", health.NewHealthRouter)
-	session, err := util.SignUp(healthEnginer, domain.USER, domain.ADMIN, domain.USER)
-	resp, _, err := util.CreateEngineRequest(healthEnginer, http.MethodGet, "/api/v1/health/close",
+	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
+	session, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
 		nil, session, domain.USER)
 
-	if resp.Code != http.StatusOK {
-		util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusOK, resp.Code))
-	}
+	assert.Equal(t, http.StatusOK, resp.Code)
 
 	var response healthApiResponse
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	if err != nil {
-		util.ErrorTest(fmt.Sprintf("Unmarshal erro: %s", err.Error()))
-	}
-	if response.Ready != true {
-		util.ErrorTest(fmt.Sprintf("Status must be bool: %s", resp.Body.String()))
-	}
-	if &response.Time == nil {
-		util.ErrorTest(fmt.Sprintf("Time must be unlike nil: %s", resp.Body.String()))
-	}
+	assert.Equal(t, err, nil)
+	assert.Equal(t, response.Ready, true)
+	assert.Equal(t, response.Time.Day(), time.Now().Day())
 }
 
 type healthApiResponse struct {

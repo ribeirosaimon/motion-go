@@ -1,60 +1,47 @@
 package test
 
 import (
-	"fmt"
-	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
+	"github.com/magiconair/properties/assert"
 	"net/http"
 	"testing"
 
-	"github.com/gin-gonic/gin"
+	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
+
 	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
-var shoppingCartEnginer = gin.New()
-
-var myToken string
-
-func getToken() string {
-
-	token, err := util.SignUp(shoppingCartEnginer, domain.USER, domain.ADMIN, domain.USER)
-	if err != nil {
-		util.ErrorTest(err.Error())
-	}
-
-	return token
-}
-
 func TestHaveToCreateShoppingCartAndReturnOk(t *testing.T) {
-	util.AddController(shoppingCartEnginer, "/api/v1/shopping-cart", shoppingcart.NewShoppingCartRouter)
-	resp, _, err := util.CreateEngineRequest(shoppingCartEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
-		nil, myToken, domain.USER)
+	util.AddController(testEnginer, "/api/v1/shopping-cart", shoppingcart.NewShoppingCartRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
+		nil, TokenUser, domain.USER)
 
 	if err != nil {
 		t.Errorf("Unmarshal erro: %s", err.Error())
 	}
 
-	if resp.Code != http.StatusCreated {
-		t.Errorf(util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusCreated, resp.Code)))
-	}
+	assert.Equal(t, resp.Code, http.StatusCreated)
 
 }
 
 func TestHaveNotCreateShoppingCartAndReturnError(t *testing.T) {
 	// creating a new shopping cart
-	util.AddController(shoppingCartEnginer, "/api/v1/shopping-cart", shoppingcart.NewShoppingCartRouter)
-	resp, _, err := util.CreateEngineRequest(shoppingCartEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
-		nil, myToken, domain.USER)
+	util.AddController(testEnginer, "/api/v1/shopping-cart", shoppingcart.NewShoppingCartRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/shopping-cart/create",
+		nil, TokenUser, domain.USER)
 
-	if err != nil {
-		t.Errorf(util.ErrorTest("Need to return a error"))
-	}
-
-	if resp.Code != http.StatusConflict {
-		t.Errorf(util.ErrorTest(fmt.Sprintf("Expected Http status: %d; but is received: %d", http.StatusCreated, resp.Code)))
-	}
+	assert.Equal(t, err, nil)
+	assert.Equal(t, resp.Code, http.StatusConflict)
 }
 
-func init() {
-	myToken = getToken()
+func TestHaveToDeleteShoppingCartAndReturnOk(t *testing.T) {
+	//TestHaveToCreateShoppingCartAndReturnOk(t)
+	util.AddController(testEnginer, "/api/v1/shopping-cart", shoppingcart.NewShoppingCartRouter)
+	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodDelete, "/api/v1/shopping-cart",
+		nil, TokenUser, domain.USER)
+	if err != nil {
+		t.Errorf("Unmarshal erro: %s", err.Error())
+	}
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, "", resp.Body.String())
 }

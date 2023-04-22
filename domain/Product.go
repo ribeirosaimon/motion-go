@@ -9,3 +9,7 @@ type Product struct {
 	Image string          `json:"image"`
 	BasicSQL
 }
+
+func (p Product) GetId() interface{} {
+	return p.Id
+}
