@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -27,7 +28,7 @@ type motionStructRepository[T Entity] struct {
 
 func newMotionRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] {
 	var myStruct T
-	return motionStructRepository[T]{
+	return &motionStructRepository[T]{
 		myStruct: myStruct,
 		database: gormConnection,
 	}
@@ -46,7 +47,7 @@ func (m motionStructRepository[T]) FindWithPreloads(preloads string, s interface
 	var value T
 	tx := m.database.Preload(preloads).Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf(tx.Error.Error())
+		return value, errors.New("values not found")
 	}
 
 	return value, nil
@@ -56,7 +57,7 @@ func (m motionStructRepository[T]) FindByField(field string, fieldvalue interfac
 	var value T
 	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf(tx.Error.Error())
+		return value, errors.New("values not found")
 	}
 
 	return value, nil
@@ -66,7 +67,7 @@ func (m motionStructRepository[T]) FindById(s interface{}) (T, error) {
 	var value T
 	tx := m.database.Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
-		return value, fmt.Errorf(tx.Error.Error())
+		return value, errors.New("values not found")
 	}
 
 	return value, nil
@@ -76,7 +77,7 @@ func (m motionStructRepository[T]) FindAll(limit, page int) ([]T, error) {
 	var values []T
 	tx := m.database.Limit(limit).Offset(page).Find(&values)
 	if err := tx.Error; err != nil {
-		return nil, fmt.Errorf(tx.Error.Error())
+		return nil, errors.New("values not found")
 	}
 	return values, nil
 }
@@ -90,7 +91,7 @@ func (m motionStructRepository[T]) DeleteById(s interface{}) error {
 	if tx.Error == nil && tx.RowsAffected > 0 {
 		return nil
 	}
-	return fmt.Errorf(tx.Error.Error())
+	return errors.New("values not found")
 }
 
 func (m motionStructRepository[T]) Save(structValue T) (T, error) {

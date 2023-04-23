@@ -26,7 +26,7 @@ func NewShoppingCartService(conn *gorm.DB, close *sql.DB) service {
 	}
 }
 
-func (s service) loadShoppingCart(user security.LoggedUser) (domain.ShoppingCart, error) {
+func (s service) getShoppingCart(user security.LoggedUser) (domain.ShoppingCart, error) {
 	exist := s.shoppingCartRepository.ExistByField("profile_id", user.UserId)
 	if !exist {
 		return domain.ShoppingCart{}, errors.New("not found")
@@ -39,7 +39,7 @@ func (s service) loadShoppingCart(user security.LoggedUser) (domain.ShoppingCart
 }
 
 func (s service) createShoppingCart(loggedUser security.LoggedUser) (domain.ShoppingCart, error) {
-	_, err := s.loadShoppingCart(loggedUser)
+	_, err := s.getShoppingCart(loggedUser)
 	if err == nil {
 		return domain.ShoppingCart{}, errors.New("you already have a shopping cart")
 	}
@@ -59,4 +59,16 @@ func (s service) createShoppingCart(loggedUser security.LoggedUser) (domain.Shop
 		return domain.ShoppingCart{}, err
 	}
 	return savedShoppingCart, nil
+}
+
+func (s service) deleteShoppingCart(loggedUser security.LoggedUser) error {
+	shoppingCart, err := s.getShoppingCart(loggedUser)
+	if err != nil {
+		return errors.New("you not have a shooping cart")
+	}
+	err = s.shoppingCartRepository.DeleteById(shoppingCart.Id)
+	if err != nil {
+		return errors.New("problem when delete your shopping cart")
+	}
+	return nil
 }

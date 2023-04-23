@@ -10,7 +10,6 @@ type Profile struct {
 	FamilyName string     `json:"familyName"`
 	Age        uint8      `json:"age"`
 	Birthday   time.Time  `json:"birthday"`
-	Status     Status     `json:"status"`
 	UserId     uint64     `json:"userId"`
 	User       MotionUser `json:"user" gorm:"foreignkey:Id"`
 	Roles      []Role     `json:"roles" gorm:"many2many:profile_roles;"`
@@ -35,7 +34,6 @@ type Status string
 const (
 	ACTIVE   Status = "ACTIVE"
 	INACTIVE        = "INACTIVE"
-	BANISH          = "BANISH"
 )
 
 type RoleList []string

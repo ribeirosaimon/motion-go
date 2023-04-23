@@ -4,18 +4,18 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/ribeirosaimon/motion-go/internal/config"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/config/controllers"
 )
 
 func NewLoginRouter(engine *gin.RouterGroup,
 	conn func() (*gorm.DB, *sql.DB)) {
 
 	service := NewLoginService(conn())
-	controllers.NewMotionController(engine.Group("auth"),
-		controllers.NewMotionRouter(http.MethodPost, "/login", NewLoginControler(service).login),
-		controllers.NewMotionRouter(http.MethodPost, "/sign-up", NewLoginControler(service).signUp),
+	config.NewMotionController(engine.Group("auth"),
+		config.NewMotionRouter(http.MethodPost, "/login", NewLoginControler(&service).login),
+		config.NewMotionRouter(http.MethodPost, "/sign-up", NewLoginControler(&service).signUp),
 	).Add()
 }

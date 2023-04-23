@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
+	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -36,6 +36,10 @@ func Authorization(dbConn func() (*gorm.DB, *sql.DB), roles ...domain.Role) gin.
 				savedSession, err := repository.NewSessionRepository(connect).FindByField("session_id", bearerToken)
 				// verify if exist this Role
 				motionLoggedRole, err := repository.NewRoleRepository(connect).FindByField("name", motionValues)
+				if err != nil {
+					exceptions.FieldError("you no have motion roles").Throw(c)
+					return
+				}
 				// get Profile by sessionId
 				profile, err := profile.NewProfileService(connect, close).FindProfileByUserId(savedSession.ProfileId)
 				if err != nil {
