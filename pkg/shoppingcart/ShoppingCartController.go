@@ -3,10 +3,9 @@ package shoppingcart
 import (
 	"net/http"
 
-	"github.com/ribeirosaimon/motion-go/pkg/httpresponse"
-
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
+	"github.com/ribeirosaimon/motion-go/internal/exceptions"
+	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 )
 

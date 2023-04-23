@@ -2,7 +2,7 @@ package health
 
 import (
 	"github.com/gin-gonic/gin"
-	motionHttp "github.com/ribeirosaimon/motion-go/pkg/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 )
 
@@ -15,10 +15,10 @@ func NewHealthController(service *healthService) healthController {
 }
 func (c healthController) openHealth(ctx *gin.Context) {
 	health := c.service.getOpenHealthService()
-	motionHttp.Ok(ctx, health)
+	httpresponse.Ok(ctx, health)
 }
 
 func (c healthController) closeHealth(ctx *gin.Context) {
 	health := c.service.getHealthService(security.GetLoggedUser(ctx))
-	motionHttp.Ok(ctx, health)
+	httpresponse.Ok(ctx, health)
 }

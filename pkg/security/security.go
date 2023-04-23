@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
+	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/repository"
 	"golang.org/x/crypto/bcrypt"

@@ -3,8 +3,8 @@ package login
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
-	"github.com/ribeirosaimon/motion-go/pkg/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/exceptions"
+	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
 )
 
 type loginController struct {

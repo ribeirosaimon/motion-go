@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
-	motionHttp "github.com/ribeirosaimon/motion-go/pkg/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/exceptions"
+	motionHttp "github.com/ribeirosaimon/motion-go/internal/httpresponse"
 	"github.com/shopspring/decimal"
 )
 

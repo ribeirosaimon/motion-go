@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"gorm.io/gorm"
 
 	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"github.com/ribeirosaimon/motion-go/pkg/session"
