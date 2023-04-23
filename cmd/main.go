@@ -29,14 +29,14 @@ func motionRouters(engine *gin.Engine) {
 	p := properties.MustLoadFile("config.properties", properties.UTF8)
 	apiVersion := engine.Group(fmt.Sprintf("/api/%s", p.GetString("api.version", "v1")))
 
-	health.NewHealthRouter(apiVersion, config.Connect)
-	login.NewLoginRouter(apiVersion, config.Connect)
-	shoppingcart.NewShoppingCartRouter(apiVersion, config.Connect)
-	product.NewProductRouter(apiVersion, config.Connect)
+	health.NewHealthRouter(apiVersion, config.ConnectSqlDb)
+	login.NewLoginRouter(apiVersion, config.ConnectSqlDb)
+	shoppingcart.NewShoppingCartRouter(apiVersion, config.ConnectSqlDb)
+	product.NewProductRouter(apiVersion, config.ConnectSqlDb)
 }
 
 func setUpRoles() {
-	connect, close := config.Connect()
+	connect, close := config.ConnectSqlDb()
 	roleRepository := repository.NewRoleRepository(connect)
 	allRoles := []sql.RoleEnum{sql.USER, sql.ADMIN}
 	for _, i := range allRoles {
