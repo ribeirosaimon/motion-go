@@ -47,7 +47,24 @@ func (s controller) excludeShoppingCart(c *gin.Context) {
 	httpresponse.Ok(c, nil)
 }
 
-func (s controller) addProductInShoppingCart(c *gin.Context) {
-	// loggedUser := security.GetLoggedUser(c) //TODO
+func (s controller) addProductInShoppingCart(ctx *gin.Context) {
+	loggedUser := security.GetLoggedUser(ctx)
+	var productDTO productDTO
 
+	if err := ctx.BindJSON(&productDTO); err != nil {
+		exceptions.BodyError().Throw(ctx)
+		return
+	}
+
+	cart, err := s.shoppingCartService.addProductInShoppingCart(loggedUser, productDTO)
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(ctx)
+		return
+	}
+	httpresponse.Ok(ctx, cart)
+}
+
+type productDTO struct {
+	Id     int64 `json:"id"`
+	Amount int64 `json:"amount"`
 }

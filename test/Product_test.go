@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/magiconair/properties/assert"
+	"github.com/ribeirosaimon/motion-go/domain/sql"
 
-	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/product"
 	"github.com/ribeirosaimon/motion-go/test/util"
 	"github.com/shopspring/decimal"
@@ -28,12 +28,12 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	jsonData, err := json.Marshal(productDto)
 
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/product",
-		bytes.NewReader(jsonData), TokenAdmin, domain.ADMIN)
+		bytes.NewReader(jsonData), TokenAdmin, sql.ADMIN)
 
 	if err != nil {
 		t.Error("error in request")
 	}
-	var productResponse = domain.Product{}
+	var productResponse = sql.Product{}
 	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)
 	if err != nil {
 		panic(err)
@@ -60,13 +60,13 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPut,
 		fmt.Sprintf("/api/v1/product/%d", idProduct),
-		bytes.NewReader(jsonData), TokenAdmin, domain.ADMIN)
+		bytes.NewReader(jsonData), TokenAdmin, sql.ADMIN)
 
 	if err != nil {
 		t.Error("error in request")
 	}
 
-	var productResponse = domain.Product{}
+	var productResponse = sql.Product{}
 	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)
 	if err != nil {
 		panic(err)
@@ -80,7 +80,7 @@ func TestHaveToGetProductAndReturnOk(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet,
 		fmt.Sprintf("/api/v1/product/%d", idProduct),
-		nil, TokenAdmin, domain.ADMIN)
+		nil, TokenAdmin, sql.ADMIN)
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +91,7 @@ func TestHaveToDeleteProductAndReturnOk(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodDelete,
 		fmt.Sprintf("/api/v1/product/%d", idProduct),
-		nil, TokenAdmin, domain.ADMIN)
+		nil, TokenAdmin, sql.ADMIN)
 	if err != nil {
 		panic(err)
 	}
@@ -109,7 +109,7 @@ func TestCanotSaveSameProduct(t *testing.T) {
 	jsonData, err := json.Marshal(productDto)
 
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/product",
-		bytes.NewReader(jsonData), TokenAdmin, domain.ADMIN)
+		bytes.NewReader(jsonData), TokenAdmin, sql.ADMIN)
 
 	if err != nil {
 		t.Error("error in request")

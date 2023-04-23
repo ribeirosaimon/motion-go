@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
-	"github.com/ribeirosaimon/motion-go/domain"
+	"github.com/ribeirosaimon/motion-go/domain/sql"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"github.com/ribeirosaimon/motion-go/pkg/login"
@@ -38,11 +38,11 @@ func motionRouters(engine *gin.Engine) {
 func setUpRoles() {
 	connect, close := config.Connect()
 	roleRepository := repository.NewRoleRepository(connect)
-	allRoles := []domain.RoleEnum{domain.USER, domain.ADMIN}
+	allRoles := []sql.RoleEnum{sql.USER, sql.ADMIN}
 	for _, i := range allRoles {
 		existByName := roleRepository.ExistByField("name", i)
 		if !existByName {
-			roleRepository.Save(domain.Role{Name: i})
+			roleRepository.Save(sql.Role{Name: i})
 		}
 
 	}

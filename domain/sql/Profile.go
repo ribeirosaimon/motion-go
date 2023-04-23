@@ -1,4 +1,4 @@
-package domain
+package sql
 
 import (
 	"time"
@@ -28,12 +28,5 @@ func (p Profile) HaveRole(role RoleEnum) bool {
 func (p Profile) GetId() interface{} {
 	return p.Id
 }
-
-type Status string
-
-const (
-	ACTIVE   Status = "ACTIVE"
-	INACTIVE        = "INACTIVE"
-)
 
 type RoleList []string

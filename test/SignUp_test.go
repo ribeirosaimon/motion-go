@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ribeirosaimon/motion-go/domain"
+	"github.com/ribeirosaimon/motion-go/domain/sql"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
 func TestLoginAndSignUpController(t *testing.T) {
-	session, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
+	session, err := util.SignUp(testEnginer, sql.USER, sql.ADMIN, sql.USER)
 
 	if err != nil {
 		panic(err)

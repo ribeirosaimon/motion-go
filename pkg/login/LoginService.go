@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"time"
 
+	sql2 "github.com/ribeirosaimon/motion-go/domain/sql"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"gorm.io/gorm"
 
-	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"github.com/ribeirosaimon/motion-go/pkg/session"
@@ -15,7 +15,7 @@ import (
 )
 
 type loginService struct {
-	userRepository repository.MotionRepository[domain.MotionUser]
+	userRepository repository.MotionRepository[sql2.MotionUser]
 	profileService profile.Service
 	sessionService session.Service
 	closeDb        *sql.DB
@@ -57,20 +57,20 @@ func (l loginService) loginService(loginDto LoginDto) (string, *exceptions.Error
 	return userSession.SessionId, nil
 }
 
-func (l loginService) signUpService(signupDto SignUpDto) (domain.Profile, *exceptions.Error) {
+func (l loginService) signUpService(signupDto SignUpDto) (sql2.Profile, *exceptions.Error) {
 
 	if signupDto.Email == "" {
-		return domain.Profile{}, exceptions.FieldError("email")
+		return sql2.Profile{}, exceptions.FieldError("email")
 	}
 
 	if signupDto.Email == "" {
-		return domain.Profile{}, exceptions.FieldError("password")
+		return sql2.Profile{}, exceptions.FieldError("password")
 	}
 
-	var user domain.MotionUser
+	var user sql2.MotionUser
 	password, err := security.EncryptPassword(signupDto.Password)
 	if err != nil {
-		return domain.Profile{}, exceptions.BodyError()
+		return sql2.Profile{}, exceptions.BodyError()
 	}
 	user.Name = signupDto.Name
 	user.Password = password
@@ -78,12 +78,12 @@ func (l loginService) signUpService(signupDto SignUpDto) (domain.Profile, *excep
 
 	savedUser, err := l.userRepository.Save(user)
 	if err != nil {
-		return domain.Profile{}, exceptions.InternalServer(err.Error())
+		return sql2.Profile{}, exceptions.InternalServer(err.Error())
 	}
 
 	profileUser, err := l.profileService.SaveProfileUser(savedUser, signupDto.Roles)
 	if err != nil {
-		return domain.Profile{}, exceptions.InternalServer(err.Error())
+		return sql2.Profile{}, exceptions.InternalServer(err.Error())
 	}
 	return profileUser, nil
 }

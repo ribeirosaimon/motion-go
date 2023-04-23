@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/domain"
+	sql2 "github.com/ribeirosaimon/motion-go/domain/sql"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/repository"
@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func haveRole(role domain.Role, roles []domain.Role) bool {
+func haveRole(role sql2.Role, roles []sql2.Role) bool {
 	for _, findRole := range roles {
 		if findRole == role {
 			return true
@@ -22,7 +22,7 @@ func haveRole(role domain.Role, roles []domain.Role) bool {
 	return false
 }
 
-func Authorization(dbConn func() (*gorm.DB, *sql.DB), roles ...domain.Role) gin.HandlerFunc {
+func Authorization(dbConn func() (*gorm.DB, *sql.DB), roles ...sql2.Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		connect, close := dbConn()
 		authHeader := c.GetHeader("Authorization")
@@ -66,7 +66,7 @@ func Authorization(dbConn func() (*gorm.DB, *sql.DB), roles ...domain.Role) gin.
 	}
 }
 
-func putLoggedUserInContext(c *gin.Context, roleLoggedser domain.Role, p domain.Profile) {
+func putLoggedUserInContext(c *gin.Context, roleLoggedser sql2.Role, p sql2.Profile) {
 	var loggedUser LoggedUser
 	loggedUser.UserId = p.UserId
 	loggedUser.Name = p.Name
@@ -92,7 +92,7 @@ func CheckPassword(password string, storedPassword string) error {
 }
 
 type LoggedUser struct {
-	Name   string      `json:"name"`
-	UserId uint64      `json:"loggedId"`
-	Role   domain.Role `json:"role"`
+	Name   string    `json:"name"`
+	UserId uint64    `json:"loggedId"`
+	Role   sql2.Role `json:"role"`
 }

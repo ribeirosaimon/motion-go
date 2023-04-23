@@ -10,10 +10,10 @@ import (
 )
 
 type controller struct {
-	productService *service
+	productService *Service
 }
 
-func NewProductController(pService *service) controller {
+func NewProductController(pService *Service) controller {
 	return controller{productService: pService}
 }
 
@@ -74,7 +74,7 @@ func (c controller) getProduct(ctx *gin.Context) {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	product, err := c.productService.getProduct(id)
+	product, err := c.productService.GetProduct(id)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return

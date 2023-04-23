@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ribeirosaimon/motion-go/domain"
+	sql2 "github.com/ribeirosaimon/motion-go/domain/sql"
 	"github.com/ribeirosaimon/motion-go/repository"
 	"gorm.io/gorm"
 )
 
 type Service struct {
-	sessionRepository repository.MotionRepository[domain.Session]
-	roleRepository    repository.MotionRepository[domain.Role]
+	sessionRepository repository.MotionRepository[sql2.Session]
+	roleRepository    repository.MotionRepository[sql2.Role]
 	closeDb           *sql.DB
 }
 
@@ -24,8 +24,8 @@ func NewLoginService(conn *gorm.DB, close *sql.DB) Service {
 	}
 }
 
-func (s Service) SaveUserSession(user domain.Profile) (domain.Session, error) {
-	var session domain.Session
+func (s Service) SaveUserSession(user sql2.Profile) (sql2.Session, error) {
+	var session sql2.Session
 
 	session.SessionId = fmt.Sprintf("%s-%s", uuid.New(), uuid.New())
 	session.ProfileId = user.Id

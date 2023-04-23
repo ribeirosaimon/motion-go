@@ -1,57 +1,58 @@
 package repository
 
 import (
-	"github.com/ribeirosaimon/motion-go/domain"
+	"github.com/ribeirosaimon/motion-go/domain/nosql"
+	"github.com/ribeirosaimon/motion-go/domain/sql"
 	"gorm.io/gorm"
 )
 
 var (
-	userRepository         *MotionRepository[domain.MotionUser]
-	sessionRepository      *MotionRepository[domain.Session]
-	profileRepository      *MotionRepository[domain.Profile]
-	roleRepository         *MotionRepository[domain.Role]
-	shoppingCartRepository *MotionRepository[domain.ShoppingCart]
-	productRepository      *MotionRepository[domain.Product]
+	userRepository         *MotionRepository[sql.MotionUser]
+	sessionRepository      *MotionRepository[sql.Session]
+	profileRepository      *MotionRepository[sql.Profile]
+	roleRepository         *MotionRepository[sql.Role]
+	shoppingCartRepository *MotionRepository[nosql.ShoppingCart]
+	productRepository      *MotionRepository[sql.Product]
 )
 
-func NewUserRepository(conn *gorm.DB) MotionRepository[domain.MotionUser] {
+func NewUserRepository(conn *gorm.DB) MotionRepository[sql.MotionUser] {
 	if userRepository != nil {
 		return *userRepository
 	}
-	return newMotionRepository[domain.MotionUser](conn)
+	return newMotionRepository[sql.MotionUser](conn)
 }
 
-func NewSessionRepository(conn *gorm.DB) MotionRepository[domain.Session] {
+func NewSessionRepository(conn *gorm.DB) MotionRepository[sql.Session] {
 	if sessionRepository != nil {
 		return *sessionRepository
 	}
-	return newMotionRepository[domain.Session](conn)
+	return newMotionRepository[sql.Session](conn)
 }
 
-func NewProfileRepository(conn *gorm.DB) MotionRepository[domain.Profile] {
+func NewProfileRepository(conn *gorm.DB) MotionRepository[sql.Profile] {
 	if profileRepository != nil {
 		return *profileRepository
 	}
-	return newMotionRepository[domain.Profile](conn)
+	return newMotionRepository[sql.Profile](conn)
 }
 
-func NewRoleRepository(conn *gorm.DB) MotionRepository[domain.Role] {
+func NewRoleRepository(conn *gorm.DB) MotionRepository[sql.Role] {
 	if roleRepository != nil {
 		return *roleRepository
 	}
-	return newMotionRepository[domain.Role](conn)
+	return newMotionRepository[sql.Role](conn)
 }
 
-func NewShoppingCartRepository(conn *gorm.DB) MotionRepository[domain.ShoppingCart] {
+func NewShoppingCartRepository(conn *gorm.DB) MotionRepository[nosql.ShoppingCart] {
 	if shoppingCartRepository != nil {
 		return *shoppingCartRepository
 	}
-	return newMotionRepository[domain.ShoppingCart](conn)
+	return newMotionRepository[nosql.ShoppingCart](conn)
 }
 
-func NewProductRepository(conn *gorm.DB) MotionRepository[domain.Product] {
+func NewProductRepository(conn *gorm.DB) MotionRepository[sql.Product] {
 	if productRepository != nil {
 		return *productRepository
 	}
-	return newMotionRepository[domain.Product](conn)
+	return newMotionRepository[sql.Product](conn)
 }

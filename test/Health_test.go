@@ -3,16 +3,17 @@ package test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/magiconair/properties/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/magiconair/properties/assert"
+	"github.com/ribeirosaimon/motion-go/domain/sql"
+
 	"github.com/ribeirosaimon/motion-go/pkg/health"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/domain"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
@@ -21,7 +22,7 @@ func BenchmarkController(b *testing.B) {
 	start := time.Now()
 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, req, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
-		nil, "", domain.USER)
+		nil, "", sql.USER)
 	if resp.Code != http.StatusOK {
 		// util.AssertEquals(b, http.StatusOK, resp.Code)
 	}
@@ -43,7 +44,7 @@ func TestOpenController(t *testing.T) {
 	t.Log("Test open controller")
 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
-		nil, "", domain.USER)
+		nil, "", sql.USER)
 
 	assert.Equal(t, resp.Code, http.StatusOK)
 
@@ -58,7 +59,7 @@ func TestCloseControllerSendError(t *testing.T) {
 	t.Log("Test close controller send error")
 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
-		nil, "", domain.USER)
+		nil, "", sql.USER)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, http.StatusForbidden, resp.Code)
 }
@@ -66,9 +67,9 @@ func TestCloseControllerSendError(t *testing.T) {
 func TestCloseControllerSuccess(t *testing.T) {
 	t.Log("Test close controller sucess")
 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
-	session, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
+	session, err := util.SignUp(testEnginer, sql.USER, sql.ADMIN, sql.USER)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
-		nil, session, domain.USER)
+		nil, session, sql.USER)
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
