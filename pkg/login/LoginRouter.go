@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/ribeirosaimon/motion-go/internal/config"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/config"
 )
 
 func NewLoginRouter(engine *gin.RouterGroup,
