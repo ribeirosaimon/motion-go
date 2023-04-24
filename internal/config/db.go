@@ -42,18 +42,13 @@ func ConnectSqlDb() (*gorm.DB, *sql.DB) {
 	return db, sqlDB
 }
 
-func ConnectNoSqlDb() (*gorm.DB, *sql.DB) {
+func ConnectNoSqlDb() *mongo.Client {
 	p := properties.MustLoadFile("config.properties", properties.UTF8)
 	mongoUrl := p.GetString("database.mongo.url", "")
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUrl))
+	dbName := p.GetString("database.name", "")
+	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUrl + dbName))
 	if err != nil {
 		panic(err)
 	}
-	db := createDbInstance(dsn)
-	sqlDB, err := db.DB()
-	if err != nil {
-		panic("erro connection Db")
-	}
-
-	return db, sqlDB
+	return client
 }
