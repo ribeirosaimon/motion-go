@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
@@ -15,6 +17,12 @@ import (
 )
 
 var motionEngine *gin.Engine
+
+type MotionGo struct {
+	MongoTemplate *mongo.Client
+	EntityManager *gorm.DB
+	GinEngine     *gin.Engine
+}
 
 func main() {
 	p := properties.MustLoadFile("config.properties", properties.UTF8)
