@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	sql2 "github.com/ribeirosaimon/motion-go/domain/sql"
+	sql2 "github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/repository"

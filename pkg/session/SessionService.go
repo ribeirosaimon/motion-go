@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	sql2 "github.com/ribeirosaimon/motion-go/domain/sql"
+	sql2 "github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/repository"
 	"gorm.io/gorm"
 )

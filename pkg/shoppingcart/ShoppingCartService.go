@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/domain/nosql"
+	"github.com/ribeirosaimon/motion-go/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/pkg/product"
 	"github.com/ribeirosaimon/motion-go/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
@@ -15,7 +15,7 @@ import (
 )
 
 type service struct {
-	shoppingCartRepository repository.MotionRepository[nosql.ShoppingCart]
+	shoppingCartRepository repository.MotionRepository[nosqlDomain.ShoppingCart]
 	profileService         profile.Service
 	productService         product.Service
 	close                  *sql.DB
@@ -30,29 +30,29 @@ func NewShoppingCartService(conn *gorm.DB, close *sql.DB) service {
 	}
 }
 
-func (s service) getShoppingCart(user security.LoggedUser) (nosql.ShoppingCart, error) {
+func (s service) getShoppingCart(user security.LoggedUser) (nosqlDomain.ShoppingCart, error) {
 	exist := s.shoppingCartRepository.ExistByField("profile_id", user.UserId)
 	if !exist {
-		return nosql.ShoppingCart{}, errors.New("not found")
+		return nosqlDomain.ShoppingCart{}, errors.New("not found")
 	}
 	cart, err := s.shoppingCartRepository.FindByField("profile_id", user.UserId)
 	if err != nil {
-		return nosql.ShoppingCart{}, err
+		return nosqlDomain.ShoppingCart{}, err
 	}
 	return cart, nil
 }
 
-func (s service) createShoppingCart(loggedUser security.LoggedUser) (nosql.ShoppingCart, error) {
+func (s service) createShoppingCart(loggedUser security.LoggedUser) (nosqlDomain.ShoppingCart, error) {
 	_, err := s.getShoppingCart(loggedUser)
 	if err == nil {
-		return nosql.ShoppingCart{}, errors.New("you already have a shopping cart")
+		return nosqlDomain.ShoppingCart{}, errors.New("you already have a shopping cart")
 	}
 
-	var shoppingCart nosql.ShoppingCart
+	var shoppingCart nosqlDomain.ShoppingCart
 
 	user, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
 	if err != nil {
-		return nosql.ShoppingCart{}, err
+		return nosqlDomain.ShoppingCart{}, err
 	}
 
 	shoppingCart.ProfileId = loggedUser.UserId
@@ -60,7 +60,7 @@ func (s service) createShoppingCart(loggedUser security.LoggedUser) (nosql.Shopp
 	shoppingCart.CreatedAt = time.Now()
 	savedShoppingCart, err := s.shoppingCartRepository.Save(shoppingCart)
 	if err != nil {
-		return nosql.ShoppingCart{}, err
+		return nosqlDomain.ShoppingCart{}, err
 	}
 	return savedShoppingCart, nil
 }
@@ -77,14 +77,14 @@ func (s service) deleteShoppingCart(loggedUser security.LoggedUser) error {
 	return nil
 }
 
-func (s service) addProductInShoppingCart(loggedUser security.LoggedUser, productDTO productDTO) (nosql.ShoppingCart, error) {
+func (s service) addProductInShoppingCart(loggedUser security.LoggedUser, productDTO productDTO) (nosqlDomain.ShoppingCart, error) {
 	shoppingCart, err := s.getShoppingCart(loggedUser)
 	if err != nil {
-		return nosql.ShoppingCart{}, err
+		return nosqlDomain.ShoppingCart{}, err
 	}
 	productDb, err := s.productService.GetProduct(productDTO.Id)
 	if err != nil {
-		return nosql.ShoppingCart{}, err
+		return nosqlDomain.ShoppingCart{}, err
 	}
 	shoppingCart.Products = append(shoppingCart.Products, productDb)
 

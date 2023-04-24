@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	sql2 "github.com/ribeirosaimon/motion-go/domain/sql"
+	sql2 "github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"

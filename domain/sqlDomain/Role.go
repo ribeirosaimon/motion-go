@@ -1,4 +1,4 @@
-package sql
+package sqlDomain
 
 type Role struct {
 	Id   uint     `json:"id" gorm:"primary_key"`

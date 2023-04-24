@@ -1,4 +1,4 @@
-package sql
+package sqlDomain
 
 import "github.com/shopspring/decimal"
 
