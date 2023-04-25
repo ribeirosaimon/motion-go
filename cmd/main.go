@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"github.com/ribeirosaimon/motion-go/pkg/login"
@@ -14,19 +14,18 @@ import (
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
-var motionEngine *gin.Engine
+// var motionEngine *gin.Engine
 
 func main() {
-	p := properties.MustLoadFile("config.properties", properties.UTF8)
+	motionGo := config.NewMotionGo()
 	setUpRoles()
-	motionEngine = gin.Default()
-	motionRouters(motionEngine)
-	serverPort := p.GetInt("server.port", 8080)
-	motionEngine.Run(fmt.Sprintf(":%d", serverPort))
+	motionRouters(motionGo.MotionEngine)
+	serverPort := motionGo.PropertiesFile.GetInt("server.port", 8080)
+	motionGo.MotionEngine.Run(fmt.Sprintf(":%d", serverPort))
 }
 
 func motionRouters(engine *gin.Engine) {
-	p := properties.MustLoadFile("config.properties", properties.UTF8)
+
 	apiVersion := engine.Group(fmt.Sprintf("/api/%s", p.GetString("api.version", "v1")))
 
 	health.NewHealthRouter(apiVersion, db.ConnectSqlDb)
