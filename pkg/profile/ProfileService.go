@@ -2,16 +2,17 @@ package profile
 
 import (
 	"database/sql"
+	"github.com/ribeirosaimon/motion-go/domain"
 	"time"
 
-	sql2 "github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/repository"
 	"gorm.io/gorm"
 )
 
 type Service struct {
-	profileRepository repository.MotionRepository[sql2.Profile]
-	roleRepository    repository.MotionRepository[sql2.Role]
+	profileRepository repository.MotionRepository[sqlDomain.Profile]
+	roleRepository    repository.MotionRepository[sqlDomain.Role]
 	closeDb           *sql.DB
 }
 
@@ -23,20 +24,20 @@ func NewProfileService(conn *gorm.DB, close *sql.DB) Service {
 	}
 
 }
-func (l Service) SaveProfileUser(user sql2.MotionUser, roles []sql2.RoleEnum) (sql2.Profile, error) {
-	var profile sql2.Profile
+func (l Service) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.RoleEnum) (sqlDomain.Profile, error) {
+	var profile sqlDomain.Profile
 
 	profile.Name = user.Name
 
 	for _, role := range roles {
 		field, err := l.roleRepository.FindByField("name", role)
 		if err != nil {
-			return sql2.Profile{}, err
+			return sqlDomain.Profile{}, err
 		}
-		profile.Roles = []sql2.Role{field}
+		profile.Roles = []sqlDomain.Role{field}
 	}
 
-	profile.Status = sql2.ACTIVE
+	profile.Status = domain.ACTIVE
 	profile.Birthday = user.Birthday
 	profile.FamilyName = user.LastName
 	profile.CreatedAt = time.Now()
@@ -45,15 +46,15 @@ func (l Service) SaveProfileUser(user sql2.MotionUser, roles []sql2.RoleEnum) (s
 
 	save, err := l.profileRepository.Save(profile)
 	if err != nil {
-		return sql2.Profile{}, err
+		return sqlDomain.Profile{}, err
 	}
 	return save, nil
 }
 
-func (l Service) FindProfileByUserId(id uint64) (sql2.Profile, error) {
+func (l Service) FindProfileByUserId(id uint64) (sqlDomain.Profile, error) {
 	byId, err := l.profileRepository.FindWithPreloads("Roles", id)
 	if err != nil {
-		return sql2.Profile{}, err
+		return sqlDomain.Profile{}, err
 	}
 	return byId, nil
 }

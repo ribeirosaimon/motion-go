@@ -11,15 +11,12 @@ type MotionRouter struct {
 	Middleware []gin.HandlerFunc
 }
 
-type motionController struct {
-	Engine   *gin.RouterGroup
+type MotionController struct {
 	Handlers []MotionRouter
 }
 
-func NewMotionController(engine *gin.RouterGroup,
-	controllers ...MotionRouter) motionController {
-	return motionController{
-		Engine:   engine,
+func NewMotionController(controllers ...MotionRouter) MotionController {
+	return MotionController{
 		Handlers: controllers,
 	}
 
@@ -34,11 +31,12 @@ func NewMotionRouter(method, path string, service func(*gin.Context),
 	}
 }
 
-func (e motionController) Add() {
-
-	for _, controller := range e.Handlers {
-		handlerFunc := gin.HandlerFunc(controller.Service)
-		controller.Middleware = append(controller.Middleware, handlerFunc)
-		e.Engine.Handle(controller.Method, controller.Path, controller.Middleware...)
-	}
-}
+//
+//func (e motionController) Add() {
+//
+//	for _, controller := range e.Handlers {
+//		handlerFunc := gin.HandlerFunc(controller.Service)
+//		controller.Middleware = append(controller.Middleware, handlerFunc)
+//		e.Engine.Handle(controller.Method, controller.Path, controller.Middleware...)
+//	}
+//}

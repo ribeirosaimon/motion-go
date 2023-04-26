@@ -1,16 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"github.com/ribeirosaimon/motion-go/pkg/login"
+	"github.com/ribeirosaimon/motion-go/pkg/product"
+	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
 
-	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/pkg/health"
-	"github.com/ribeirosaimon/motion-go/pkg/login"
-	"github.com/ribeirosaimon/motion-go/pkg/product"
-	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
 	"github.com/ribeirosaimon/motion-go/repository"
 )
 
@@ -19,19 +17,15 @@ import (
 func main() {
 	motionGo := config.NewMotionGo()
 	setUpRoles()
-	motionRouters(motionGo.MotionEngine)
-	serverPort := motionGo.PropertiesFile.GetInt("server.port", 8080)
-	motionGo.MotionEngine.Run(fmt.Sprintf(":%d", serverPort))
-}
+	motionGo.AddRouter(
+		//motionGo.PropertiesFile.GetString("api.version", "v1"),
+		health.NewHealthRouter(db.ConnectSqlDb),
+		login.NewLoginRouter(db.ConnectSqlDb),
+		shoppingcart.NewShoppingCartRouter(db.ConnectSqlDb),
+		product.NewProductRouter(db.ConnectSqlDb),
+	)
 
-func motionRouters(engine *gin.Engine) {
-
-	apiVersion := engine.Group(fmt.Sprintf("/api/%s", p.GetString("api.version", "v1")))
-
-	health.NewHealthRouter(apiVersion, db.ConnectSqlDb)
-	login.NewLoginRouter(apiVersion, db.ConnectSqlDb)
-	shoppingcart.NewShoppingCartRouter(apiVersion, db.ConnectSqlDb)
-	product.NewProductRouter(apiVersion, db.ConnectSqlDb)
+	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port", 8080))
 }
 
 func setUpRoles() {

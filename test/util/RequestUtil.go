@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	sql2 "github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +22,7 @@ import (
 )
 
 func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reader, session string,
-	role sql2.RoleEnum) (
+	role sqlDomain.RoleEnum) (
 	*httptest.ResponseRecorder, *http.Request, error) {
 
 	AddController(enginer, "/api/v1/auth", login.NewLoginRouter)
@@ -42,7 +42,7 @@ func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reade
 	return w, req, nil
 }
 
-func SignUp(enginer *gin.Engine, loggedRole sql2.RoleEnum, roles ...sql2.RoleEnum) (string, error) {
+func SignUp(enginer *gin.Engine, loggedRole sqlDomain.RoleEnum, roles ...sqlDomain.RoleEnum) (string, error) {
 	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
 
@@ -53,7 +53,7 @@ func SignUp(enginer *gin.Engine, loggedRole sql2.RoleEnum, roles ...sql2.RoleEnu
 	}
 	sigUpResponse, _, err := CreateEngineRequest(enginer, http.MethodPost, "/api/v1/auth/sign-up",
 		bytes.NewReader(jsonData), "", loggedRole)
-	var signProfileResponse = sql2.Profile{}
+	var signProfileResponse = sqlDomain.Profile{}
 	err = json.Unmarshal(sigUpResponse.Body.Bytes(), &signProfileResponse)
 	if err != nil {
 		panic(err)
@@ -66,7 +66,7 @@ func SignUp(enginer *gin.Engine, loggedRole sql2.RoleEnum, roles ...sql2.RoleEnu
 	return strings.Replace(string(resp.Body.Bytes()), "\"", "", -1), nil
 }
 
-func CreateUser(roles ...sql2.RoleEnum) login.SignUpDto {
+func CreateUser(roles ...sqlDomain.RoleEnum) login.SignUpDto {
 	createRoles()
 	rand.Seed(time.Now().UnixNano())
 	nameRandom := strconv.Itoa(rand.Intn(1000000))
@@ -86,11 +86,11 @@ func createRoles() {
 	test, close := ConnectDatabaseTest()
 	defer close.Close()
 	roleRepository := repository.NewRoleRepository(test)
-	roles := []sql2.Role{
+	roles := []sqlDomain.Role{
 		{
-			Name: sql2.ADMIN,
+			Name: sqlDomain.ADMIN,
 		}, {
-			Name: sql2.USER,
+			Name: sqlDomain.USER,
 		},
 	}
 	_, err := roleRepository.FindAll(0, 10)

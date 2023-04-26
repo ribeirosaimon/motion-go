@@ -4,17 +4,15 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"gorm.io/gorm"
 )
 
-func NewProductRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.DB)) {
+func NewProductRouter(conn func() (*gorm.DB, *sql.DB)) config.MotionController {
 	service := NewProductService(conn())
-	group := engine.Group("/product")
-	config.NewMotionController(group,
+	return config.NewMotionController(
 		config.NewMotionRouter(http.MethodGet, "/:productId", NewProductController(&service).getProduct,
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodPost, "", NewProductController(&service).saveProduct,
@@ -23,5 +21,5 @@ func NewProductRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.DB)) 
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodDelete, "/:productId", NewProductController(&service).deleteProduct,
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.ADMIN})),
-	).Add()
+	)
 }

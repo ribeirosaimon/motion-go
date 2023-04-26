@@ -4,17 +4,16 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"gorm.io/gorm"
 )
 
-func NewShoppingCartRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.DB)) {
+func NewShoppingCartRouter(conn func() (*gorm.DB, *sql.DB)) config.MotionController {
 	service := NewShoppingCartService(conn())
-	group := engine.Group("/shopping-cart")
-	config.NewMotionController(group,
+
+	return config.NewMotionController(
 		config.NewMotionRouter(http.MethodPost, "/create", NewShoppingCartController(&service).createShoppingCart,
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodGet, "", NewShoppingCartController(&service).getShoppingCart,
@@ -23,5 +22,5 @@ func NewShoppingCartRouter(engine *gin.RouterGroup, conn func() (*gorm.DB, *sql.
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodPost, "/product", NewShoppingCartController(&service).addProductInShoppingCart,
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.USER})),
-	).Add()
+	)
 }
