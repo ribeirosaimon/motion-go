@@ -1,30 +1,17 @@
 package main
 
 import (
-	"github.com/ribeirosaimon/motion-go/pkg/login"
-	"github.com/ribeirosaimon/motion-go/pkg/product"
-	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
-
 	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/pkg/health"
 	"github.com/ribeirosaimon/motion-go/repository"
+	"github.com/ribeirosaimon/motion-go/version"
 )
-
-// var motionEngine *gin.Engine
 
 func main() {
 	motionGo := config.NewMotionGo()
 	setUpRoles()
-	motionGo.AddRouter(
-		//motionGo.PropertiesFile.GetString("api.version", "v1"),
-		health.NewHealthRouter(db.ConnectSqlDb),
-		login.NewLoginRouter(db.ConnectSqlDb),
-		shoppingcart.NewShoppingCartRouter(db.ConnectSqlDb),
-		product.NewProductRouter(db.ConnectSqlDb),
-	)
-
+	motionGo.AddRouter(version.V1, version.V2)
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port", 8080))
 }
 

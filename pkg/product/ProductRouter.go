@@ -13,6 +13,7 @@ import (
 func NewProductRouter(conn func() (*gorm.DB, *sql.DB)) config.MotionController {
 	service := NewProductService(conn())
 	return config.NewMotionController(
+		"/product",
 		config.NewMotionRouter(http.MethodGet, "/:productId", NewProductController(&service).getProduct,
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodPost, "", NewProductController(&service).saveProduct,

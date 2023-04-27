@@ -30,6 +30,7 @@ func getToken(role sqlDomain.RoleEnum) string {
 }
 
 func init() {
+
 	util.RemoveDatabase()
 	testEnginer = gin.New()
 	TokenUser = getToken(sqlDomain.USER)

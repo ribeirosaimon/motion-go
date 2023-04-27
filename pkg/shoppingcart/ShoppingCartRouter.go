@@ -14,6 +14,7 @@ func NewShoppingCartRouter(conn func() (*gorm.DB, *sql.DB)) config.MotionControl
 	service := NewShoppingCartService(conn())
 
 	return config.NewMotionController(
+		"/shopping-cart",
 		config.NewMotionRouter(http.MethodPost, "/create", NewShoppingCartController(&service).createShoppingCart,
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodGet, "", NewShoppingCartController(&service).getShoppingCart,

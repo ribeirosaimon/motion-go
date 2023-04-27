@@ -13,6 +13,7 @@ func NewLoginRouter(
 
 	service := NewLoginService(conn())
 	return config.NewMotionController(
+		"/auth",
 		config.NewMotionRouter(http.MethodPost, "/login", NewLoginControler(&service).login),
 		config.NewMotionRouter(http.MethodPost, "/sign-up", NewLoginControler(&service).signUp),
 	)

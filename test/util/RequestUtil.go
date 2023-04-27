@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/config"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
@@ -125,8 +126,7 @@ func SuccessTest(info string) string {
 //	}
 // }
 
-func AddController(enginer *gin.Engine, subs string, f func(engine *gin.RouterGroup,
-	conn func() (*gorm.DB, *sql.DB))) {
+func AddController(enginer *gin.Engine, subs string, f func(func() (*gorm.DB, *sql.DB)) config.MotionController) {
 	contains := false
 	for _, route := range enginer.Routes() {
 		if strings.Contains(route.Path, subs) {
@@ -135,6 +135,7 @@ func AddController(enginer *gin.Engine, subs string, f func(engine *gin.RouterGr
 		}
 	}
 	if !contains {
-		f(enginer.Group("/api/v1"), ConnectDatabaseTest)
+		controller := f(ConnectDatabaseTest)
+		enginer.Handle(controller.Path, controller.Handlers)
 	}
 }

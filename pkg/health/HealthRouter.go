@@ -12,8 +12,8 @@ import (
 
 func NewHealthRouter(conn func() (*gorm.DB, *sql.DB)) config.MotionController {
 	service := NewHealthService()
-	//group := engine.Group("/health")
 	return config.NewMotionController(
+		"/health",
 		config.NewMotionRouter(http.MethodGet, "/close", NewHealthController(&service).closeHealth,
 			security.Authorization(conn, sqlDomain.Role{Name: sqlDomain.USER}, sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodGet, "/open", NewHealthController(&service).openHealth),
