@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -134,8 +136,18 @@ func AddController(enginer *gin.Engine, subs string, f func(func() (*gorm.DB, *s
 			break
 		}
 	}
+	re := regexp.MustCompile(`v\d+`)
+	versionString := re.FindStringSubmatch(subs)[0]
 	if !contains {
 		controller := f(ConnectDatabaseTest)
-		enginer.Handle(controller.Path, controller.Handlers)
+		for i, v := range controller.Handlers {
+			router := fmt.Sprintf("/api/%s%s%s", versionString, controller.Path, v.Path)
+			log.Printf("%d) Add controler %s", i, router)
+
+			handlerFunc := gin.HandlerFunc(v.Service)
+			v.Middleware = append(v.Middleware, handlerFunc)
+			enginer.Handle(v.Method, router, v.Middleware...)
+		}
+
 	}
 }

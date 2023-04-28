@@ -6,7 +6,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectNoSqlDb() *mongo.Client {
+type MongoDatabase struct {
+	DatabaseName string
+	Conn         *mongo.Client
+}
+
+func ConnectNoSqlDb() MongoDatabase {
 	p := properties.MustLoadFile("config.properties", properties.UTF8)
 	mongoUrl := p.GetString("database.mongo.url", "")
 	dbName := p.GetString("database.name", "")
@@ -14,5 +19,9 @@ func ConnectNoSqlDb() *mongo.Client {
 	if err != nil {
 		panic(err)
 	}
-	return client
+
+	return MongoDatabase{
+		DatabaseName: "motion-go",
+		Conn:         client,
+	}
 }
