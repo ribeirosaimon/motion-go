@@ -28,7 +28,7 @@ func NewMotionGo() motionGo {
 	return motionGo{
 		MotionEngine:   gin.Default(),
 		SqlDatabase:    db.ConnectSqlDb,
-		MongoDatabase:  db.ConnectNoSqlDb(),
+		MongoDatabase:  db.ConnectNoSqlDb().Conn,
 		PropertiesFile: properties.MustLoadFile("config.properties", properties.UTF8),
 	}
 }

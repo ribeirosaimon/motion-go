@@ -12,7 +12,7 @@ type motionSQLRepository[T Entity] struct {
 	database *gorm.DB
 }
 
-func newMotionSQLRepository[T Entity](gormConnection *gorm.DB) MotionRepository[T] {
+func newMotionSQLRepository[T Entity](gormConnection *gorm.DB) *motionSQLRepository[T] {
 	var myStruct T
 	return &motionSQLRepository[T]{
 		myStruct: myStruct,

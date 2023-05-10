@@ -16,7 +16,7 @@ type motionNoSQLRepository[T Entity] struct {
 	context    context.Context
 }
 
-func newMotionNoSQLRepository[T Entity](mongoConnection *db.MongoDatabase) MotionRepository[T] {
+func newMotionNoSQLRepository[T Entity](mongoConnection *db.MongoDatabase) *motionNoSQLRepository[T] {
 	var myStruct T
 	collection := mongoConnection.Conn.Database(mongoConnection.DatabaseName).Collection(reflect.TypeOf(myStruct).Name())
 
