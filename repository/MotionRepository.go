@@ -3,19 +3,20 @@ package repository
 import (
 	"github.com/ribeirosaimon/motion-go/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 )
 
 var (
-	userRepository         *motionSQLRepository[sqlDomain.MotionUser]
-	sessionRepository      *motionSQLRepository[sqlDomain.Session]
-	profileRepository      *motionSQLRepository[sqlDomain.Profile]
-	roleRepository         *motionSQLRepository[sqlDomain.Role]
+	userRepository         *MotionSQLRepository[sqlDomain.MotionUser]
+	sessionRepository      *MotionSQLRepository[sqlDomain.Session]
+	profileRepository      *MotionSQLRepository[sqlDomain.Profile]
+	roleRepository         *MotionSQLRepository[sqlDomain.Role]
 	shoppingCartRepository *motionNoSQLRepository[nosqlDomain.ShoppingCart]
-	productRepository      *motionSQLRepository[sqlDomain.Product]
+	productRepository      *MotionSQLRepository[sqlDomain.Product]
 )
 
-func NewUserRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.MotionUser] {
+func NewUserRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.MotionUser] {
 	if userRepository != nil {
 		return userRepository
 	}
@@ -23,7 +24,7 @@ func NewUserRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.MotionUser]
 	return userRepository
 }
 
-func NewSessionRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.Session] {
+func NewSessionRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Session] {
 	if sessionRepository != nil {
 		return sessionRepository
 	}
@@ -31,7 +32,7 @@ func NewSessionRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.Session]
 	return sessionRepository
 }
 
-func NewProfileRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.Profile] {
+func NewProfileRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Profile] {
 	if profileRepository != nil {
 		return profileRepository
 	}
@@ -39,7 +40,7 @@ func NewProfileRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.Profile]
 	return profileRepository
 }
 
-func NewRoleRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.Role] {
+func NewRoleRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Role] {
 	if roleRepository != nil {
 		return roleRepository
 	}
@@ -47,17 +48,18 @@ func NewRoleRepository(conn *gorm.DB) *motionSQLRepository[sqlDomain.Role] {
 	return roleRepository
 }
 
-func NewShoppingCartRepository(conn *gorm.DB) *motionNoSQLRepository[nosqlDomain.ShoppingCart] {
+func NewShoppingCartRepository(mongoConnection *mongo.Client) *motionNoSQLRepository[nosqlDomain.ShoppingCart] {
 	if shoppingCartRepository != nil {
 		return shoppingCartRepository
 	}
-	shoppingCartRepository := newMotionNoSQLRepository[nosqlDomain.ShoppingCart](conn)
+	shoppingCartRepository := newMotionNoSQLRepository[nosqlDomain.ShoppingCart](mongoConnection)
 	return shoppingCartRepository
 }
 
-func NewProductRepository(conn *gorm.DB) motionSQLRepository[sqlDomain.Product] {
+func NewProductRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Product] {
 	if productRepository != nil {
-		return *productRepository
+		return productRepository
 	}
-	return newMotionSQLRepository[sqlDomain.Product](conn)
+	productRepository := newMotionSQLRepository[sqlDomain.Product](conn)
+	return productRepository
 }

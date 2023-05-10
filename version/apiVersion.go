@@ -14,7 +14,7 @@ var V1 = config.RoutersVersion{
 	Handlers: []config.MotionController{
 		health.NewHealthRouter(db.ConnectSqlDb),
 		login.NewLoginRouter(db.ConnectSqlDb),
-		shoppingcart.NewShoppingCartRouter(db.ConnectSqlDb),
+		shoppingcart.NewShoppingCartRouter(db.ConnectSqlDb, db.ConnectNoSqlDb().Conn),
 		product.NewProductRouter(db.ConnectSqlDb),
 	},
 }

@@ -7,20 +7,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type motionSQLRepository[T Entity] struct {
+type MotionSQLRepository[T Entity] struct {
 	myStruct Entity
 	database *gorm.DB
 }
 
-func newMotionSQLRepository[T Entity](gormConnection *gorm.DB) *motionSQLRepository[T] {
+func newMotionSQLRepository[T Entity](gormConnection *gorm.DB) *MotionSQLRepository[T] {
 	var myStruct T
-	return &motionSQLRepository[T]{
+	return &MotionSQLRepository[T]{
 		myStruct: myStruct,
 		database: gormConnection,
 	}
 }
 
-func (m motionSQLRepository[T]) ExistByField(field string, fieldvalue interface{}) bool {
+func (m MotionSQLRepository[T]) ExistByField(field string, fieldvalue interface{}) bool {
 	var value T
 	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
 	if tx.RowsAffected > 0 {
@@ -29,7 +29,7 @@ func (m motionSQLRepository[T]) ExistByField(field string, fieldvalue interface{
 	return false
 }
 
-func (m motionSQLRepository[T]) FindWithPreloads(preloads string, s interface{}) (T, error) {
+func (m MotionSQLRepository[T]) FindWithPreloads(preloads string, s interface{}) (T, error) {
 	var value T
 	tx := m.database.Preload(preloads).Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
@@ -39,7 +39,7 @@ func (m motionSQLRepository[T]) FindWithPreloads(preloads string, s interface{})
 	return value, nil
 }
 
-func (m motionSQLRepository[T]) FindByField(field string, fieldvalue interface{}) (T, error) {
+func (m MotionSQLRepository[T]) FindByField(field string, fieldvalue interface{}) (T, error) {
 	var value T
 	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
 	if tx.RowsAffected == 0 || tx.Error != nil {
@@ -49,7 +49,7 @@ func (m motionSQLRepository[T]) FindByField(field string, fieldvalue interface{}
 	return value, nil
 }
 
-func (m motionSQLRepository[T]) FindById(s interface{}) (T, error) {
+func (m MotionSQLRepository[T]) FindById(s interface{}) (T, error) {
 	var value T
 	tx := m.database.Find(&value, s)
 	if tx.RowsAffected == 0 || tx.Error != nil {
@@ -59,7 +59,7 @@ func (m motionSQLRepository[T]) FindById(s interface{}) (T, error) {
 	return value, nil
 }
 
-func (m motionSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
+func (m MotionSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
 	var values []T
 	tx := m.database.Limit(limit).Offset(page).Find(&values)
 	if err := tx.Error; err != nil {
@@ -68,7 +68,7 @@ func (m motionSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
 	return values, nil
 }
 
-func (m motionSQLRepository[T]) DeleteById(s interface{}) error {
+func (m MotionSQLRepository[T]) DeleteById(s interface{}) error {
 	value, err := m.FindById(s)
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func (m motionSQLRepository[T]) DeleteById(s interface{}) error {
 	return errors.New("values not found")
 }
 
-func (m motionSQLRepository[T]) Save(structValue T) (T, error) {
+func (m MotionSQLRepository[T]) Save(structValue T) (T, error) {
 	var value T
 	if err := m.database.AutoMigrate(&value); err != nil {
 		return value, fmt.Errorf(err.Error())

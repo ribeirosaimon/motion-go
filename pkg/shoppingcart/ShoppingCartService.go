@@ -3,6 +3,7 @@ package shoppingcart
 import (
 	"database/sql"
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/domain/nosqlDomain"
@@ -21,9 +22,9 @@ type service struct {
 	close                  *sql.DB
 }
 
-func NewShoppingCartService(conn *gorm.DB, close *sql.DB) service {
+func NewShoppingCartService(conn *gorm.DB, close *sql.DB, clientDb *mongo.Client) service {
 	return service{
-		shoppingCartRepository: repository.NewShoppingCartRepository(conn),
+		shoppingCartRepository: repository.NewShoppingCartRepository(clientDb),
 		profileService:         profile.NewProfileService(conn, close),
 		productService:         product.NewProductService(conn, close),
 		close:                  close,

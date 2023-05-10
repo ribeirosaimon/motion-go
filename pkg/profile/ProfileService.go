@@ -11,8 +11,8 @@ import (
 )
 
 type Service struct {
-	profileRepository repository.MotionRepository[sqlDomain.Profile]
-	roleRepository    repository.MotionRepository[sqlDomain.Role]
+	profileRepository *repository.MotionSQLRepository[sqlDomain.Profile]
+	roleRepository    *repository.MotionSQLRepository[sqlDomain.Role]
 	closeDb           *sql.DB
 }
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/ribeirosaimon/motion-go/internal/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,9 +15,9 @@ type motionNoSQLRepository[T Entity] struct {
 	context    context.Context
 }
 
-func newMotionNoSQLRepository[T Entity](mongoConnection *db.MongoDatabase) *motionNoSQLRepository[T] {
+func newMotionNoSQLRepository[T Entity](mongoConnection *mongo.Client) *motionNoSQLRepository[T] {
 	var myStruct T
-	collection := mongoConnection.Conn.Database(mongoConnection.DatabaseName).Collection(reflect.TypeOf(myStruct).Name())
+	collection := mongoConnection.Database("motion-go").Collection(reflect.TypeOf(myStruct).Name())
 
 	return &motionNoSQLRepository[T]{
 		collection: collection,
