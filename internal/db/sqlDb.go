@@ -1,7 +1,6 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/magiconair/properties"
@@ -11,7 +10,16 @@ import (
 
 var dbInstance *gorm.DB
 
-func createDbInstance(dsn string) *gorm.DB {
+func createDbInstance() *gorm.DB {
+	p := properties.MustLoadFile("config.properties", properties.UTF8)
+	dbUsername := p.GetString("database.username", "")
+	dbPassword := p.GetString("database.password", "")
+	dbName := p.GetString("database.name", "")
+	dbPort := p.GetInt("database.port", 0)
+	dbHost := p.GetString("database.host", "")
+	dsn := fmt.Sprintf("host=%s user=%s password=%s "+
+		"dbname=%s port=%d sslmode=disable", dbHost, dbUsername, dbPassword, dbName, dbPort)
+
 	if dbInstance == nil {
 		dbInstance, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
@@ -22,20 +30,10 @@ func createDbInstance(dsn string) *gorm.DB {
 	return dbInstance
 }
 
-func ConnectSqlDb() (*gorm.DB, *sql.DB) {
-	p := properties.MustLoadFile("config.properties", properties.UTF8)
-	dbUsername := p.GetString("database.username", "")
-	dbPassword := p.GetString("database.password", "")
-	dbName := p.GetString("database.name", "")
-	dbPort := p.GetInt("database.port", 0)
-	dbHost := p.GetString("database.host", "")
-	dsn := fmt.Sprintf("host=%s user=%s password=%s "+
-		"dbname=%s port=%d sslmode=disable", dbHost, dbUsername, dbPassword, dbName, dbPort)
-	db := createDbInstance(dsn)
-	sqlDB, err := db.DB()
-	if err != nil {
-		panic("erro connection Db")
-	}
-
-	return db, sqlDB
+func GetPostgreSQL() *gorm.DB {
+	return dbInstance
+}
+func ClosePostgreSQL() {
+	db, _ := dbInstance.DB()
+	db.Close()
 }

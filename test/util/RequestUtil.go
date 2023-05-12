@@ -15,20 +15,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	login2 "github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
 	"github.com/ribeirosaimon/motion-go/internal/config"
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/login"
-	"github.com/ribeirosaimon/motion-go/repository"
 )
 
 func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reader, session string,
-	role sqlDomain.RoleEnum) (
+	role sqlDomain2.RoleEnum) (
 	*httptest.ResponseRecorder, *http.Request, error) {
 
-	AddController(enginer, "/api/v1/auth", login.NewLoginRouter)
+	AddController(enginer, "/api/v1/auth", login2.NewLoginRouter)
 
 	req, err := http.NewRequest(method, path, body)
 	if err != nil {
@@ -45,23 +45,23 @@ func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reade
 	return w, req, nil
 }
 
-func SignUp(enginer *gin.Engine, loggedRole sqlDomain.RoleEnum, roles ...sqlDomain.RoleEnum) (string, error) {
+func SignUp(enginer *gin.Engine, loggedRole sqlDomain2.RoleEnum, roles ...sqlDomain2.RoleEnum) (string, error) {
 	user := CreateUser(roles...)
 	jsonData, err := json.Marshal(user)
 
-	AddController(enginer, "/api/v1/auth", login.NewLoginRouter)
+	AddController(enginer, "/api/v1/auth", login2.NewLoginRouter)
 
 	if err != nil {
 		panic(err)
 	}
 	sigUpResponse, _, err := CreateEngineRequest(enginer, http.MethodPost, "/api/v1/auth/sign-up",
 		bytes.NewReader(jsonData), "", loggedRole)
-	var signProfileResponse = sqlDomain.Profile{}
+	var signProfileResponse = sqlDomain2.Profile{}
 	err = json.Unmarshal(sigUpResponse.Body.Bytes(), &signProfileResponse)
 	if err != nil {
 		panic(err)
 	}
-	dto := login.LoginDto{Email: user.Email, Password: user.Password}
+	dto := login2.LoginDto{Email: user.Email, Password: user.Password}
 	jsonLoginDto, err := json.Marshal(dto)
 	resp, _, err := CreateEngineRequest(enginer, http.MethodPost, "/api/v1/auth/login",
 		bytes.NewReader(jsonLoginDto), "", loggedRole)
@@ -69,14 +69,14 @@ func SignUp(enginer *gin.Engine, loggedRole sqlDomain.RoleEnum, roles ...sqlDoma
 	return strings.Replace(string(resp.Body.Bytes()), "\"", "", -1), nil
 }
 
-func CreateUser(roles ...sqlDomain.RoleEnum) login.SignUpDto {
+func CreateUser(roles ...sqlDomain2.RoleEnum) login2.SignUpDto {
 	createRoles()
 	rand.Seed(time.Now().UnixNano())
 	nameRandom := strconv.Itoa(rand.Intn(1000000))
 	password := strconv.Itoa(rand.Intn(1000000))
 	emailRandom := fmt.Sprintf("%s@email.com", strconv.Itoa(rand.Intn(1000000)))
 
-	var dto login.SignUpDto
+	var dto login2.SignUpDto
 	dto.Name = nameRandom
 	dto.Password = password
 	dto.Email = emailRandom
@@ -89,11 +89,11 @@ func createRoles() {
 	test, close := ConnectDatabaseTest()
 	defer close.Close()
 	roleRepository := repository.NewRoleRepository(test)
-	roles := []sqlDomain.Role{
+	roles := []sqlDomain2.Role{
 		{
-			Name: sqlDomain.ADMIN,
+			Name: sqlDomain2.ADMIN,
 		}, {
-			Name: sqlDomain.USER,
+			Name: sqlDomain2.USER,
 		},
 	}
 	_, err := roleRepository.FindAll(0, 10)

@@ -2,7 +2,7 @@ package test
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 

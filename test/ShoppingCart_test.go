@@ -2,12 +2,11 @@ package test
 
 import (
 	"github.com/magiconair/properties/assert"
-	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/shoppingcart/pkg/shoppingcart"
 
 	"net/http"
 	"testing"
-
-	"github.com/ribeirosaimon/motion-go/pkg/shoppingcart"
 
 	"github.com/ribeirosaimon/motion-go/test/util"
 )

@@ -32,13 +32,3 @@ func NewMotionRouter(method, path string, service func(*gin.Context),
 		Middleware: middleware,
 	}
 }
-
-//
-// func (e motionController) Add() {
-//
-//	for _, controller := range e.Handlers {
-//		handlerFunc := gin.HandlerFunc(controller.Service)
-//		controller.Middleware = append(controller.Middleware, handlerFunc)
-//		e.Engine.Handle(controller.Method, controller.Path, controller.Middleware...)
-//	}
-// }

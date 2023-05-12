@@ -9,12 +9,11 @@ import (
 	"time"
 
 	"github.com/magiconair/properties/assert"
-	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
-
-	"github.com/ribeirosaimon/motion-go/pkg/health"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/health"
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/security"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/pkg/security"
 	"github.com/ribeirosaimon/motion-go/test/util"
 )
 

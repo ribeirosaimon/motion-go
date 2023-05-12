@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/magiconair/properties/assert"
-	"github.com/ribeirosaimon/motion-go/domain/sqlDomain"
+	product2 "github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 
-	"github.com/ribeirosaimon/motion-go/pkg/product"
 	"github.com/ribeirosaimon/motion-go/test/util"
 	"github.com/shopspring/decimal"
 )
@@ -18,9 +18,9 @@ import (
 var idProduct uint64
 
 func TestHaveToAddProductAndReturnOk(t *testing.T) {
-	util.AddController(testEnginer, "/api/v1/product", product.NewProductRouter)
+	util.AddController(testEnginer, "/api/v1/product", product2.NewProductRouter)
 	bd1, _ := decimal.NewFromString("123.456")
-	productDto := product.ProductDto{
+	productDto := product2.ProductDto{
 		Price: bd1,
 		Name:  "Teste",
 		Image: "http://teste",
@@ -28,12 +28,12 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	jsonData, err := json.Marshal(productDto)
 
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/product",
-		bytes.NewReader(jsonData), TokenAdmin, sqlDomain.ADMIN)
+		bytes.NewReader(jsonData), TokenAdmin, sqlDomain2.ADMIN)
 
 	if err != nil {
 		t.Error("error in request")
 	}
-	var productResponse = sqlDomain.Product{}
+	var productResponse = sqlDomain2.Product{}
 	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)
 	if err != nil {
 		panic(err)
@@ -47,7 +47,7 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
 
 	bd1, _ := decimal.NewFromString("321.61")
-	productDto := product.ProductDto{
+	productDto := product2.ProductDto{
 		Price: bd1,
 		Name:  "TesteUpdate",
 		Image: "http://update",
@@ -60,13 +60,13 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPut,
 		fmt.Sprintf("/api/v1/product/%d", idProduct),
-		bytes.NewReader(jsonData), TokenAdmin, sqlDomain.ADMIN)
+		bytes.NewReader(jsonData), TokenAdmin, sqlDomain2.ADMIN)
 
 	if err != nil {
 		t.Error("error in request")
 	}
 
-	var productResponse = sqlDomain.Product{}
+	var productResponse = sqlDomain2.Product{}
 	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)
 	if err != nil {
 		panic(err)
@@ -80,7 +80,7 @@ func TestHaveToGetProductAndReturnOk(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet,
 		fmt.Sprintf("/api/v1/product/%d", idProduct),
-		nil, TokenAdmin, sqlDomain.ADMIN)
+		nil, TokenAdmin, sqlDomain2.ADMIN)
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +91,7 @@ func TestHaveToDeleteProductAndReturnOk(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodDelete,
 		fmt.Sprintf("/api/v1/product/%d", idProduct),
-		nil, TokenAdmin, sqlDomain.ADMIN)
+		nil, TokenAdmin, sqlDomain2.ADMIN)
 	if err != nil {
 		panic(err)
 	}
@@ -101,7 +101,7 @@ func TestHaveToDeleteProductAndReturnOk(t *testing.T) {
 func TestCanotSaveSameProduct(t *testing.T) {
 	TestHaveToAddProductAndReturnOk(t)
 	bd1, _ := decimal.NewFromString("3.46")
-	productDto := product.ProductDto{
+	productDto := product2.ProductDto{
 		Price: bd1,
 		Name:  "Teste",
 		Image: "http://teste",
@@ -109,7 +109,7 @@ func TestCanotSaveSameProduct(t *testing.T) {
 	jsonData, err := json.Marshal(productDto)
 
 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPost, "/api/v1/product",
-		bytes.NewReader(jsonData), TokenAdmin, sqlDomain.ADMIN)
+		bytes.NewReader(jsonData), TokenAdmin, sqlDomain2.ADMIN)
 
 	if err != nil {
 		t.Error("error in request")
