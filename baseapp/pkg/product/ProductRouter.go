@@ -1,17 +1,16 @@
 package product
 
 import (
-	"database/sql"
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"net/http"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/security"
-	"gorm.io/gorm"
 )
 
-func NewProductRouter(conn func() (*gorm.DB, *sql.DB)) config.MotionController {
-	service := NewProductService(conn())
+func NewProductRouter(conn *db.Connections) config.MotionController {
+	service := NewProductService(conn)
 	return config.NewMotionController(
 		"/product",
 		config.NewMotionRouter(http.MethodGet, "/:productId", NewProductController(&service).getProduct,

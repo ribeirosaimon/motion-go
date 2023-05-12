@@ -42,7 +42,7 @@ var version1 = config.RoutersVersion{
 
 var version2 = config.RoutersVersion{
 	Version: "v2",
-	Handlers: []config.MotionController{
+	Handlers: []func(conn *db.Connections) config.MotionController{
 		health.NewHealthRouter,
 	},
 }

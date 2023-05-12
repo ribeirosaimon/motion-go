@@ -3,24 +3,22 @@ package product
 import (
 	"database/sql"
 	"errors"
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
-	repository2 "github.com/ribeirosaimon/motion-go/internal/repository"
-
-	"gorm.io/gorm"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
 type Service struct {
-	productRepository repository2.MotionRepository[sqlDomain.Product]
+	productRepository repository.MotionRepository[sqlDomain.Product]
 	close             *sql.DB
 }
 
-func NewProductService(conn *gorm.DB, close *sql.DB) Service {
+func NewProductService(conections *db.Connections) Service {
 	return Service{
-		productRepository: repository2.NewProductRepository(conn),
-		close:             close,
+		productRepository: repository.NewProductRepository(conections.SQL.Conn),
 	}
 }
 

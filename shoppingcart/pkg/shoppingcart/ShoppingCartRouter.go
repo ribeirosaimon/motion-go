@@ -1,20 +1,16 @@
 package shoppingcart
 
 import (
-	"database/sql"
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"net/http"
 
+	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/security"
-	"go.mongodb.org/mongo-driver/mongo"
-
-	"github.com/ribeirosaimon/motion-go/internal/config"
-	"gorm.io/gorm"
 )
 
-func NewShoppingCartRouter(conn func() (*gorm.DB, *sql.DB), client *mongo.Client) config.MotionController {
-	db, s := conn()
-	service := NewShoppingCartService(db, s, client)
+func NewShoppingCartRouter(conn *db.Connections) config.MotionController {
+	service := NewShoppingCartService(conn)
 
 	return config.NewMotionController(
 		"/shopping-cart",

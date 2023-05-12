@@ -1,34 +1,29 @@
 package shoppingcart
 
 import (
-	"database/sql"
 	"errors"
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
-	repository2 "github.com/ribeirosaimon/motion-go/internal/repository"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/security"
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/shopspring/decimal"
-	"gorm.io/gorm"
 )
 
 type service struct {
-	shoppingCartRepository repository2.MotionRepository[nosqlDomain.ShoppingCart]
+	shoppingCartRepository repository.MotionRepository[nosqlDomain.ShoppingCart]
 	profileService         profile.Service
 	productService         product.Service
-	close                  *sql.DB
 }
 
-func NewShoppingCartService(conn *gorm.DB, close *sql.DB, clientDb *mongo.Client) service {
+func NewShoppingCartService(c *db.Connections) service {
 	return service{
-		shoppingCartRepository: repository2.NewShoppingCartRepository(clientDb),
-		profileService:         profile.NewProfileService(conn, close),
-		productService:         product.NewProductService(conn, close),
-		close:                  close,
+		shoppingCartRepository: repository.NewShoppingCartRepository(c.NOSQLConn),
+		profileService:         profile.NewProfileService(c.SQL.Conn, c.SQL.Close),
+		productService:         product.NewProductService(c.SQL.Conn, c.SQL.Close),
 	}
 }
 
