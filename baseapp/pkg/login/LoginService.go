@@ -8,19 +8,19 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
-	repository2 "github.com/ribeirosaimon/motion-go/internal/repository"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/security"
 )
 
 type loginService struct {
-	userRepository reposito.MotionRepository[sqlDomain.MotionUser]
+	userRepository repository.MotionRepository[sqlDomain.MotionUser]
 	profileService profile.Service
 	sessionService session.Service
 }
 
 func NewLoginService(conn *db.Connections) loginService {
 	return loginService{
-		userRepository: repository2.NewUserRepository(conn),
+		userRepository: repository.NewUserRepository(conn),
 		profileService: profile.NewProfileService(conn, close),
 		sessionService: session.NewLoginService(conn, close),
 	}
