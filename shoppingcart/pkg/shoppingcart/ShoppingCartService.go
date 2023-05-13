@@ -2,8 +2,9 @@ package shoppingcart
 
 import (
 	"errors"
-	"github.com/ribeirosaimon/motion-go/internal/db"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/internal/db"
 
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/profile"
@@ -22,8 +23,8 @@ type service struct {
 func NewShoppingCartService(c *db.Connections) service {
 	return service{
 		shoppingCartRepository: repository.NewShoppingCartRepository(c.NOSQLConn),
-		profileService:         profile.NewProfileService(c.SQL.Conn, c.SQL.Close),
-		productService:         product.NewProductService(c.SQL.Conn, c.SQL.Close),
+		profileService:         profile.NewProfileService(c),
+		productService:         product.NewProductService(c),
 	}
 }
 

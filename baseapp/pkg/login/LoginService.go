@@ -21,8 +21,8 @@ type loginService struct {
 func NewLoginService(conn *db.Connections) loginService {
 	return loginService{
 		userRepository: repository.NewUserRepository(conn.SQL.Conn),
-		profileService: profile.NewProfileService(conn.SQL.Conn, conn.SQL.Close),
-		sessionService: session.NewLoginService(conn.SQL.Conn, conn.SQL.Close),
+		profileService: profile.NewProfileService(conn),
+		sessionService: session.NewLoginService(conn),
 	}
 }
 

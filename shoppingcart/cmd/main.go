@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/ribeirosaimon/motion-go/internal/config"
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/shoppingcart/pkg/shoppingcart"
 )
 
@@ -13,7 +14,7 @@ func main() {
 
 var version1 = config.RoutersVersion{
 	Version: "v1",
-	Handlers: []config.MotionController{
+	Handlers: []func(conn *db.Connections) config.MotionController{
 		shoppingcart.NewShoppingCartRouter,
 	},
 }

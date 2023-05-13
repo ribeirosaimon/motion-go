@@ -37,3 +37,7 @@ func ClosePostgreSQL() {
 	db, _ := dbInstance.DB()
 	db.Close()
 }
+
+func init() {
+	dbInstance = createDbInstance()
+}

@@ -39,7 +39,7 @@ func Authorization(dbConn *db.Connections, roles ...sqlDomain.Role) gin.HandlerF
 					return
 				}
 				// get Profile by sessionId
-				profile, err := profile.NewProfileService(dbConn.SQL.Conn, dbConn.SQL.Close).FindProfileByUserId(savedSession.ProfileId)
+				profile, err := profile.NewProfileService(dbConn).FindProfileByUserId(savedSession.ProfileId)
 				if err != nil {
 					exceptions.Forbidden().Throw(c)
 					return

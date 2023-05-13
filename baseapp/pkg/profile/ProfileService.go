@@ -1,41 +1,37 @@
 package profile
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
-	sqlDomain2 "github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
-	repository2 "github.com/ribeirosaimon/motion-go/internal/repository"
-
-	"gorm.io/gorm"
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
 type Service struct {
-	profileRepository *repository2.MotionSQLRepository[sqlDomain2.Profile]
-	roleRepository    *repository2.MotionSQLRepository[sqlDomain2.Role]
-	closeDb           *sql.DB
+	profileRepository *repository.MotionSQLRepository[sqlDomain.Profile]
+	roleRepository    *repository.MotionSQLRepository[sqlDomain.Role]
 }
 
-func NewProfileService(conn *gorm.DB, close *sql.DB) Service {
+func NewProfileService(conections *db.Connections) Service {
 	return Service{
-		profileRepository: repository2.NewProfileRepository(conn),
-		roleRepository:    repository2.NewRoleRepository(conn),
-		closeDb:           close,
+		profileRepository: repository.NewProfileRepository(conections.SQL.Conn),
+		roleRepository:    repository.NewRoleRepository(conections.SQL.Conn),
 	}
 
 }
-func (l Service) SaveProfileUser(user sqlDomain2.MotionUser, roles []sqlDomain2.RoleEnum) (sqlDomain2.Profile, error) {
-	var profile sqlDomain2.Profile
+func (l Service) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.RoleEnum) (sqlDomain.Profile, error) {
+	var profile sqlDomain.Profile
 
 	profile.Name = user.Name
 
 	for _, role := range roles {
 		field, err := l.roleRepository.FindByField("name", role)
 		if err != nil {
-			return sqlDomain2.Profile{}, err
+			return sqlDomain.Profile{}, err
 		}
-		profile.Roles = []sqlDomain2.Role{field}
+		profile.Roles = []sqlDomain.Role{field}
 	}
 
 	profile.Status = domain.ACTIVE
@@ -47,15 +43,15 @@ func (l Service) SaveProfileUser(user sqlDomain2.MotionUser, roles []sqlDomain2.
 
 	save, err := l.profileRepository.Save(profile)
 	if err != nil {
-		return sqlDomain2.Profile{}, err
+		return sqlDomain.Profile{}, err
 	}
 	return save, nil
 }
 
-func (l Service) FindProfileByUserId(id uint64) (sqlDomain2.Profile, error) {
+func (l Service) FindProfileByUserId(id uint64) (sqlDomain.Profile, error) {
 	byId, err := l.profileRepository.FindWithPreloads("Roles", id)
 	if err != nil {
-		return sqlDomain2.Profile{}, err
+		return sqlDomain.Profile{}, err
 	}
 	return byId, nil
 }
