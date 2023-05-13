@@ -18,8 +18,8 @@ type Service struct {
 }
 
 func NewLoginService(conn *db.Connections) Service {
-	return Service{sessionRepository: repository.NewSessionRepository(conn.SQL.Conn),
-		roleRepository: repository.NewRoleRepository(conn.SQL.Conn),
+	return Service{sessionRepository: repository.NewSessionRepository(conn.sqlStruct.Conn),
+		roleRepository: repository.NewRoleRepository(conn.sqlStruct.Conn),
 	}
 }
 

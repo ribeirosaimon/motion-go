@@ -31,9 +31,9 @@ func Authorization(dbConn *db.Connections, roles ...sqlDomain.Role) gin.HandlerF
 			if len(authToken) == 2 && authToken[0] == "Bearer" {
 				bearerToken := authToken[1]
 				// verify if exist Session for this user
-				savedSession, err := repository.NewSessionRepository(dbConn.SQL.Conn).FindByField("session_id", bearerToken)
+				savedSession, err := repository.NewSessionRepository(dbConn.sqlStruct.Conn).FindByField("session_id", bearerToken)
 				// verify if exist this Role
-				motionLoggedRole, err := repository.NewRoleRepository(dbConn.SQL.Conn).FindByField("name", motionValues)
+				motionLoggedRole, err := repository.NewRoleRepository(dbConn.sqlStruct.Conn).FindByField("name", motionValues)
 				if err != nil {
 					exceptions.FieldError("you no have motion roles").Throw(c)
 					return

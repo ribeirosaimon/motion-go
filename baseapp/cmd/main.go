@@ -12,13 +12,18 @@ import (
 
 func main() {
 	motionGo := config.NewMotionGo()
+
+	db.Conn.InitializeDatabases()
+
 	setUpRoles()
 	motionGo.AddRouter(version1, version2)
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))
 }
 
 func setUpRoles() {
-	connect := db.GetPostgreSQL()
+	connect := db.Conn.GetPostgreSQL()
+	defer db.Conn.ClosePostgreSQL()
+
 	roleRepository := repository.NewRoleRepository(connect)
 	allRoles := []sqlDomain.RoleEnum{sqlDomain.USER, sqlDomain.ADMIN}
 	for _, i := range allRoles {
@@ -28,13 +33,13 @@ func setUpRoles() {
 		}
 
 	}
-	db.ClosePostgreSQL()
+
 }
 
 var version1 = config.RoutersVersion{
 	Version: "v1",
 	Handlers: []func(conn *db.Connections) config.MotionController{
-		health.NewHealthRouter,
+		//health.NewHealthRouter,
 		login.NewLoginRouter,
 		product.NewProductRouter,
 	},

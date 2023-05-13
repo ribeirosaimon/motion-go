@@ -18,7 +18,7 @@ type Service struct {
 
 func NewProductService(conections *db.Connections) Service {
 	return Service{
-		productRepository: repository.NewProductRepository(conections.SQL.Conn),
+		productRepository: repository.NewProductRepository(conections.sqlStruct.Conn),
 	}
 }
 

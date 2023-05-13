@@ -10,6 +10,7 @@ import (
 )
 
 func NewHealthRouter(conn *db.Connections) config.MotionController {
+
 	service := NewHealthService()
 	return config.NewMotionController(
 		"/health",
