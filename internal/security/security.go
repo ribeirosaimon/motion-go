@@ -21,7 +21,7 @@ func haveRole(role sqlDomain.Role, roles []sqlDomain.Role) bool {
 	return false
 }
 
-func Authorization(dbConn *db.Connections, roles ...sqlDomain.Role) gin.HandlerFunc {
+func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		motionValues := c.GetHeader("MotionRole")
@@ -31,15 +31,15 @@ func Authorization(dbConn *db.Connections, roles ...sqlDomain.Role) gin.HandlerF
 			if len(authToken) == 2 && authToken[0] == "Bearer" {
 				bearerToken := authToken[1]
 				// verify if exist Session for this user
-				savedSession, err := repository.NewSessionRepository(dbConn.sqlStruct.Conn).FindByField("session_id", bearerToken)
+				savedSession, err := repository.NewSessionRepository(db.Conn.GetPostgreSQL()).FindByField("session_id", bearerToken)
 				// verify if exist this Role
-				motionLoggedRole, err := repository.NewRoleRepository(dbConn.sqlStruct.Conn).FindByField("name", motionValues)
+				motionLoggedRole, err := repository.NewRoleRepository(db.Conn.GetPostgreSQL()).FindByField("name", motionValues)
 				if err != nil {
 					exceptions.FieldError("you no have motion roles").Throw(c)
 					return
 				}
 				// get Profile by sessionId
-				profile, err := profile.NewProfileService(dbConn).FindProfileByUserId(savedSession.ProfileId)
+				profile, err := profile.NewProfileService(db.Conn).FindProfileByUserId(savedSession.ProfileId)
 				if err != nil {
 					exceptions.Forbidden().Throw(c)
 					return

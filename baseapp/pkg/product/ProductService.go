@@ -3,8 +3,9 @@ package product
 import (
 	"database/sql"
 	"errors"
-	"github.com/ribeirosaimon/motion-go/internal/db"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/internal/db"
 
 	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -18,7 +19,7 @@ type Service struct {
 
 func NewProductService(conections *db.Connections) Service {
 	return Service{
-		productRepository: repository.NewProductRepository(conections.sqlStruct.Conn),
+		productRepository: repository.NewProductRepository(conections.GetPostgreSQL()),
 	}
 }
 

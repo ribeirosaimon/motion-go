@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/magiconair/properties"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/postgres"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +16,7 @@ var Conn *Connections
 
 type Connections struct {
 	sqlStruct
-	nOSQLConn *mongo.Client
+	noSqlStruct
 }
 
 type sqlStruct struct {
@@ -22,20 +24,30 @@ type sqlStruct struct {
 	close *sql.DB
 }
 
+type noSqlStruct struct {
+	conn         *mongo.Client
+	DatabaseName string
+}
+
 func (c *Connections) GetPostgreSQL() *gorm.DB {
 	return c.sqlStruct.conn
+}
+
+func (c *Connections) GetMongoTemplate() *mongo.Client {
+	return c.noSqlStruct.conn
 }
 
 func (c *Connections) ClosePostgreSQL() *sql.DB {
 	return c.sqlStruct.close
 }
 
-func (c *Connections) InitializeDatabases() {
-	c.connectSQL()
+func (c *Connections) InitializeDatabases(conf string) {
+	c.connectSQL(conf)
+	c.connectNoSQL(conf)
 }
 
-func (c *Connections) connectSQL() *gorm.DB {
-	p := properties.MustLoadFile("config.properties", properties.UTF8)
+func (c *Connections) connectSQL(conf string) {
+	p := properties.MustLoadFile(conf, properties.UTF8)
 	dbUsername := p.GetString("database.username", "")
 	dbPassword := p.GetString("database.password", "")
 	dbName := p.GetString("database.name", "")
@@ -49,7 +61,20 @@ func (c *Connections) connectSQL() *gorm.DB {
 		if err != nil {
 			panic(err)
 		}
-		return dbInstance
+		c.sqlStruct.conn = dbInstance
+		close, err := dbInstance.DB()
+		c.sqlStruct.close = close
 	}
-	return c.sqlStruct.conn
+}
+
+func (c *Connections) connectNoSQL(conf string) {
+	p := properties.MustLoadFile(conf, properties.UTF8)
+	mongoUrl := p.GetString("database.mongo.url", "")
+	dbName := p.GetString("database.name", "")
+	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUrl + dbName))
+	if err != nil {
+		panic(err)
+	}
+	c.noSqlStruct.conn = client
+	c.noSqlStruct.DatabaseName = dbName
 }

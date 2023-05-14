@@ -7,9 +7,9 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 )
 
-func NewLoginRouter(conn *db.Connections) config.MotionController {
+func NewLoginRouter() config.MotionController {
 
-	service := NewLoginService(conn)
+	service := NewLoginService(db.Conn)
 	return config.NewMotionController(
 		"/auth",
 		config.NewMotionRouter(http.MethodPost, "/login", NewLoginControler(&service).login),

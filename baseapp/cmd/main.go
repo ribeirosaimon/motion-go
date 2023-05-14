@@ -11,9 +11,10 @@ import (
 )
 
 func main() {
-	motionGo := config.NewMotionGo()
+	motionGo := config.NewMotionGo("config.properties")
 
-	db.Conn.InitializeDatabases()
+	db.Conn = &db.Connections{}
+	db.Conn.InitializeDatabases("config.properties")
 
 	setUpRoles()
 	motionGo.AddRouter(version1, version2)
@@ -38,8 +39,8 @@ func setUpRoles() {
 
 var version1 = config.RoutersVersion{
 	Version: "v1",
-	Handlers: []func(conn *db.Connections) config.MotionController{
-		//health.NewHealthRouter,
+	Handlers: []func() config.MotionController{
+		health.NewHealthRouter,
 		login.NewLoginRouter,
 		product.NewProductRouter,
 	},
@@ -47,7 +48,7 @@ var version1 = config.RoutersVersion{
 
 var version2 = config.RoutersVersion{
 	Version: "v2",
-	Handlers: []func(conn *db.Connections) config.MotionController{
+	Handlers: []func() config.MotionController{
 		health.NewHealthRouter,
 	},
 }

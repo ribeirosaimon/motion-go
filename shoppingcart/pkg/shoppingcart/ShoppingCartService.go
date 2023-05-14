@@ -22,7 +22,7 @@ type service struct {
 
 func NewShoppingCartService(c *db.Connections) service {
 	return service{
-		shoppingCartRepository: repository.NewShoppingCartRepository(c.NOSQLConn),
+		shoppingCartRepository: repository.NewShoppingCartRepository(c.GetMongoTemplate()),
 		profileService:         profile.NewProfileService(c),
 		productService:         product.NewProductService(c),
 	}

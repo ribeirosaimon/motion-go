@@ -1,7 +1,6 @@
 package session
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -14,12 +13,11 @@ import (
 type Service struct {
 	sessionRepository repository.MotionRepository[sqlDomain.Session]
 	roleRepository    repository.MotionRepository[sqlDomain.Role]
-	closeDb           *sql.DB
 }
 
 func NewLoginService(conn *db.Connections) Service {
-	return Service{sessionRepository: repository.NewSessionRepository(conn.sqlStruct.Conn),
-		roleRepository: repository.NewRoleRepository(conn.sqlStruct.Conn),
+	return Service{sessionRepository: repository.NewSessionRepository(conn.GetPostgreSQL()),
+		roleRepository: repository.NewRoleRepository(conn.GetPostgreSQL()),
 	}
 }
 

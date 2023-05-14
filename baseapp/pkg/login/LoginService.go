@@ -20,7 +20,7 @@ type loginService struct {
 
 func NewLoginService(conn *db.Connections) loginService {
 	return loginService{
-		userRepository: repository.NewUserRepository(conn.sqlStruct.Conn),
+		userRepository: repository.NewUserRepository(conn.GetPostgreSQL()),
 		profileService: profile.NewProfileService(conn),
 		sessionService: session.NewLoginService(conn),
 	}
