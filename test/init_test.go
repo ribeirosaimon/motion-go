@@ -1,6 +1,8 @@
 package test
 
 import (
+	"fmt"
+	"net/http"
 	"path"
 	"runtime"
 
@@ -8,12 +10,11 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
-	"github.com/ribeirosaimon/motion-go/test/util"
 )
 
 var (
-	TokenUser   string
-	TokenAdmin  string
+	tokenUser   string
+	tokenAdmin  string
 	TestEnginer *config.MotionGo
 )
 
@@ -58,28 +59,23 @@ func setUpRoles() {
 	}
 
 }
-
-func getToken(role sqlDomain.RoleEnum) string {
-	var token string
-	var err error
-
-	if role == sqlDomain.USER {
-		token, err = util.SignUp(sqlDomain.USER, sqlDomain.USER)
-	} else if role == sqlDomain.ADMIN {
-		// token, err = util.SignUp(testEnginer, sqlDomain.ADMIN, sqlDomain.ADMIN)
+func UpdateAdminToken(req *http.Request) {
+	if tokenAdmin == "" {
+		tokenAdmin, _ = SignUp(sqlDomain.USER, sqlDomain.ADMIN)
 	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tokenAdmin))
+	req.Header.Add("MotionRole", string(sqlDomain.ADMIN))
+}
 
-	if err != nil {
-		panic(err)
+func UpdateUserToken(req *http.Request) {
+	if tokenUser == "" {
+		tokenUser, _ = SignUp(sqlDomain.USER, sqlDomain.ADMIN)
 	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tokenUser))
+	req.Header.Add("MotionRole", string(sqlDomain.USER))
 
-	return token
 }
 
 func init() {
 	CreateEnginer()
-	// TestEnginer.CreateRouters(TestEnginer.PropertiesFile.GetInt("server.port.baseapp", 0))
-
-	// TokenUser = getToken(sqlDomain.USER)
-	// TokenAdmin = getToken(sqlDomain.ADMIN)
 }

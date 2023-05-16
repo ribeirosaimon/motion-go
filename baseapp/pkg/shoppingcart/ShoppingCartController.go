@@ -18,8 +18,8 @@ func NewShoppingCartController(shoppingCartService *service) controller {
 }
 
 func (s controller) createShoppingCart(c *gin.Context) {
-	loggedUser := middleware.GetLoggedUser(c)
-	_, err := s.shoppingCartService.createShoppingCart(loggedUser)
+	loggedUser, err := middleware.GetLoggedUser(c)
+	_, err = s.shoppingCartService.createShoppingCart(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -28,7 +28,7 @@ func (s controller) createShoppingCart(c *gin.Context) {
 }
 
 func (s controller) getShoppingCart(c *gin.Context) {
-	loggedUser := middleware.GetLoggedUser(c)
+	loggedUser, err := middleware.GetLoggedUser(c)
 	cart, err := s.shoppingCartService.getShoppingCart(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
@@ -38,8 +38,8 @@ func (s controller) getShoppingCart(c *gin.Context) {
 }
 
 func (s controller) excludeShoppingCart(c *gin.Context) {
-	loggedUser := middleware.GetLoggedUser(c)
-	err := s.shoppingCartService.deleteShoppingCart(loggedUser)
+	loggedUser, err := middleware.GetLoggedUser(c)
+	err = s.shoppingCartService.deleteShoppingCart(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -47,21 +47,21 @@ func (s controller) excludeShoppingCart(c *gin.Context) {
 	httpresponse.Ok(c, nil)
 }
 
-func (s controller) addProductInShoppingCart(ctx *gin.Context) {
-	loggedUser := middleware.GetLoggedUser(ctx)
+func (s controller) addProductInShoppingCart(c *gin.Context) {
+	loggedUser, err := middleware.GetLoggedUser(c)
 	var productDTO productDTO
 
-	if err := ctx.BindJSON(&productDTO); err != nil {
-		exceptions.BodyError().Throw(ctx)
+	if err := c.BindJSON(&productDTO); err != nil {
+		exceptions.BodyError().Throw(c)
 		return
 	}
 
 	cart, err := s.shoppingCartService.addProductInShoppingCart(loggedUser, productDTO)
 	if err != nil {
-		exceptions.MotionError(err.Error()).Throw(ctx)
+		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
-	httpresponse.Ok(ctx, cart)
+	httpresponse.Ok(c, cart)
 }
 
 type productDTO struct {

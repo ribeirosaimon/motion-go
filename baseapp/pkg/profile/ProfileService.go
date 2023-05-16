@@ -31,7 +31,7 @@ func (l Service) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.Ro
 		if err != nil {
 			return sqlDomain.Profile{}, err
 		}
-		profile.Roles = []sqlDomain.Role{field}
+		profile.Roles = append(profile.Roles, field)
 	}
 
 	profile.Status = domain.ACTIVE

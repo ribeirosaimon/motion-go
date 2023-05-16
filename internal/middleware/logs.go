@@ -11,17 +11,17 @@ import (
 )
 
 type motionLog struct {
-	Api          string    `json:"api"`
-	HttpRequest  request   `json:"httpRequest"`
-	HttpResponse response  `json:"httpResponse"`
-	Timestamp    time.Time `json:"timestamp"`
+	Api          string      `json:"api"`
+	HttpRequest  request     `json:"httpRequest"`
+	HttpResponse response    `json:"httpResponse"`
+	LoggedUser   *LoggedUser `json:"loggedUser,omitempty"`
+	Timestamp    time.Time   `json:"timestamp"`
 }
 
 type request struct {
 	Proto         string `json:"proto"`
 	RemoteIP      string `json:"remoteIP"`
 	RequestMethod string `json:"requestMethod"`
-	RequestPath   string `json:"requestPath"`
 }
 
 type response struct {
@@ -30,7 +30,7 @@ type response struct {
 	Latency time.Duration `json:"latency"`
 }
 
-func NewLogger(api string) gin.HandlerFunc {
+func NewLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		c.Next()
@@ -39,7 +39,6 @@ func NewLogger(api string) gin.HandlerFunc {
 			Proto:         c.Request.Proto,
 			RemoteIP:      c.Request.RemoteAddr,
 			RequestMethod: c.Request.Method,
-			RequestPath:   c.Request.RequestURI,
 		}
 
 		end := time.Now()
@@ -51,14 +50,20 @@ func NewLogger(api string) gin.HandlerFunc {
 			Latency: latency,
 		}
 
-		var motionLog = motionLog{
-			Api:          api,
+		user, err := GetLoggedUser(c)
+
+		var motionLogger = motionLog{
+			Api:          c.Request.RequestURI,
 			Timestamp:    start,
 			HttpRequest:  httpRequest,
 			HttpResponse: httpResponse,
 		}
 
-		jsonData, err := json.Marshal(motionLog)
+		if err == nil {
+			motionLogger.LoggedUser = &user
+		}
+
+		jsonData, err := json.Marshal(motionLogger)
 		if err != nil {
 			fmt.Println("Erro ao converter para JSON:", err)
 			return

@@ -2,12 +2,12 @@ package config
 
 import (
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"io/ioutil"
 	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
-	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
 type RoutersVersion struct {
@@ -34,7 +34,7 @@ func (m *MotionGo) AddRouter(version ...RoutersVersion) {
 }
 
 func (m *MotionGo) CreateRouters() {
-	m.MotionEngine.Use(middleware.NewLogger("motion"))
+	m.MotionEngine.Use(middleware.NewLogger())
 	for _, routerVersions := range m.Routers {
 		apiVersion := m.MotionEngine.Group(fmt.Sprintf("/api/%s", routerVersions.Version))
 		for _, routersFunc := range routerVersions.Handlers {
@@ -42,11 +42,12 @@ func (m *MotionGo) CreateRouters() {
 			pathEngineer := apiVersion.Group(routers.Path)
 
 			for _, controller := range routers.Handlers {
+
 				if m.MotionEngine.Routes() != nil {
-					for _, routersAdded := range m.MotionEngine.Routes() {
-						if !(routersAdded.Path == routers.Path && routersAdded.Method == controller.Method) {
-							addHandlerToEngine(controller, pathEngineer)
-						}
+					path := fmt.Sprintf("%s%s", pathEngineer.BasePath(), controller.Path)
+
+					if !existRouter(m.MotionEngine.Routes(), path, controller.Method) {
+						addHandlerToEngine(controller, pathEngineer)
 					}
 				} else {
 					addHandlerToEngine(controller, pathEngineer)
@@ -56,6 +57,15 @@ func (m *MotionGo) CreateRouters() {
 		}
 	}
 
+}
+
+func existRouter(routes gin.RoutesInfo, path string, method string) bool {
+	for _, v := range routes {
+		if v.Path == path && v.Method == method {
+			return true
+		}
+	}
+	return false
 }
 
 func addHandlerToEngine(controller MotionRouter, pathEngineer *gin.RouterGroup) {

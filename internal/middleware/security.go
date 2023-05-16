@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -74,8 +75,11 @@ func putLoggedUserInContext(c *gin.Context, roleLoggedser sqlDomain.Role, p sqlD
 
 	c.Set("loggedUser", loggedUser)
 }
-func GetLoggedUser(c *gin.Context) LoggedUser {
-	return c.MustGet("loggedUser").(LoggedUser)
+func GetLoggedUser(c *gin.Context) (LoggedUser, error) {
+	if _, ok := c.Get("loggedUser"); !ok {
+		return LoggedUser{}, errors.New("not exist loggedUser")
+	}
+	return c.MustGet("loggedUser").(LoggedUser), nil
 }
 
 func EncryptPassword(password string) (string, error) {

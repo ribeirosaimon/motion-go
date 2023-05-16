@@ -65,30 +65,31 @@ func TestOpenController(t *testing.T) {
 	assert.Equal(t, response.Time.Day(), time.Now().Day())
 }
 
-// func TestCloseControllerSendError(t *testing.T) {
-// 	t.Log("Test close controller send error")
-// 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
-// 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
-// 		nil, "", sqlDomain.USER)
-// 	assert.Equal(t, nil, err)
-// 	assert.Equal(t, http.StatusForbidden, resp.Code)
-// }
-//
-// func TestCloseControllerSuccess(t *testing.T) {
-// 	t.Log("Test close controller sucess")
-// 	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
-// 	session, err := util.SignUp(testEnginer, sqlDomain.USER, sqlDomain.ADMIN, sqlDomain.USER)
-// 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
-// 		nil, session, sqlDomain.USER)
-//
-// 	assert.Equal(t, http.StatusOK, resp.Code)
-//
-// 	var response healthApiResponse
-// 	err = json.Unmarshal(resp.Body.Bytes(), &response)
-// 	assert.Equal(t, err, nil)
-// 	assert.Equal(t, response.Ready, true)
-// 	assert.Equal(t, response.Time.Day(), time.Now().Day())
-// }
+func TestCloseControllerSendError(t *testing.T) {
+	AddRouter(healthVersion)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/health/close", nil)
+	resp := httptest.NewRecorder()
+
+	TestEnginer.MotionEngine.ServeHTTP(resp, req)
+
+	assert.Equal(t, resp.Code, http.StatusForbidden)
+}
+
+func TestCloseControllerSuccess(t *testing.T) {
+	AddRouter(healthVersion)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/health/close", nil)
+	resp := httptest.NewRecorder()
+	UpdateUserToken(req)
+	TestEnginer.MotionEngine.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+
+	var response healthApiResponse
+	err := json.Unmarshal(resp.Body.Bytes(), &response)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, response.Ready, true)
+	assert.Equal(t, response.Time.Day(), time.Now().Day())
+}
 
 type healthApiResponse struct {
 	Ready      bool                  `json:"ready"`
