@@ -79,7 +79,7 @@ func TestCloseControllerSuccess(t *testing.T) {
 	AddRouter(healthVersion)
 	req, _ := http.NewRequest(http.MethodGet, "/api/v1/health/close", nil)
 	resp := httptest.NewRecorder()
-	UpdateUserToken(req)
+	AddUserTokenInReq(req)
 	TestEnginer.MotionEngine.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusOK, resp.Code)

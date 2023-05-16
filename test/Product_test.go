@@ -3,14 +3,16 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/magiconair/properties/assert"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/shopspring/decimal"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 var idProduct uint64
@@ -34,7 +36,7 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	jsonData, err := json.Marshal(productDto)
 
 	req, err := http.NewRequest(http.MethodPost, "/api/v1/product", bytes.NewReader(jsonData))
-	UpdateAdminToken(req)
+	AddAdminTokenInReq(req)
 	resp := httptest.NewRecorder()
 
 	TestEnginer.MotionEngine.ServeHTTP(resp, req)
@@ -52,39 +54,39 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	idProduct = productResponse.Id
 }
 
-// func TestHaveToPutProductAndReturnOk(t *testing.T) {
-// 	TestHaveToAddProductAndReturnOk(t)
-//
-// 	bd1, _ := decimal.NewFromString("321.61")
-// 	productDto := product2.ProductDto{
-// 		Price: bd1,
-// 		Name:  "TesteUpdate",
-// 		Image: "http://update",
-// 	}
-// 	jsonData, err := json.Marshal(productDto)
-//
-// 	if err != nil {
-// 		panic(err)
-// 	}
-//
-// 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodPut,
-// 		fmt.Sprintf("/api/v1/product/%d", idProduct),
-// 		bytes.NewReader(jsonData), TokenAdmin, sqlDomain2.ADMIN)
-//
-// 	if err != nil {
-// 		t.Error("error in request")
-// 	}
-//
-// 	var productResponse = sqlDomain2.Product{}
-// 	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	assert.Equal(t, resp.Code, http.StatusOK)
-// 	assert.Equal(t, productResponse.Image, productDto.Image)
-// 	assert.Equal(t, productResponse.Id, idProduct)
-// }
-//
+func TestHaveToPutProductAndReturnOk(t *testing.T) {
+	if idProduct == 0 {
+		TestHaveToAddProductAndReturnOk(t)
+	}
+
+	bd1, _ := decimal.NewFromString("321.61")
+	productDto := product.ProductDto{
+		Price: bd1,
+		Name:  "TesteUpdate",
+		Image: "http://update",
+	}
+	jsonData, err := json.Marshal(productDto)
+
+	if err != nil {
+		panic(err)
+	}
+	url := fmt.Sprintf("/api/v1/product/%d", idProduct)
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(jsonData))
+	AddAdminTokenInReq(req)
+	resp := httptest.NewRecorder()
+
+	TestEnginer.MotionEngine.ServeHTTP(resp, req)
+
+	var productResponse = sqlDomain.Product{}
+	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, resp.Code, http.StatusOK)
+	assert.Equal(t, productResponse.Image, productDto.Image)
+	assert.Equal(t, productResponse.Id, idProduct)
+}
+
 // func TestHaveToGetProductAndReturnOk(t *testing.T) {
 // 	TestHaveToAddProductAndReturnOk(t)
 // 	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet,

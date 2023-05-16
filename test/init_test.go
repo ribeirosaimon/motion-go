@@ -22,7 +22,6 @@ func CreateEnginer() {
 	propertiesFile := "config.test.properties"
 
 	TestEnginer = config.NewMotionGo(propertiesFile)
-
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeTestDatabases(getCurrentDirectory())
 
@@ -59,7 +58,7 @@ func setUpRoles() {
 	}
 
 }
-func UpdateAdminToken(req *http.Request) {
+func AddAdminTokenInReq(req *http.Request) {
 	if tokenAdmin == "" {
 		tokenAdmin, _ = SignUp(sqlDomain.USER, sqlDomain.ADMIN)
 	}
@@ -67,7 +66,7 @@ func UpdateAdminToken(req *http.Request) {
 	req.Header.Add("MotionRole", string(sqlDomain.ADMIN))
 }
 
-func UpdateUserToken(req *http.Request) {
+func AddUserTokenInReq(req *http.Request) {
 	if tokenUser == "" {
 		tokenUser, _ = SignUp(sqlDomain.USER, sqlDomain.ADMIN)
 	}
