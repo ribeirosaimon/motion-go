@@ -1,4 +1,4 @@
-package security
+package middleware
 
 import (
 	"strings"
@@ -31,9 +31,9 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 			if len(authToken) == 2 && authToken[0] == "Bearer" {
 				bearerToken := authToken[1]
 				// verify if exist Session for this user
-				savedSession, err := repository.NewSessionRepository(db.Conn.GetPostgreSQL()).FindByField("session_id", bearerToken)
+				savedSession, err := repository.NewSessionRepository(db.Conn.GetPgsqTemplate()).FindByField("session_id", bearerToken)
 				// verify if exist this Role
-				motionLoggedRole, err := repository.NewRoleRepository(db.Conn.GetPostgreSQL()).FindByField("name", motionValues)
+				motionLoggedRole, err := repository.NewRoleRepository(db.Conn.GetPgsqTemplate()).FindByField("name", motionValues)
 				if err != nil {
 					exceptions.FieldError("you no have motion roles").Throw(c)
 					return
@@ -58,9 +58,11 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 				}
 			} else {
 				exceptions.Forbidden().Throw(c)
+				c.Next()
 			}
 		}
 		exceptions.Forbidden().Throw(c)
+		c.Next()
 	}
 }
 

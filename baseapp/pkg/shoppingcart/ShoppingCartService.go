@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
-	"github.com/ribeirosaimon/motion-go/internal/security"
 	"github.com/shopspring/decimal"
 )
 
@@ -28,7 +28,7 @@ func NewShoppingCartService(c *db.Connections) service {
 	}
 }
 
-func (s service) getShoppingCart(user security.LoggedUser) (nosqlDomain.ShoppingCart, error) {
+func (s service) getShoppingCart(user middleware.LoggedUser) (nosqlDomain.ShoppingCart, error) {
 	exist := s.shoppingCartRepository.ExistByField("profile_id", user.UserId)
 	if !exist {
 		return nosqlDomain.ShoppingCart{}, errors.New("not found")
@@ -40,7 +40,7 @@ func (s service) getShoppingCart(user security.LoggedUser) (nosqlDomain.Shopping
 	return cart, nil
 }
 
-func (s service) createShoppingCart(loggedUser security.LoggedUser) (nosqlDomain.ShoppingCart, error) {
+func (s service) createShoppingCart(loggedUser middleware.LoggedUser) (nosqlDomain.ShoppingCart, error) {
 	_, err := s.getShoppingCart(loggedUser)
 	if err == nil {
 		return nosqlDomain.ShoppingCart{}, errors.New("you already have a shopping cart")
@@ -63,7 +63,7 @@ func (s service) createShoppingCart(loggedUser security.LoggedUser) (nosqlDomain
 	return savedShoppingCart, nil
 }
 
-func (s service) deleteShoppingCart(loggedUser security.LoggedUser) error {
+func (s service) deleteShoppingCart(loggedUser middleware.LoggedUser) error {
 	shoppingCart, err := s.getShoppingCart(loggedUser)
 	if err != nil {
 		return errors.New("you not have a shooping cart")
@@ -75,7 +75,7 @@ func (s service) deleteShoppingCart(loggedUser security.LoggedUser) error {
 	return nil
 }
 
-func (s service) addProductInShoppingCart(loggedUser security.LoggedUser, productDTO productDTO) (nosqlDomain.ShoppingCart, error) {
+func (s service) addProductInShoppingCart(loggedUser middleware.LoggedUser, productDTO productDTO) (nosqlDomain.ShoppingCart, error) {
 	shoppingCart, err := s.getShoppingCart(loggedUser)
 	if err != nil {
 		return nosqlDomain.ShoppingCart{}, err

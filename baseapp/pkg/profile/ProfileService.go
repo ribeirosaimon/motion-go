@@ -16,8 +16,8 @@ type Service struct {
 
 func NewProfileService(conections *db.Connections) Service {
 	return Service{
-		profileRepository: repository.NewProfileRepository(conections.GetPostgreSQL()),
-		roleRepository:    repository.NewRoleRepository(conections.GetPostgreSQL()),
+		profileRepository: repository.NewProfileRepository(conections.GetPgsqTemplate()),
+		roleRepository:    repository.NewRoleRepository(conections.GetPgsqTemplate()),
 	}
 
 }

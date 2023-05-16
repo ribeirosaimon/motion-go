@@ -4,6 +4,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/health"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/shoppingcart"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -17,12 +18,13 @@ func main() {
 	db.Conn.InitializeDatabases("config.properties")
 
 	setUpRoles()
-	motionGo.AddRouter(version1, version2)
+	motionGo.AddRouter(version2)
+	motionGo.CreateRouters()
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))
 }
 
 func setUpRoles() {
-	connect := db.Conn.GetPostgreSQL()
+	connect := db.Conn.GetPgsqTemplate()
 	defer db.Conn.ClosePostgreSQL()
 
 	roleRepository := repository.NewRoleRepository(connect)
@@ -43,12 +45,14 @@ var version1 = config.RoutersVersion{
 		health.NewHealthRouter,
 		login.NewLoginRouter,
 		product.NewProductRouter,
+		shoppingcart.NewShoppingCartRouter,
 	},
 }
 
 var version2 = config.RoutersVersion{
 	Version: "v2",
 	Handlers: []func() config.MotionController{
+		health.NewHealthRouter,
 		health.NewHealthRouter,
 	},
 }

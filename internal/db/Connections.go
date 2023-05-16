@@ -3,12 +3,13 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/magiconair/properties"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/postgres"
-
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +30,7 @@ type noSqlStruct struct {
 	DatabaseName string
 }
 
-func (c *Connections) GetPostgreSQL() *gorm.DB {
+func (c *Connections) GetPgsqTemplate() *gorm.DB {
 	return c.sqlStruct.conn
 }
 
@@ -77,4 +78,22 @@ func (c *Connections) connectNoSQL(conf string) {
 	}
 	c.noSqlStruct.conn = client
 	c.noSqlStruct.DatabaseName = dbName
+}
+
+func (c *Connections) InitializeTestDatabases(dir string) {
+	dbDir := fmt.Sprintf("%s/test.db", dir)
+	err := os.Remove(dbDir)
+	if err != nil {
+		fmt.Errorf("no have db")
+	}
+
+	db, err := gorm.Open(sqlite.Open(fmt.Sprintf("%s/test.db", dir)), &gorm.Config{})
+	if err != nil {
+		panic("erro connection Db")
+	}
+	sqlDB, err := db.DB()
+
+	c.sqlStruct.conn = db
+	c.sqlStruct.close = sqlDB
+
 }

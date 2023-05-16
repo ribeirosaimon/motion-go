@@ -3,7 +3,7 @@ package health
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
-	"github.com/ribeirosaimon/motion-go/internal/security"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
 type healthController struct {
@@ -19,6 +19,6 @@ func (c healthController) openHealth(ctx *gin.Context) {
 }
 
 func (c healthController) closeHealth(ctx *gin.Context) {
-	health := c.service.getHealthService(security.GetLoggedUser(ctx))
+	health := c.service.getHealthService(middleware.GetLoggedUser(ctx))
 	httpresponse.Ok(ctx, health)
 }

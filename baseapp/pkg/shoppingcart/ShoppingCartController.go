@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
-	"github.com/ribeirosaimon/motion-go/internal/security"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
 type controller struct {
@@ -18,7 +18,7 @@ func NewShoppingCartController(shoppingCartService *service) controller {
 }
 
 func (s controller) createShoppingCart(c *gin.Context) {
-	loggedUser := security.GetLoggedUser(c)
+	loggedUser := middleware.GetLoggedUser(c)
 	_, err := s.shoppingCartService.createShoppingCart(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
@@ -28,7 +28,7 @@ func (s controller) createShoppingCart(c *gin.Context) {
 }
 
 func (s controller) getShoppingCart(c *gin.Context) {
-	loggedUser := security.GetLoggedUser(c)
+	loggedUser := middleware.GetLoggedUser(c)
 	cart, err := s.shoppingCartService.getShoppingCart(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
@@ -38,7 +38,7 @@ func (s controller) getShoppingCart(c *gin.Context) {
 }
 
 func (s controller) excludeShoppingCart(c *gin.Context) {
-	loggedUser := security.GetLoggedUser(c)
+	loggedUser := middleware.GetLoggedUser(c)
 	err := s.shoppingCartService.deleteShoppingCart(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
@@ -48,7 +48,7 @@ func (s controller) excludeShoppingCart(c *gin.Context) {
 }
 
 func (s controller) addProductInShoppingCart(ctx *gin.Context) {
-	loggedUser := security.GetLoggedUser(ctx)
+	loggedUser := middleware.GetLoggedUser(ctx)
 	var productDTO productDTO
 
 	if err := ctx.BindJSON(&productDTO); err != nil {

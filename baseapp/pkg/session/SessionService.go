@@ -16,8 +16,8 @@ type Service struct {
 }
 
 func NewLoginService(conn *db.Connections) Service {
-	return Service{sessionRepository: repository.NewSessionRepository(conn.GetPostgreSQL()),
-		roleRepository: repository.NewRoleRepository(conn.GetPostgreSQL()),
+	return Service{sessionRepository: repository.NewSessionRepository(conn.GetPgsqTemplate()),
+		roleRepository: repository.NewRoleRepository(conn.GetPgsqTemplate()),
 	}
 }
 

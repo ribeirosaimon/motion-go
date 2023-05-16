@@ -8,8 +8,8 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
-	"github.com/ribeirosaimon/motion-go/internal/security"
 )
 
 type loginService struct {
@@ -20,7 +20,7 @@ type loginService struct {
 
 func NewLoginService(conn *db.Connections) loginService {
 	return loginService{
-		userRepository: repository.NewUserRepository(conn.GetPostgreSQL()),
+		userRepository: repository.NewUserRepository(conn.GetPgsqTemplate()),
 		profileService: profile.NewProfileService(conn),
 		sessionService: session.NewLoginService(conn),
 	}
@@ -31,7 +31,7 @@ func (l loginService) loginService(loginDto LoginDto) (string, *exceptions.Error
 	if err != nil {
 		return "", exceptions.NotFound()
 	}
-	err = security.CheckPassword(loginDto.Password, user.Password)
+	err = middleware.CheckPassword(loginDto.Password, user.Password)
 	if err != nil {
 		return "", exceptions.FieldError("password")
 	}
@@ -64,7 +64,7 @@ func (l loginService) signUpService(signupDto SignUpDto) (sqlDomain.Profile, *ex
 	}
 
 	var user sqlDomain.MotionUser
-	password, err := security.EncryptPassword(signupDto.Password)
+	password, err := middleware.EncryptPassword(signupDto.Password)
 	if err != nil {
 		return sqlDomain.Profile{}, exceptions.BodyError()
 	}

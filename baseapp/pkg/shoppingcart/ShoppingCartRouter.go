@@ -6,7 +6,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
-	"github.com/ribeirosaimon/motion-go/internal/security"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
 func NewShoppingCartRouter() config.MotionController {
@@ -15,12 +15,12 @@ func NewShoppingCartRouter() config.MotionController {
 	return config.NewMotionController(
 		"/shopping-cart",
 		config.NewMotionRouter(http.MethodPost, "/create", NewShoppingCartController(&service).createShoppingCart,
-			security.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodGet, "", NewShoppingCartController(&service).getShoppingCart,
-			security.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodDelete, "", NewShoppingCartController(&service).excludeShoppingCart,
-			security.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodPost, "/product", NewShoppingCartController(&service).addProductInShoppingCart,
-			security.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 	)
 }

@@ -19,7 +19,7 @@ type Service struct {
 
 func NewProductService(conections *db.Connections) Service {
 	return Service{
-		productRepository: repository.NewProductRepository(conections.GetPostgreSQL()),
+		productRepository: repository.NewProductRepository(conections.GetPgsqTemplate()),
 	}
 }
 
