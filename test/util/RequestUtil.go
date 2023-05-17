@@ -1,5 +1,25 @@
 package util
 
+import (
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+
+	"github.com/gin-gonic/gin"
+)
+
+func GetTestGinContext(w *httptest.ResponseRecorder) *gin.Context {
+	gin.SetMode(gin.TestMode)
+
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = &http.Request{
+		Header: make(http.Header),
+		URL:    &url.URL{},
+	}
+
+	return ctx
+}
+
 //
 // func CreateEngineRequest(enginer *gin.Engine, method, path string, body io.Reader, session string,
 // 	role sqlDomain2.RoleEnum) (

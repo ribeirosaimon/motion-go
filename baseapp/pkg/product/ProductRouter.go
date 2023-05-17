@@ -14,13 +14,13 @@ func NewProductRouter() config.MotionController {
 	service := NewProductService(db.Conn)
 	return config.NewMotionController(
 		"/product",
-		config.NewMotionRouter(http.MethodGet, "/:productId", NewProductController(&service).getProduct,
+		config.NewMotionRouter(http.MethodGet, "/:id", NewProductController(&service).getProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodPost, "", NewProductController(&service).saveProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
-		config.NewMotionRouter(http.MethodPut, "/:productId", NewProductController(&service).updateProduct,
+		config.NewMotionRouter(http.MethodPut, "/:id", NewProductController(&service).updateProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
-		config.NewMotionRouter(http.MethodDelete, "/:productId", NewProductController(&service).deleteProduct,
+		config.NewMotionRouter(http.MethodDelete, "/:id", NewProductController(&service).deleteProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
 	)
 }

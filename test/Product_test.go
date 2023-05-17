@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties/assert"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/test/util"
 	"github.com/shopspring/decimal"
 )
 
@@ -70,12 +73,30 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	url := fmt.Sprintf("/api/v1/product/%d", idProduct)
-	req, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(jsonData))
+
+	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/product/%d", idProduct), bytes.NewReader(jsonData))
 	AddAdminTokenInReq(req)
+
 	resp := httptest.NewRecorder()
 
-	TestEnginer.MotionEngine.ServeHTTP(resp, req)
+	params := []gin.Param{
+		{
+			Key:   "id",
+			Value: fmt.Sprintf("%d", idProduct),
+		},
+	}
+	ginCtx := util.GetTestGinContext(resp)
+	ginCtx.Set("id", idProduct)
+	ginCtx.Params = params
+	u := url.Values{}
+	u.Add("foo", "bar")
+
+	ginCtx.Request.URL.RawQuery = u.Encode()
+	// service := product.NewProductService(db.Conn)
+	// controller := product.NewProductController(&service)
+	// controller
+	context := req.WithContext(ginCtx)
+	TestEnginer.MotionEngine.ServeHTTP(resp, context)
 
 	var productResponse = sqlDomain.Product{}
 	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)

@@ -6,6 +6,7 @@ import (
 	"path"
 	"runtime"
 
+	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -21,6 +22,7 @@ var (
 func CreateEnginer() {
 	propertiesFile := "config.test.properties"
 
+	gin.SetMode(gin.TestMode)
 	TestEnginer = config.NewMotionGo(propertiesFile)
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeTestDatabases(getCurrentDirectory())
