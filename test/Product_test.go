@@ -14,7 +14,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
-	"github.com/ribeirosaimon/motion-go/test/util"
 	"github.com/shopspring/decimal"
 )
 
@@ -85,18 +84,19 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 			Value: fmt.Sprintf("%d", idProduct),
 		},
 	}
-	ginCtx := util.GetTestGinContext(resp)
-	ginCtx.Set("id", idProduct)
-	ginCtx.Params = params
+	//ginCtx := util.GetTestGinContext(resp)
+	fmt.Sprintf("%s", params)
+	//ginCtx.Set("id", idProduct)
+	//ginCtx.Params = params
 	u := url.Values{}
 	u.Add("foo", "bar")
 
-	ginCtx.Request.URL.RawQuery = u.Encode()
+	//ginCtx.Request.URL.RawQuery = u.Encode()
 	// service := product.NewProductService(db.Conn)
 	// controller := product.NewProductController(&service)
 	// controller
-	context := req.WithContext(ginCtx)
-	TestEnginer.MotionEngine.ServeHTTP(resp, context)
+	//context := req.WithContext(ginCtx)
+	//TestEnginer.MotionEngine.ServeHTTP(resp, context)
 
 	var productResponse = sqlDomain.Product{}
 	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)

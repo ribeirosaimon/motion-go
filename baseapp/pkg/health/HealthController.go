@@ -14,12 +14,12 @@ type healthController struct {
 func NewHealthController(service *healthService) healthController {
 	return healthController{service: service}
 }
-func (c healthController) openHealth(ctx *gin.Context) {
+func (c healthController) OpenHealth(ctx *gin.Context) {
 	health := c.service.getOpenHealthService()
 	httpresponse.Ok(ctx, health)
 }
 
-func (c healthController) closeHealth(ctx *gin.Context) {
+func (c healthController) CloseHealth(ctx *gin.Context) {
 	user, err := middleware.GetLoggedUser(ctx)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)

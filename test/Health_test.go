@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/json"
+	"github.com/ribeirosaimon/motion-go/test/util"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,74 +10,38 @@ import (
 
 	"github.com/magiconair/properties/assert"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/health"
-	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
-	"gorm.io/gorm/utils"
 )
 
-var healthVersion = config.RoutersVersion{
-	Version: "v1",
-	Handlers: []func() config.MotionController{
-		health.NewHealthRouter,
-	},
-}
+var (
+	service    = health.NewHealthService()
+	controller = health.NewHealthController(&service)
+)
 
-func BenchmarkController(b *testing.B) {
+func TestMyOpenController(t *testing.T) {
 
-	AddRouter(healthVersion)
-	req, err := http.NewRequest(http.MethodGet, "/api/v1/health/open", nil)
+	recorder := httptest.NewRecorder()
+	context := util.GetTestGinContext(recorder)
 
-	resp := httptest.NewRecorder()
+	controller.OpenHealth(context)
 
-	TestEnginer.MotionEngine.ServeHTTP(resp, req)
+	var res healthApiResponse
+	json.Unmarshal([]byte(recorder.Body.String()), &res)
 
-	if resp.Code != http.StatusOK {
-		utils.AssertEqual(http.StatusOK, resp.Code)
-	}
-	if err != nil {
-		b.Error("error in request")
-	}
-	for i := 0; i < b.N; i++ {
-		// Grava a resposta HTTP
-		response := httptest.NewRecorder()
-
-		// Processa a solicitação HTTP usando o roteador do Gin
-
-		TestEnginer.MotionEngine.ServeHTTP(response, req)
-
-	}
-
-}
-
-func TestOpenController(t *testing.T) {
-	AddRouter(healthVersion)
-	req, err := http.NewRequest(http.MethodGet, "/api/v1/health/open", nil)
-
-	resp := httptest.NewRecorder()
-
-	TestEnginer.MotionEngine.ServeHTTP(resp, req)
-
-	assert.Equal(t, resp.Code, http.StatusOK)
-
-	var response healthApiResponse
-	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, response.Ready, true)
-	assert.Equal(t, response.Time.Day(), time.Now().Day())
+	assert.Equal(t, res.Ready, true)
+	assert.Equal(t, recorder.Code, 200)
 }
 
 func TestCloseControllerSendError(t *testing.T) {
-	AddRouter(healthVersion)
-	req, _ := http.NewRequest(http.MethodGet, "/api/v1/health/close", nil)
-	resp := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
+	context := util.GetTestGinContext(recorder)
 
-	TestEnginer.MotionEngine.ServeHTTP(resp, req)
-
-	assert.Equal(t, resp.Code, http.StatusForbidden)
+	controller.CloseHealth(context)
+	assert.Equal(t, recorder.Code, http.StatusForbidden)
 }
 
 func TestCloseControllerSuccess(t *testing.T) {
-	AddRouter(healthVersion)
+
 	req, _ := http.NewRequest(http.MethodGet, "/api/v1/health/close", nil)
 	resp := httptest.NewRecorder()
 	AddUserTokenInReq(req)

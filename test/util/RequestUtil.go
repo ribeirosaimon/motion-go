@@ -2,21 +2,24 @@ package util
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetTestGinContext(w *httptest.ResponseRecorder) *gin.Context {
+func GetTestGinContext(recorder http.ResponseWriter, param ...gin.Param) *gin.Context {
+
 	gin.SetMode(gin.TestMode)
 
-	ctx, _ := gin.CreateTestContext(w)
+	ctx, _ := gin.CreateTestContext(recorder)
 	ctx.Request = &http.Request{
 		Header: make(http.Header),
 		URL:    &url.URL{},
 	}
+	ctx.Params = param
 
+	ctx.Request.Method = "GET"
+	ctx.Request.Header.Set("Content-Type", "application/json")
 	return ctx
 }
 

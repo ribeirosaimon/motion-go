@@ -14,9 +14,9 @@ func NewHealthRouter() config.MotionController {
 
 	return config.NewMotionController(
 		path,
-		config.NewMotionRouter(http.MethodGet, "/close", NewHealthController(&service).closeHealth,
+		config.NewMotionRouter(http.MethodGet, "/close", NewHealthController(&service).CloseHealth,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER}, sqlDomain.Role{Name: sqlDomain.ADMIN}),
 		),
-		config.NewMotionRouter(http.MethodGet, "/open", NewHealthController(&service).openHealth),
+		config.NewMotionRouter(http.MethodGet, "/open", NewHealthController(&service).OpenHealth),
 	)
 }
