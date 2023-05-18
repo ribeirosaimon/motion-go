@@ -22,7 +22,7 @@ func (c healthController) OpenHealth(ctx *gin.Context) {
 func (c healthController) CloseHealth(ctx *gin.Context) {
 	user, err := middleware.GetLoggedUser(ctx)
 	if err != nil {
-		exceptions.MotionError(err.Error()).Throw(ctx)
+		exceptions.Forbidden().Throw(ctx)
 		return
 	}
 	health := c.service.getHealthService(user)
