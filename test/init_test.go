@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"path"
 	"runtime"
 
@@ -16,14 +17,20 @@ import (
 var (
 	tokenUser   string
 	tokenAdmin  string
-	TestEnginer *config.MotionGo
+	testEnginer *config.MotionGo
+	ctx         *gin.Context
+	recorder    *httptest.ResponseRecorder
 )
 
 func CreateEnginer() {
 	propertiesFile := "config.test.properties"
 
-	gin.SetMode(gin.TestMode)
-	TestEnginer = config.NewMotionGo(propertiesFile)
+	// gin.SetMode(gin.TestMode)
+	testEnginer = config.NewMotionGo(propertiesFile, true)
+
+	recorder = httptest.NewRecorder()
+	ctx, testEnginer.MotionEngine = gin.CreateTestContext(recorder)
+
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeTestDatabases(getCurrentDirectory())
 
@@ -32,8 +39,8 @@ func CreateEnginer() {
 }
 
 func AddRouter(v ...config.RoutersVersion) {
-	TestEnginer.AddRouter(v...)
-	TestEnginer.CreateRouters()
+	testEnginer.AddRouter(v...)
+	testEnginer.CreateRouters()
 }
 
 func getCurrentDirectory() string {
@@ -77,6 +84,15 @@ func AddUserTokenInReq(req *http.Request) {
 
 }
 
+func Context() *gin.Context {
+	return ctx
+}
+
+func HttpResponse() *httptest.ResponseRecorder {
+	returnedValue := recorder
+	recorder = httptest.NewRecorder()
+	return returnedValue
+}
 func init() {
 	CreateEnginer()
 }

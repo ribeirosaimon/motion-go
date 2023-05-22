@@ -2,9 +2,11 @@ package config
 
 import (
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"io/ioutil"
 	"log"
+	"net/http/httptest"
+
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
@@ -21,10 +23,16 @@ type MotionGo struct {
 	Routers        []RoutersVersion
 }
 
-func NewMotionGo(propertiesFile string) *MotionGo {
+func NewMotionGo(propertiesFile string, isTest bool) *MotionGo {
 	gin.DefaultWriter = ioutil.Discard
+	var engine *gin.Engine
+	if isTest {
+		_, engine = gin.CreateTestContext(httptest.NewRecorder())
+	} else {
+		engine = gin.New()
+	}
 	return &MotionGo{
-		MotionEngine:   gin.New(),
+		MotionEngine:   engine,
 		PropertiesFile: properties.MustLoadFile(propertiesFile, properties.UTF8),
 	}
 }

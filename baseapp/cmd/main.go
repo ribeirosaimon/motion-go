@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	motionGo := config.NewMotionGo("config.properties")
+	motionGo := config.NewMotionGo("config.properties", false)
 
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeDatabases("config.properties")

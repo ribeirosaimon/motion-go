@@ -41,7 +41,7 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 	AddAdminTokenInReq(req)
 	resp := httptest.NewRecorder()
 
-	TestEnginer.MotionEngine.ServeHTTP(resp, req)
+	testEnginer.MotionEngine.ServeHTTP(resp, req)
 
 	if err != nil {
 		t.Error("error in request")
@@ -57,6 +57,7 @@ func TestHaveToAddProductAndReturnOk(t *testing.T) {
 }
 
 func TestHaveToPutProductAndReturnOk(t *testing.T) {
+	AddRouter(productVersion)
 	if idProduct == 0 {
 		TestHaveToAddProductAndReturnOk(t)
 	}
@@ -73,39 +74,65 @@ func TestHaveToPutProductAndReturnOk(t *testing.T) {
 		panic(err)
 	}
 
-	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/product/%d", idProduct), bytes.NewReader(jsonData))
-	AddAdminTokenInReq(req)
+	u := &url.URL{Path: fmt.Sprintf("/api/v1/product/%d", idProduct)}
+	params := url.Values{}
+	params.Add("id", "1")
+	u.RawQuery = params.Encode()
 
-	resp := httptest.NewRecorder()
+	Context().Request, err = http.NewRequest(http.MethodPut, u.String(), bytes.NewReader(jsonData))
+	AddAdminTokenInReq(Context().Request)
 
-	params := []gin.Param{
-		{
-			Key:   "id",
-			Value: fmt.Sprintf("%d", idProduct),
-		},
-	}
-	//ginCtx := util.GetTestGinContext(resp)
-	fmt.Sprintf("%s", params)
-	//ginCtx.Set("id", idProduct)
-	//ginCtx.Params = params
-	u := url.Values{}
-	u.Add("foo", "bar")
-
-	//ginCtx.Request.URL.RawQuery = u.Encode()
-	// service := product.NewProductService(db.Conn)
-	// controller := product.NewProductController(&service)
-	// controller
-	//context := req.WithContext(ginCtx)
-	//TestEnginer.MotionEngine.ServeHTTP(resp, context)
+	testEnginer.MotionEngine.HandleContext(Context())
 
 	var productResponse = sqlDomain.Product{}
-	err = json.Unmarshal(resp.Body.Bytes(), &productResponse)
+	json.Unmarshal(HttpResponse().Body.Bytes(), &productResponse)
+
+	assert.Equal(t, HttpResponse().Code, http.StatusOK)
+	assert.Equal(t, productResponse.Image, productDto.Image)
+	assert.Equal(t, productResponse.Id, idProduct)
+}
+
+func TestHaveToPutProductAndReturnOkWithContext(t *testing.T) {
+	AddRouter(productVersion)
+	if idProduct == 0 {
+		TestHaveToAddProductAndReturnOk(t)
+	}
+
+	bd1, _ := decimal.NewFromString("321.61")
+	productDto := product.ProductDto{
+		Price: bd1,
+		Name:  "TesteUpdate",
+		Image: "http://update",
+	}
+	jsonData, err := json.Marshal(productDto)
+
 	if err != nil {
 		panic(err)
 	}
-	assert.Equal(t, resp.Code, http.StatusOK)
+
+	u := &url.URL{Path: fmt.Sprintf("/api/v1/product/%d", idProduct)}
+
+	Context().Request, err = http.NewRequest(http.MethodPut, u.String(), bytes.NewReader(jsonData))
+	AddAdminTokenInReq(Context().Request)
+
+	Context().Params = []gin.Param{
+		{Key: "id", Value: fmt.Sprintf("%d", idProduct)},
+	}
+
+	// sprintf := fmt.Sprintf(Context().Param("id"))
+	Context().Request.URL.Path = u.String()
+	// fmt.Println(sprintf, Context().Request.URL.Path)
+	// testEnginer.MotionEngine.HandleContext(Context())
+	myRec := httptest.NewRecorder()
+	testEnginer.MotionEngine.ServeHTTP(myRec, Context().Request)
+
+	var productResponse = sqlDomain.Product{}
+	json.Unmarshal(myRec.Body.Bytes(), &productResponse)
+
+	assert.Equal(t, HttpResponse().Code, http.StatusOK)
 	assert.Equal(t, productResponse.Image, productDto.Image)
 	assert.Equal(t, productResponse.Id, idProduct)
+	// TODO  https://github.com/gin-gonic/gin/blob/master/routes_test.go
 }
 
 // func TestHaveToGetProductAndReturnOk(t *testing.T) {

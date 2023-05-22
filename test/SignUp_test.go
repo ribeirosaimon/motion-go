@@ -4,17 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
-	"github.com/ribeirosaimon/motion-go/internal/config"
-	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
-	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
+	"github.com/ribeirosaimon/motion-go/internal/config"
+	"github.com/ribeirosaimon/motion-go/internal/db"
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
 var loginVersion = config.RoutersVersion{
@@ -33,7 +34,7 @@ func SignUp(roles ...sqlDomain.RoleEnum) (string, error) {
 	req, _ := http.NewRequest(http.MethodPost, "/api/v1/auth/sign-up", bytes.NewReader(jsonData))
 
 	resp := httptest.NewRecorder()
-	TestEnginer.MotionEngine.ServeHTTP(resp, req)
+	testEnginer.MotionEngine.ServeHTTP(resp, req)
 
 	var signProfileResponse = sqlDomain.Profile{}
 	err := json.Unmarshal(resp.Body.Bytes(), &signProfileResponse)
@@ -46,7 +47,7 @@ func SignUp(roles ...sqlDomain.RoleEnum) (string, error) {
 
 	loginResp := httptest.NewRecorder()
 	loginReq, _ := http.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewReader(jsonLoginDto))
-	TestEnginer.MotionEngine.ServeHTTP(loginResp, loginReq)
+	testEnginer.MotionEngine.ServeHTTP(loginResp, loginReq)
 	return strings.Replace(string(loginResp.Body.Bytes()), "\"", "", -1), nil
 }
 
