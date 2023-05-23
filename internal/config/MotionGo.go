@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http/httptest"
 
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 
@@ -23,14 +22,10 @@ type MotionGo struct {
 	Routers        []RoutersVersion
 }
 
-func NewMotionGo(propertiesFile string, isTest bool) *MotionGo {
+func NewMotionGo(propertiesFile string) *MotionGo {
 	gin.DefaultWriter = ioutil.Discard
 	var engine *gin.Engine
-	if isTest {
-		_, engine = gin.CreateTestContext(httptest.NewRecorder())
-	} else {
-		engine = gin.New()
-	}
+	engine = gin.New()
 	return &MotionGo{
 		MotionEngine:   engine,
 		PropertiesFile: properties.MustLoadFile(propertiesFile, properties.UTF8),
@@ -50,7 +45,6 @@ func (m *MotionGo) CreateRouters() {
 			pathEngineer := apiVersion.Group(routers.Path)
 
 			for _, controller := range routers.Handlers {
-
 				if m.MotionEngine.Routes() != nil {
 					path := fmt.Sprintf("%s%s", pathEngineer.BasePath(), controller.Path)
 

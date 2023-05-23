@@ -42,13 +42,12 @@ func (c *Connections) ClosePostgreSQL() *sql.DB {
 	return c.sqlStruct.close
 }
 
-func (c *Connections) InitializeDatabases(conf string) {
+func (c *Connections) InitializeDatabases(conf *properties.Properties) {
 	c.connectSQL(conf)
 	c.connectNoSQL(conf)
 }
 
-func (c *Connections) connectSQL(conf string) {
-	p := properties.MustLoadFile(conf, properties.UTF8)
+func (c *Connections) connectSQL(p *properties.Properties) {
 	dbUsername := p.GetString("database.username", "")
 	dbPassword := p.GetString("database.password", "")
 	dbName := p.GetString("database.name", "")
@@ -68,8 +67,7 @@ func (c *Connections) connectSQL(conf string) {
 	}
 }
 
-func (c *Connections) connectNoSQL(conf string) {
-	p := properties.MustLoadFile(conf, properties.UTF8)
+func (c *Connections) connectNoSQL(p *properties.Properties) {
 	mongoUrl := p.GetString("database.mongo.url", "")
 	dbName := p.GetString("database.name", "")
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUrl + dbName))

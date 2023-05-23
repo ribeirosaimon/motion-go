@@ -16,7 +16,7 @@ func NewLoginControler(service *loginService) loginController {
 }
 
 func (l loginController) signUp(c *gin.Context) {
-	var signupDto SignUpDto
+	var signupDto signUpDto
 
 	if err := c.BindJSON(&signupDto); err != nil {
 		exceptions.BodyError().Throw(c)
@@ -31,7 +31,7 @@ func (l loginController) signUp(c *gin.Context) {
 }
 
 func (l loginController) login(c *gin.Context) {
-	var signupDto LoginDto
+	var signupDto loginDto
 
 	if err := c.BindJSON(&signupDto); err != nil {
 		exceptions.BodyError().Throw(c)
@@ -42,16 +42,16 @@ func (l loginController) login(c *gin.Context) {
 		err.Throw(c)
 		return
 	}
-	httpresponse.Created(c, session)
+	httpresponse.Ok(c, session)
 }
 
-type SignUpDto struct {
-	LoginDto
+type signUpDto struct {
+	loginDto
 	Name  string               `json:"name"`
 	Roles []sqlDomain.RoleEnum `json:"roles"`
 }
 
-type LoginDto struct {
+type loginDto struct {
 	Email    string `json:"email"`
 	Password string `json:"password,omitempty"`
 }

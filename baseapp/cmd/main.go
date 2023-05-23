@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/health"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
@@ -9,16 +11,20 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
+	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
 func main() {
-	motionGo := config.NewMotionGo("config.properties", false)
+	propertiesFile := "config.properties"
+	dir, _ := util.FindRootDir()
+
+	motionGo := config.NewMotionGo(fmt.Sprintf("%s/%s", dir, propertiesFile))
 
 	db.Conn = &db.Connections{}
-	db.Conn.InitializeDatabases("config.properties")
+	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
 
 	setUpRoles()
-	motionGo.AddRouter(version2)
+	motionGo.AddRouter(version1)
 	motionGo.CreateRouters()
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))
 }
