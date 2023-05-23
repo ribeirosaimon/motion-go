@@ -2,6 +2,7 @@ package health
 
 import (
 	"encoding/json"
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"net/http"
 	"testing"
 
@@ -27,8 +28,11 @@ func TestCloseHealthControllerError(t *testing.T) {
 }
 
 func TestCloseHealthControllerSuccess(t *testing.T) {
+
 	e := test.CreateEngine(NewHealthRouter)
-	w := test.PerformRequest(e, http.MethodGet, "/health/close", nil, nil)
+
+	userRole := sqlDomain.USER
+	w := test.PerformRequest(e, http.MethodGet, "/health/close", &userRole, nil)
 	var res healthApiResponse
 
 	json.Unmarshal([]byte(w.Body.String()), &res)

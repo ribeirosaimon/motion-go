@@ -32,7 +32,7 @@ func signUp() string {
 
 	e := CreateEngine(login.NewLoginRouter)
 
-	req, _ := http.NewRequest(http.MethodPost, "/api/v1/auth/sign-up", bytes.NewReader(jsonData))
+	req, _ := http.NewRequest(http.MethodPost, "/auth/sign-up", bytes.NewReader(jsonData))
 
 	resp := httptest.NewRecorder()
 	e.ServeHTTP(resp, req)
@@ -47,7 +47,7 @@ func signUp() string {
 	jsonLoginDto, err := json.Marshal(dto)
 
 	loginResp := httptest.NewRecorder()
-	loginReq, _ := http.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewReader(jsonLoginDto))
+	loginReq, _ := http.NewRequest(http.MethodPost, "/auth/login", bytes.NewReader(jsonLoginDto))
 	e.ServeHTTP(loginResp, loginReq)
 	return strings.Replace(string(loginResp.Body.Bytes()), "\"", "", -1)
 }

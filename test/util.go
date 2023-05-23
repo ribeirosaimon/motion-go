@@ -14,11 +14,20 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
-func PerformRequest(r http.Handler, method, path string, body io.Reader, headers map[string]string) *httptest.ResponseRecorder {
+func PerformRequest(r http.Handler, method, path, role string, body io.Reader) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(method, path, body)
-	for key, value := range headers {
-		req.Header.Add(key, value)
+
+	if &role != nil {
+		myMap := make(map[string]string)
+		myMap["Authorization"] = fmt.Sprintf("Bearer %s", Token())
+		if *role == sqlDomain.ADMIN {
+			myMap["MotionRole"] = "ADMIN"
+		} else {
+			myMap["MotionRole"] = "USER"
+		}
+
 	}
+
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
