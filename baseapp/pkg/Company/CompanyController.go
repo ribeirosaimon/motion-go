@@ -1,4 +1,4 @@
-package product
+package Company
 
 import (
 	"strconv"
@@ -13,18 +13,18 @@ type controller struct {
 	productService *Service
 }
 
-func NewProductController(pService *Service) controller {
+func NewCompanyController(pService *Service) controller {
 	return controller{productService: pService}
 }
 
-func (c controller) saveProduct(ctx *gin.Context) {
-	var productDto ProductDto
+func (c controller) saveCompany(ctx *gin.Context) {
+	var companyDto companyDto
 
-	if err := ctx.BindJSON(&productDto); err != nil {
+	if err := ctx.BindJSON(&companyDto); err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	product, err := c.productService.saveProduct(productDto)
+	product, err := c.productService.saveCompany(companyDto)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
@@ -34,7 +34,7 @@ func (c controller) saveProduct(ctx *gin.Context) {
 
 func (c controller) updateProduct(ctx *gin.Context) {
 
-	var productDto ProductDto
+	var productDto companyDto
 
 	id, err := strconv.ParseInt(ctx.Params.ByName("id"), 10, 64)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c controller) updateProduct(ctx *gin.Context) {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	product, err := c.productService.updateProduct(productDto, id)
+	product, err := c.productService.updateCompany(productDto, id)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
@@ -61,7 +61,7 @@ func (c controller) deleteProduct(ctx *gin.Context) {
 		return
 	}
 
-	if !c.productService.deleteProduct(id) {
+	if !c.productService.deleteCompany(id) {
 		exceptions.MotionError("cannot be deleted").Throw(ctx)
 		return
 	}
@@ -74,7 +74,7 @@ func (c controller) getProduct(ctx *gin.Context) {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	product, err := c.productService.GetProduct(id)
+	product, err := c.productService.GetCompany(id)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
@@ -82,7 +82,7 @@ func (c controller) getProduct(ctx *gin.Context) {
 	motionHttp.Ok(ctx, product)
 }
 
-type ProductDto struct {
+type companyDto struct {
 	Name  string          `json:"name"`
 	Price decimal.Decimal `json:"price"`
 	Image string          `json:"image"`

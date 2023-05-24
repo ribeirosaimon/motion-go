@@ -1,4 +1,4 @@
-package product
+package Company
 
 import (
 	"net/http"
@@ -10,17 +10,18 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 )
 
-func NewProductRouter() config.MotionController {
-	service := NewProductService(db.Conn)
+func NewCompanyRouter() config.MotionController {
+
+	service := NewCompanyService(db.Conn)
 	return config.NewMotionController(
-		"/product",
-		config.NewMotionRouter(http.MethodGet, "/:id", NewProductController(&service).getProduct,
+		"/company",
+		config.NewMotionRouter(http.MethodGet, "/:id", NewCompanyController(&service).getProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
-		config.NewMotionRouter(http.MethodPost, "", NewProductController(&service).saveProduct,
+		config.NewMotionRouter(http.MethodPost, "", NewCompanyController(&service).saveCompany,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
-		config.NewMotionRouter(http.MethodPut, "/:id", NewProductController(&service).updateProduct,
+		config.NewMotionRouter(http.MethodPut, "/:id", NewCompanyController(&service).updateProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
-		config.NewMotionRouter(http.MethodDelete, "/:id", NewProductController(&service).deleteProduct,
+		config.NewMotionRouter(http.MethodDelete, "/:id", NewCompanyController(&service).deleteProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
 	)
 }

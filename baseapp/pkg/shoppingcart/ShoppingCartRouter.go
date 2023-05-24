@@ -20,7 +20,7 @@ func NewShoppingCartRouter() config.MotionController {
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodDelete, "", NewShoppingCartController(&service).excludeShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
-		config.NewMotionRouter(http.MethodPost, "/product", NewShoppingCartController(&service).addProductInShoppingCart,
+		config.NewMotionRouter(http.MethodPost, "/Company", NewShoppingCartController(&service).addProductInShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 	)
 }

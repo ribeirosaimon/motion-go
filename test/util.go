@@ -17,13 +17,14 @@ import (
 func PerformRequest(r http.Handler, method, path, role string, body io.Reader) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(method, path, body)
 
-	if &role != nil {
-		myMap := make(map[string]string)
-		myMap["Authorization"] = fmt.Sprintf("Bearer %s", Token())
-		if *role == sqlDomain.ADMIN {
-			myMap["MotionRole"] = "ADMIN"
+	req.Header.Set("Content-Type", "application/json")
+	if role != "" {
+
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Token()))
+		if role == "" {
+			req.Header.Set("MotionRole", "ADMIN")
 		} else {
-			myMap["MotionRole"] = "USER"
+			req.Header.Set("MotionRole", role)
 		}
 
 	}

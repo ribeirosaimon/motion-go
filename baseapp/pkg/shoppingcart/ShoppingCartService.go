@@ -7,24 +7,23 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/Company"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
-	"github.com/shopspring/decimal"
 )
 
 type service struct {
 	shoppingCartRepository repository.MotionRepository[nosqlDomain.ShoppingCart]
 	profileService         profile.Service
-	productService         product.Service
+	productService         Company.Service
 }
 
 func NewShoppingCartService(c *db.Connections) service {
 	return service{
 		shoppingCartRepository: repository.NewShoppingCartRepository(c.GetMongoTemplate()),
 		profileService:         profile.NewProfileService(c),
-		productService:         product.NewProductService(c),
+		productService:         Company.NewCompanyService(c),
 	}
 }
 
@@ -80,14 +79,12 @@ func (s service) addProductInShoppingCart(loggedUser middleware.LoggedUser, prod
 	if err != nil {
 		return nosqlDomain.ShoppingCart{}, err
 	}
-	productDb, err := s.productService.GetProduct(productDTO.Id)
+	productDb, err := s.productService.GetCompany(productDTO.Id)
 	if err != nil {
 		return nosqlDomain.ShoppingCart{}, err
 	}
 	shoppingCart.Products = append(shoppingCart.Products, productDb)
 
-	values := productDb.Price.Mul(decimal.NewFromInt(productDTO.Amount))
-	shoppingCart.Price = values
 	shoppingCart.UpdatedAt = time.Now()
 
 	return s.shoppingCartRepository.Save(shoppingCart)

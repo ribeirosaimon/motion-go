@@ -10,7 +10,7 @@ type ShoppingCart struct {
 	Owner     sqlDomain2.Profile   `json:"owner" gorm:"foreignkey:Id"`
 	ProfileId uint64               `json:"profileId"`
 	Price     decimal.Decimal      `json:"price"`
-	Products  []sqlDomain2.Product `json:"products" gorm:"many2many:cart_product;"`
+	Products  []sqlDomain2.Company `json:"products" gorm:"many2many:cart_product;"`
 	BasicNoSQL
 }
 

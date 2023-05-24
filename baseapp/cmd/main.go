@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/Company"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/health"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/product"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/shoppingcart"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -50,7 +50,7 @@ var version1 = config.RoutersVersion{
 	Handlers: []func() config.MotionController{
 		health.NewHealthRouter,
 		login.NewLoginRouter,
-		product.NewProductRouter,
+		Company.NewCompanyRouter,
 		shoppingcart.NewShoppingCartRouter,
 	},
 }
