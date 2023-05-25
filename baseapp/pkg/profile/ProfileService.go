@@ -1,8 +1,6 @@
 package profile
 
 import (
-	"time"
-
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -37,7 +35,7 @@ func (l Service) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.Ro
 	profile.Status = domain.ACTIVE
 	profile.Birthday = user.Birthday
 	profile.FamilyName = user.LastName
-	profile.CreatedAt = time.Now()
+	// profile.CreatedAt = time.Now()
 	profile.User = user
 	profile.UserId = user.GetId().(uint64)
 

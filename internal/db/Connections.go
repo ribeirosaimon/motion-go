@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
 	"github.com/magiconair/properties"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -78,14 +77,10 @@ func (c *Connections) connectNoSQL(p *properties.Properties) {
 	c.noSqlStruct.DatabaseName = dbName
 }
 
-func (c *Connections) InitializeTestDatabases(dir string) {
-	dbDir := fmt.Sprintf("%s/test.db", dir)
-	err := os.Remove(dbDir)
-	if err != nil {
-		fmt.Errorf("no have db")
-	}
-
-	db, err := gorm.Open(sqlite.Open(fmt.Sprintf("%s/test.db", dir)), &gorm.Config{})
+func (c *Connections) InitializeTestDatabases() {
+	dsn := "file::memory:?cache=shared"
+	// sqlite.Open(fmt.Sprintf("%s/db.sqlite3", dir))
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("erro connection Db")
 	}

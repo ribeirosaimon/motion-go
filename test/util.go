@@ -42,7 +42,7 @@ func CreateEngine(controller func() config.MotionController) *gin.Engine {
 	dir := fmt.Sprintf("%s/%s", rootDir, propertiesFile)
 
 	db.Conn = &db.Connections{}
-	db.Conn.InitializeTestDatabases(rootDir)
+	db.Conn.InitializeTestDatabases()
 
 	setUpRoles()
 

@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	motionHttp "github.com/ribeirosaimon/motion-go/internal/httpresponse"
-	"github.com/shopspring/decimal"
 )
 
 type controller struct {
@@ -24,12 +23,12 @@ func (c controller) saveCompany(ctx *gin.Context) {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	product, err := c.productService.saveCompany(companyDto)
+	company, err := c.productService.saveCompany(companyDto)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	motionHttp.Created(ctx, product)
+	motionHttp.Created(ctx, company)
 }
 
 func (c controller) updateProduct(ctx *gin.Context) {
@@ -55,7 +54,7 @@ func (c controller) updateProduct(ctx *gin.Context) {
 }
 
 func (c controller) deleteProduct(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("productId"), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param("companyId"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return
@@ -69,7 +68,7 @@ func (c controller) deleteProduct(ctx *gin.Context) {
 }
 
 func (c controller) getProduct(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("productId"), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return
@@ -83,7 +82,6 @@ func (c controller) getProduct(ctx *gin.Context) {
 }
 
 type companyDto struct {
-	Name  string          `json:"name"`
-	Price decimal.Decimal `json:"price"`
-	Image string          `json:"image"`
+	Name  string `json:"name"`
+	Image string `json:"image"`
 }

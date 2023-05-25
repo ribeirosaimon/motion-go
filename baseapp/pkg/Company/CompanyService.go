@@ -47,16 +47,16 @@ func (s Service) saveCompany(dto companyDto) (sqlDomain.Company, error) {
 }
 
 func (s Service) updateCompany(dto companyDto, id int64) (sqlDomain.Company, error) {
-	product, err := s.GetCompany(id)
+	company, err := s.GetCompany(id)
 	if err != nil {
-		return sqlDomain.Company{}, errors.New("Company not found")
+		return sqlDomain.Company{}, errors.New("company not found")
 	}
 
-	product.Name = dto.Name
-	product.Image = dto.Image
-	product.UpdatedAt = time.Now()
+	company.Name = dto.Name
+	company.Image = dto.Image
+	company.UpdatedAt = time.Now()
 
-	return s.companyRepository.Save(product)
+	return s.companyRepository.Save(company)
 }
 
 func (s Service) deleteCompany(id int64) bool {
