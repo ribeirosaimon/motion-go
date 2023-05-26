@@ -54,7 +54,7 @@ func (c controller) updateProduct(ctx *gin.Context) {
 }
 
 func (c controller) deleteProduct(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("companyId"), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return

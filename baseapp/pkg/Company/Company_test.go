@@ -11,16 +11,14 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
+	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/test"
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	e         = test.CreateEngine(NewCompanyRouter)
-	companyId uint64
-)
+var e = test.CreateEngine(NewCompanyRouter)
 
 func TestSaveCompanyController(t *testing.T) {
 
@@ -39,7 +37,16 @@ func TestSaveCompanyController(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 	assert.Equal(t, company.Name, dbCompany.Name)
 	assert.Equal(t, company.Image, dbCompany.Image)
-	companyId = dbCompany.Id
+}
+
+func TestSaveCompanyControllerReturnError(t *testing.T) {
+
+	company := createCompany()
+	jsonData, _ := json.Marshal(company)
+	// USER CAN`T SAVE ONE COMPANY
+	w := test.PerformRequest(e, http.MethodPost, "/company", "USER", bytes.NewReader(jsonData))
+
+	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
 func TestGetCompanyController(t *testing.T) {
@@ -81,6 +88,23 @@ func TestPutCompanyController(t *testing.T) {
 	assert.Equal(t, companyDb.Id, dbCompany.Id)
 	assert.Equal(t, updatedCompany.Name, dbCompany.Name)
 	assert.Equal(t, updatedCompany.Image, dbCompany.Image)
+}
+
+func TestDeleteCompanyController(t *testing.T) {
+	conn := db.Conn.GetPgsqTemplate()
+	defer db.Conn.ClosePostgreSQL()
+	companyRepository := repository.NewCompanyRepository(conn)
+	companyDb, _ := companyRepository.Save(createCompany())
+
+	w := test.PerformRequest(e, http.MethodDelete, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", nil)
+
+	var response sqlDomain.Company
+	json.Unmarshal([]byte(w.Body.String()), &response)
+
+	inativeCompany, _ := companyRepository.FindById(companyDb.Id)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, domain.Status(domain.INACTIVE), inativeCompany.Status)
 }
 
 func createCompany() sqlDomain.Company {

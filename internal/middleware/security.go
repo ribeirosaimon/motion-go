@@ -45,7 +45,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 					exceptions.Forbidden().Throw(c)
 					return
 				}
-				// verify if profile have loggedRole send by heder
+				// verify if profile have loggedRole send by header
 				if !profile.HaveRole(motionLoggedRole.Name) || err != nil {
 					exceptions.Forbidden().Throw(c)
 					return

@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/gin-gonic/gin"
+	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -20,10 +21,11 @@ func PerformRequest(r http.Handler, method, path, role string, body io.Reader) *
 	req.Header.Set("Content-Type", "application/json")
 	if role != "" {
 
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Token()))
-		if role == "" {
+		if role == "ADMIN" {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Token(sqlDomain.ADMIN)))
 			req.Header.Set("MotionRole", "ADMIN")
-		} else {
+		} else if role == "USER" {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Token(sqlDomain.USER)))
 			req.Header.Set("MotionRole", role)
 		}
 
@@ -42,7 +44,7 @@ func CreateEngine(controller func() config.MotionController) *gin.Engine {
 	dir := fmt.Sprintf("%s/%s", rootDir, propertiesFile)
 
 	db.Conn = &db.Connections{}
-	db.Conn.InitializeTestDatabases()
+	db.Conn.InitializeTestDatabases(properties.MustLoadFile(dir, properties.UTF8))
 
 	setUpRoles()
 

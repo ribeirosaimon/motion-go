@@ -19,15 +19,15 @@ import (
 
 var testJwtToken string
 
-func Token() string {
+func Token(roles ...sqlDomain.RoleEnum) string {
 	if testJwtToken != "" {
 		return testJwtToken
 	}
-	return signUp()
+	return signUp(roles...)
 }
 
-func signUp() string {
-	user := createUser()
+func signUp(roles ...sqlDomain.RoleEnum) string {
+	user := createUser(roles...)
 	jsonData, _ := json.Marshal(user)
 
 	e := CreateEngine(login.NewLoginRouter)
@@ -52,8 +52,8 @@ func signUp() string {
 	return strings.Replace(string(loginResp.Body.Bytes()), "\"", "", -1)
 }
 
-func createUser() signUpDto {
-	createRoles()
+func createUser(roles ...sqlDomain.RoleEnum) signUpDto {
+
 	rand.Seed(time.Now().UnixNano())
 	nameRandom := strconv.Itoa(rand.Intn(1000000))
 	password := strconv.Itoa(rand.Intn(1000000))
@@ -63,26 +63,28 @@ func createUser() signUpDto {
 	dto.Name = nameRandom
 	dto.Password = password
 	dto.Email = emailRandom
-	dto.Roles = []sqlDomain.RoleEnum{sqlDomain.ADMIN, sqlDomain.USER}
 
-	return dto
-}
-
-func createRoles() {
-	roleRepository := repository.NewRoleRepository(db.Conn.GetPgsqTemplate())
-	roles := []sqlDomain.Role{
+	allRoles := []sqlDomain.Role{
 		{
 			Name: sqlDomain.ADMIN,
 		}, {
 			Name: sqlDomain.USER,
 		},
 	}
-	_, err := roleRepository.FindAll(0, 10)
-	if err != nil {
-		for _, i := range roles {
-			roleRepository.Save(i)
+
+	roleRepository := repository.NewRoleRepository(db.Conn.GetPgsqTemplate())
+
+	for _, v := range allRoles {
+		if !roleRepository.ExistByField("name", v.Name) {
+			roleRepository.Save(v)
 		}
 	}
+
+	for _, v := range roles {
+		r, _ := roleRepository.FindByField("name", v)
+		dto.Roles = append(dto.Roles, r.Name)
+	}
+	return dto
 }
 
 type signUpDto struct {

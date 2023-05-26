@@ -68,7 +68,7 @@ func (c *Connections) connectSQL(p *properties.Properties) {
 
 func (c *Connections) connectNoSQL(p *properties.Properties) {
 	mongoUrl := p.GetString("database.mongo.url", "")
-	dbName := p.GetString("database.name", "")
+	dbName := p.GetString("database.mongo.name", "")
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUrl + dbName))
 	if err != nil {
 		panic(err)
@@ -77,10 +77,11 @@ func (c *Connections) connectNoSQL(p *properties.Properties) {
 	c.noSqlStruct.DatabaseName = dbName
 }
 
-func (c *Connections) InitializeTestDatabases() {
-	dsn := "file::memory:?cache=shared"
+func (c *Connections) InitializeTestDatabases(p *properties.Properties) {
+	// dsn := "file::memory:?cache=shared"
 	// sqlite.Open(fmt.Sprintf("%s/db.sqlite3", dir))
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+
+	db, err := gorm.Open(sqlite.Open(p.GetString("database.host", "")), &gorm.Config{})
 	if err != nil {
 		panic("erro connection Db")
 	}
@@ -88,5 +89,6 @@ func (c *Connections) InitializeTestDatabases() {
 
 	c.sqlStruct.conn = db
 	c.sqlStruct.close = sqlDB
+	c.connectNoSQL(p)
 
 }
