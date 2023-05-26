@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -48,11 +49,11 @@ func NewRoleRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Role] {
 	return roleRepository
 }
 
-func NewShoppingCartRepository(mongoConnection *mongo.Client) *motionNoSQLRepository[nosqlDomain.ShoppingCart] {
+func NewShoppingCartRepository(ctx context.Context, mongoConnection *mongo.Client) *motionNoSQLRepository[nosqlDomain.ShoppingCart] {
 	if shoppingCartRepository != nil {
 		return shoppingCartRepository
 	}
-	shoppingCartRepository := newMotionNoSQLRepository[nosqlDomain.ShoppingCart](mongoConnection)
+	shoppingCartRepository := newMotionNoSQLRepository[nosqlDomain.ShoppingCart](ctx, mongoConnection)
 	return shoppingCartRepository
 }
 

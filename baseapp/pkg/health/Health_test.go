@@ -11,7 +11,7 @@ import (
 
 func TestNewOpenHealthController(t *testing.T) {
 	e := test.CreateEngine(NewHealthRouter)
-	w := test.PerformRequest(e, http.MethodGet, "/health/open", "", nil)
+	w, _ := test.PerformRequest(e, http.MethodGet, "/health/open", "", nil)
 	var res healthApiResponse
 
 	json.Unmarshal([]byte(w.Body.String()), &res)
@@ -22,7 +22,7 @@ func TestNewOpenHealthController(t *testing.T) {
 
 func TestCloseHealthControllerError(t *testing.T) {
 	e := test.CreateEngine(NewHealthRouter)
-	w := test.PerformRequest(e, http.MethodGet, "/health/close", "", nil)
+	w, _ := test.PerformRequest(e, http.MethodGet, "/health/close", "", nil)
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
@@ -30,7 +30,7 @@ func TestCloseHealthControllerSuccess(t *testing.T) {
 
 	e := test.CreateEngine(NewHealthRouter)
 
-	w := test.PerformRequest(e, http.MethodGet, "/health/close", "USER", nil)
+	w, _ := test.PerformRequest(e, http.MethodGet, "/health/close", "USER", nil)
 	var res healthApiResponse
 
 	json.Unmarshal([]byte(w.Body.String()), &res)

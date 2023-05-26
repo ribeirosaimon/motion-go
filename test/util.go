@@ -15,17 +15,20 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
-func PerformRequest(r http.Handler, method, path, role string, body io.Reader) *httptest.ResponseRecorder {
+func PerformRequest(r http.Handler, method, path, role string, body io.Reader) (*httptest.ResponseRecorder, SignUpTestDto) {
 	req := httptest.NewRequest(method, path, body)
 
 	req.Header.Set("Content-Type", "application/json")
+	var dto SignUpTestDto
+	var token string
 	if role != "" {
-
 		if role == "ADMIN" {
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Token(sqlDomain.ADMIN)))
+			token, dto = Token(sqlDomain.ADMIN)
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 			req.Header.Set("MotionRole", "ADMIN")
 		} else if role == "USER" {
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", Token(sqlDomain.USER)))
+			token, dto = Token(sqlDomain.USER)
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 			req.Header.Set("MotionRole", role)
 		}
 
@@ -33,7 +36,7 @@ func PerformRequest(r http.Handler, method, path, role string, body io.Reader) *
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
-	return w
+	return w, dto
 }
 
 func CreateEngine(controller func() config.MotionController) *gin.Engine {

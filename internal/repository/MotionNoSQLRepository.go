@@ -2,12 +2,12 @@ package repository
 
 import (
 	"context"
-	"reflect"
-
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"reflect"
 )
 
 type motionNoSQLRepository[T Entity] struct {
@@ -15,13 +15,12 @@ type motionNoSQLRepository[T Entity] struct {
 	context    context.Context
 }
 
-func newMotionNoSQLRepository[T Entity](mongoConnection *mongo.Client) *motionNoSQLRepository[T] {
+func newMotionNoSQLRepository[T Entity](ctx context.Context, mongoConnection *mongo.Client) *motionNoSQLRepository[T] {
 	var myStruct T
-	collection := mongoConnection.Database("motion-go").Collection(reflect.TypeOf(myStruct).Name())
-
+	collection := mongoConnection.Database(db.Conn.DatabaseName).Collection(reflect.TypeOf(myStruct).Name())
 	return &motionNoSQLRepository[T]{
 		collection: collection,
-		context:    context.Background(),
+		context:    ctx,
 	}
 }
 

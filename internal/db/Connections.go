@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -69,7 +70,8 @@ func (c *Connections) connectSQL(p *properties.Properties) {
 func (c *Connections) connectNoSQL(p *properties.Properties) {
 	mongoUrl := p.GetString("database.mongo.url", "")
 	dbName := p.GetString("database.mongo.name", "")
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUrl + dbName))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoUrl+dbName))
+	client.Ping(context.Background(), nil)
 	if err != nil {
 		panic(err)
 	}
@@ -78,9 +80,6 @@ func (c *Connections) connectNoSQL(p *properties.Properties) {
 }
 
 func (c *Connections) InitializeTestDatabases(p *properties.Properties) {
-	// dsn := "file::memory:?cache=shared"
-	// sqlite.Open(fmt.Sprintf("%s/db.sqlite3", dir))
-
 	db, err := gorm.Open(sqlite.Open(p.GetString("database.host", "")), &gorm.Config{})
 	if err != nil {
 		panic("erro connection Db")

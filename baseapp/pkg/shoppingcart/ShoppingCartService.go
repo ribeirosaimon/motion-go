@@ -1,6 +1,7 @@
 package shoppingcart
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -19,9 +20,9 @@ type service struct {
 	productService         Company.Service
 }
 
-func NewShoppingCartService(c *db.Connections) service {
+func NewShoppingCartService(ctx context.Context, c *db.Connections) service {
 	return service{
-		shoppingCartRepository: repository.NewShoppingCartRepository(c.GetMongoTemplate()),
+		shoppingCartRepository: repository.NewShoppingCartRepository(ctx, c.GetMongoTemplate()),
 		profileService:         profile.NewProfileService(c),
 		productService:         Company.NewCompanyService(c),
 	}

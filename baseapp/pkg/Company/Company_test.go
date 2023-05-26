@@ -24,7 +24,7 @@ func TestSaveCompanyController(t *testing.T) {
 
 	company := createCompany()
 	jsonData, _ := json.Marshal(company)
-	w := test.PerformRequest(e, http.MethodPost, "/company", "ADMIN", bytes.NewReader(jsonData))
+	w, _ := test.PerformRequest(e, http.MethodPost, "/company", "ADMIN", bytes.NewReader(jsonData))
 
 	var res sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &res)
@@ -44,7 +44,7 @@ func TestSaveCompanyControllerReturnError(t *testing.T) {
 	company := createCompany()
 	jsonData, _ := json.Marshal(company)
 	// USER CAN`T SAVE ONE COMPANY
-	w := test.PerformRequest(e, http.MethodPost, "/company", "USER", bytes.NewReader(jsonData))
+	w, _ := test.PerformRequest(e, http.MethodPost, "/company", "USER", bytes.NewReader(jsonData))
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
@@ -56,7 +56,7 @@ func TestGetCompanyController(t *testing.T) {
 
 	newCompany := createCompany()
 	savedCompany, _ := companyRepository.Save(newCompany)
-	w := test.PerformRequest(e, http.MethodGet, fmt.Sprintf("/company/%d", savedCompany.Id), "ADMIN", nil)
+	w, _ := test.PerformRequest(e, http.MethodGet, fmt.Sprintf("/company/%d", savedCompany.Id), "ADMIN", nil)
 
 	var responseCompany sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &responseCompany)
@@ -77,7 +77,7 @@ func TestPutCompanyController(t *testing.T) {
 
 	updatedCompany := createCompany()
 	companyToUpdate, _ := json.Marshal(updatedCompany)
-	w := test.PerformRequest(e, http.MethodPut, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", bytes.NewReader(companyToUpdate))
+	w, _ := test.PerformRequest(e, http.MethodPut, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", bytes.NewReader(companyToUpdate))
 
 	var response sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &response)
@@ -96,7 +96,7 @@ func TestDeleteCompanyController(t *testing.T) {
 	companyRepository := repository.NewCompanyRepository(conn)
 	companyDb, _ := companyRepository.Save(createCompany())
 
-	w := test.PerformRequest(e, http.MethodDelete, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", nil)
+	w, _ := test.PerformRequest(e, http.MethodDelete, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", nil)
 
 	var response sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &response)

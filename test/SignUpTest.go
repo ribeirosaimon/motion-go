@@ -17,16 +17,19 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
-var testJwtToken string
+var (
+	testJwtToken string
+	user         SignUpTestDto
+)
 
-func Token(roles ...sqlDomain.RoleEnum) string {
+func Token(roles ...sqlDomain.RoleEnum) (string, SignUpTestDto) {
 	if testJwtToken != "" {
-		return testJwtToken
+		return testJwtToken, user
 	}
 	return signUp(roles...)
 }
 
-func signUp(roles ...sqlDomain.RoleEnum) string {
+func signUp(roles ...sqlDomain.RoleEnum) (string, SignUpTestDto) {
 	user := createUser(roles...)
 	jsonData, _ := json.Marshal(user)
 
@@ -49,17 +52,17 @@ func signUp(roles ...sqlDomain.RoleEnum) string {
 	loginResp := httptest.NewRecorder()
 	loginReq, _ := http.NewRequest(http.MethodPost, "/auth/login", bytes.NewReader(jsonLoginDto))
 	e.ServeHTTP(loginResp, loginReq)
-	return strings.Replace(string(loginResp.Body.Bytes()), "\"", "", -1)
+	return strings.Replace(string(loginResp.Body.Bytes()), "\"", "", -1), user
 }
 
-func createUser(roles ...sqlDomain.RoleEnum) signUpDto {
+func createUser(roles ...sqlDomain.RoleEnum) SignUpTestDto {
 
 	rand.Seed(time.Now().UnixNano())
 	nameRandom := strconv.Itoa(rand.Intn(1000000))
 	password := strconv.Itoa(rand.Intn(1000000))
 	emailRandom := fmt.Sprintf("%s@email.com", strconv.Itoa(rand.Intn(1000000)))
 
-	var dto signUpDto
+	var dto SignUpTestDto
 	dto.Name = nameRandom
 	dto.Password = password
 	dto.Email = emailRandom
@@ -87,7 +90,7 @@ func createUser(roles ...sqlDomain.RoleEnum) signUpDto {
 	return dto
 }
 
-type signUpDto struct {
+type SignUpTestDto struct {
 	loginDto
 	Name  string               `json:"name"`
 	Roles []sqlDomain.RoleEnum `json:"roles"`

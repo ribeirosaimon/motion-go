@@ -1,6 +1,7 @@
 package shoppingcart
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
@@ -10,7 +11,7 @@ import (
 )
 
 func NewShoppingCartRouter() config.MotionController {
-	service := NewShoppingCartService(db.Conn)
+	service := NewShoppingCartService(context.Background(), db.Conn)
 
 	return config.NewMotionController(
 		"/shopping-cart",
@@ -20,7 +21,7 @@ func NewShoppingCartRouter() config.MotionController {
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodDelete, "", NewShoppingCartController(&service).excludeShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
-		config.NewMotionRouter(http.MethodPost, "/Company", NewShoppingCartController(&service).addProductInShoppingCart,
+		config.NewMotionRouter(http.MethodPost, "/company", NewShoppingCartController(&service).addProductInShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 	)
 }
