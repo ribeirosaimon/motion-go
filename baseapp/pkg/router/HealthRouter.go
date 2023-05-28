@@ -1,22 +1,21 @@
-package health
+package router
 
 import (
 	"net/http"
 
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/controller"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
 func NewHealthRouter() config.MotionController {
-	path := "/health"
-	service := NewHealthService()
 
 	return config.NewMotionController(
-		path,
-		config.NewMotionRouter(http.MethodGet, "/close", NewHealthController(&service).CloseHealth,
+		"/health",
+		config.NewMotionRouter(http.MethodGet, "/close", controller.NewHealthController().CloseHealth,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER}, sqlDomain.Role{Name: sqlDomain.ADMIN}),
 		),
-		config.NewMotionRouter(http.MethodGet, "/open", NewHealthController(&service).OpenHealth),
+		config.NewMotionRouter(http.MethodGet, "/open", controller.NewHealthController().OpenHealth),
 	)
 }

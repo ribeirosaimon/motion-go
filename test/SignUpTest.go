@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/router"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
@@ -33,7 +33,7 @@ func signUp(roles ...sqlDomain.RoleEnum) (string, SignUpTestDto) {
 	user := createUser(roles...)
 	jsonData, _ := json.Marshal(user)
 
-	e := CreateEngine(login.NewLoginRouter)
+	e := CreateEngine(router.NewLoginRouter)
 
 	req, _ := http.NewRequest(http.MethodPost, "/auth/sign-up", bytes.NewReader(jsonData))
 

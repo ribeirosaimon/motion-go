@@ -1,4 +1,4 @@
-package Company
+package controller
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/router"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -18,9 +19,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var e = test.CreateEngine(NewCompanyRouter)
-
 func TestSaveCompanyController(t *testing.T) {
+	e = test.CreateEngine(router.NewCompanyRouter)
 
 	company := createCompany()
 	jsonData, _ := json.Marshal(company)

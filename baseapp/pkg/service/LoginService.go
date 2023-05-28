@@ -1,10 +1,9 @@
-package login
+package service
 
 import (
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/profile"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/session"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
@@ -12,21 +11,21 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
-type loginService struct {
+type LoginService struct {
 	userRepository repository.MotionRepository[sqlDomain.MotionUser]
-	profileService profile.Service
-	sessionService session.Service
+	profileService ProfileService
+	sessionService SessionService
 }
 
-func NewLoginService(conn *db.Connections) loginService {
-	return loginService{
+func NewLoginService(conn *db.Connections) LoginService {
+	return LoginService{
 		userRepository: repository.NewUserRepository(conn.GetPgsqTemplate()),
-		profileService: profile.NewProfileService(conn),
-		sessionService: session.NewLoginService(conn),
+		profileService: NewProfileService(conn),
+		sessionService: NewSessionService(conn),
 	}
 }
 
-func (l loginService) loginService(loginDto loginDto) (string, *exceptions.Error) {
+func (l LoginService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 	user, err := l.userRepository.FindByField("email", loginDto.Email)
 	if err != nil {
 		return "", exceptions.NotFound()
@@ -53,7 +52,7 @@ func (l loginService) loginService(loginDto loginDto) (string, *exceptions.Error
 	return userSession.SessionId, nil
 }
 
-func (l loginService) signUpService(signupDto signUpDto) (sqlDomain.Profile, *exceptions.Error) {
+func (l LoginService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *exceptions.Error) {
 
 	if signupDto.Email == "" {
 		return sqlDomain.Profile{}, exceptions.FieldError("email")

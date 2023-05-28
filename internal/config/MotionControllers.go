@@ -23,12 +23,11 @@ func NewMotionController(path string, controllers ...MotionRouter) MotionControl
 	}
 
 }
-func NewMotionRouter(method, path string, service func(*gin.Context),
+func NewMotionRouter(method, path string,
 	middleware ...gin.HandlerFunc) MotionRouter {
 	return MotionRouter{
 		Method:     method,
 		Path:       path,
-		Service:    service,
 		Middleware: middleware,
 	}
 }

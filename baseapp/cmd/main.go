@@ -3,10 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/Company"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/health"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/login"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/shoppingcart"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/router"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -48,17 +45,17 @@ func setUpRoles() {
 var version1 = config.RoutersVersion{
 	Version: "v1",
 	Handlers: []func() config.MotionController{
-		health.NewHealthRouter,
-		login.NewLoginRouter,
-		Company.NewCompanyRouter,
-		shoppingcart.NewShoppingCartRouter,
+		router.NewHealthRouter,
+		router.NewLoginRouter,
+		router.NewCompanyRouter,
+		router.NewShoppingCartRouter,
 	},
 }
 
 var version2 = config.RoutersVersion{
 	Version: "v2",
 	Handlers: []func() config.MotionController{
-		health.NewHealthRouter,
-		health.NewHealthRouter,
+		router.NewHealthRouter,
+		router.NewHealthRouter,
 	},
 }

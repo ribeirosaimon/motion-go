@@ -1,4 +1,4 @@
-package session
+package service
 
 import (
 	"fmt"
@@ -10,18 +10,18 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
-type Service struct {
+type SessionService struct {
 	sessionRepository repository.MotionRepository[sqlDomain.Session]
 	roleRepository    repository.MotionRepository[sqlDomain.Role]
 }
 
-func NewLoginService(conn *db.Connections) Service {
-	return Service{sessionRepository: repository.NewSessionRepository(conn.GetPgsqTemplate()),
+func NewSessionService(conn *db.Connections) SessionService {
+	return SessionService{sessionRepository: repository.NewSessionRepository(conn.GetPgsqTemplate()),
 		roleRepository: repository.NewRoleRepository(conn.GetPgsqTemplate()),
 	}
 }
 
-func (s Service) SaveUserSession(user sqlDomain.Profile) (sqlDomain.Session, error) {
+func (s SessionService) SaveUserSession(user sqlDomain.Profile) (sqlDomain.Session, error) {
 	var session sqlDomain.Session
 
 	session.SessionId = fmt.Sprintf("%s-%s", uuid.New(), uuid.New())

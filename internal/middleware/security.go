@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/profile"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
@@ -32,15 +31,18 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 			if len(authToken) == 2 && authToken[0] == "Bearer" {
 				bearerToken := authToken[1]
 				// verify if exist Session for this user
-				savedSession, err := repository.NewSessionRepository(db.Conn.GetPgsqTemplate()).FindByField("session_id", bearerToken)
+				savedSession, err := repository.NewSessionRepository(db.Conn.GetPgsqTemplate()).
+					FindByField("session_id", bearerToken)
 				// verify if exist this Role
-				motionLoggedRole, err := repository.NewRoleRepository(db.Conn.GetPgsqTemplate()).FindByField("name", motionValues)
+				motionLoggedRole, err := repository.NewRoleRepository(db.Conn.GetPgsqTemplate()).
+					FindByField("name", motionValues)
 				if err != nil {
 					exceptions.FieldError("you no have motion roles").Throw(c)
 					return
 				}
 				// get Profile by sessionId
-				profile, err := profile.NewProfileService(db.Conn).FindProfileByUserId(savedSession.ProfileId)
+				profile, err := repository.NewProfileRepository(db.Conn.GetPgsqTemplate()).
+					FindWithPreloads("roles", savedSession.ProfileId)
 				if err != nil {
 					exceptions.Forbidden().Throw(c)
 					return

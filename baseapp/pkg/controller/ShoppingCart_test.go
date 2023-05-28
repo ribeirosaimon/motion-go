@@ -1,17 +1,19 @@
-package shoppingcart
+package controller
 
 import (
 	"context"
-	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"net/http"
 	"testing"
+
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/router"
+	"github.com/ribeirosaimon/motion-go/internal/db"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
 
 	"github.com/ribeirosaimon/motion-go/test"
 	"github.com/stretchr/testify/assert"
 )
 
-var e = test.CreateEngine(NewShoppingCartRouter)
+var e = test.CreateEngine(router.NewShoppingCartRouter)
 
 func TestSaveShoppingCartController(t *testing.T) {
 

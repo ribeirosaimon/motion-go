@@ -1,4 +1,4 @@
-package profile
+package service
 
 import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -7,19 +7,19 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
-type Service struct {
+type ProfileService struct {
 	profileRepository *repository.MotionSQLRepository[sqlDomain.Profile]
 	roleRepository    *repository.MotionSQLRepository[sqlDomain.Role]
 }
 
-func NewProfileService(conections *db.Connections) Service {
-	return Service{
+func NewProfileService(conections *db.Connections) ProfileService {
+	return ProfileService{
 		profileRepository: repository.NewProfileRepository(conections.GetPgsqTemplate()),
 		roleRepository:    repository.NewRoleRepository(conections.GetPgsqTemplate()),
 	}
 
 }
-func (l Service) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.RoleEnum) (sqlDomain.Profile, error) {
+func (l ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.RoleEnum) (sqlDomain.Profile, error) {
 	var profile sqlDomain.Profile
 
 	profile.Name = user.Name
@@ -46,7 +46,7 @@ func (l Service) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.Ro
 	return save, nil
 }
 
-func (l Service) FindProfileByUserId(id uint64) (sqlDomain.Profile, error) {
+func (l ProfileService) FindProfileByUserId(id uint64) (sqlDomain.Profile, error) {
 	byId, err := l.profileRepository.FindWithPreloads("Roles", id)
 	if err != nil {
 		return sqlDomain.Profile{}, err
