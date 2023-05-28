@@ -1,4 +1,4 @@
-package controller
+package test
 
 import (
 	"context"
@@ -9,15 +9,13 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 
-	"github.com/ribeirosaimon/motion-go/test"
 	"github.com/stretchr/testify/assert"
 )
 
-var e = test.CreateEngine(router.NewShoppingCartRouter)
-
 func TestSaveShoppingCartController(t *testing.T) {
+	e := CreateEngine(router.NewShoppingCartRouter)
 
-	w, u := test.PerformRequest(e, http.MethodPost, "/shopping-cart/create", "USER", nil)
+	w, u := PerformRequest(e, http.MethodPost, "/shopping-cart/create", "USER", nil)
 
 	cartRepository := repository.NewShoppingCartRepository(context.Background(), db.Conn.GetMongoTemplate())
 	shopingCart, _ := cartRepository.FindByField("owner.name", u.Name)

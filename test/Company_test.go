@@ -1,4 +1,4 @@
-package controller
+package test
 
 import (
 	"bytes"
@@ -15,16 +15,15 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
-	"github.com/ribeirosaimon/motion-go/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSaveCompanyController(t *testing.T) {
-	e = test.CreateEngine(router.NewCompanyRouter)
+	e := CreateEngine(router.NewCompanyRouter)
 
 	company := createCompany()
 	jsonData, _ := json.Marshal(company)
-	w, _ := test.PerformRequest(e, http.MethodPost, "/company", "ADMIN", bytes.NewReader(jsonData))
+	w, _ := PerformRequest(e, http.MethodPost, "/company", "ADMIN", bytes.NewReader(jsonData))
 
 	var res sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &res)
@@ -40,23 +39,24 @@ func TestSaveCompanyController(t *testing.T) {
 }
 
 func TestSaveCompanyControllerReturnError(t *testing.T) {
-
+	e := CreateEngine(router.NewCompanyRouter)
 	company := createCompany()
 	jsonData, _ := json.Marshal(company)
 	// USER CAN`T SAVE ONE COMPANY
-	w, _ := test.PerformRequest(e, http.MethodPost, "/company", "USER", bytes.NewReader(jsonData))
+	w, _ := PerformRequest(e, http.MethodPost, "/company", "USER", bytes.NewReader(jsonData))
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
 func TestGetCompanyController(t *testing.T) {
+	e := CreateEngine(router.NewCompanyRouter)
 	conn := db.Conn.GetPgsqTemplate()
 	defer db.Conn.ClosePostgreSQL()
 	companyRepository := repository.NewCompanyRepository(conn)
 
 	newCompany := createCompany()
 	savedCompany, _ := companyRepository.Save(newCompany)
-	w, _ := test.PerformRequest(e, http.MethodGet, fmt.Sprintf("/company/%d", savedCompany.Id), "ADMIN", nil)
+	w, _ := PerformRequest(e, http.MethodGet, fmt.Sprintf("/company/%d", savedCompany.Id), "ADMIN", nil)
 
 	var responseCompany sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &responseCompany)
@@ -70,6 +70,7 @@ func TestGetCompanyController(t *testing.T) {
 }
 
 func TestPutCompanyController(t *testing.T) {
+	e := CreateEngine(router.NewCompanyRouter)
 	conn := db.Conn.GetPgsqTemplate()
 	defer db.Conn.ClosePostgreSQL()
 	companyRepository := repository.NewCompanyRepository(conn)
@@ -77,7 +78,7 @@ func TestPutCompanyController(t *testing.T) {
 
 	updatedCompany := createCompany()
 	companyToUpdate, _ := json.Marshal(updatedCompany)
-	w, _ := test.PerformRequest(e, http.MethodPut, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", bytes.NewReader(companyToUpdate))
+	w, _ := PerformRequest(e, http.MethodPut, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", bytes.NewReader(companyToUpdate))
 
 	var response sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &response)
@@ -91,12 +92,13 @@ func TestPutCompanyController(t *testing.T) {
 }
 
 func TestDeleteCompanyController(t *testing.T) {
+	e := CreateEngine(router.NewCompanyRouter)
 	conn := db.Conn.GetPgsqTemplate()
 	defer db.Conn.ClosePostgreSQL()
 	companyRepository := repository.NewCompanyRepository(conn)
 	companyDb, _ := companyRepository.Save(createCompany())
 
-	w, _ := test.PerformRequest(e, http.MethodDelete, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", nil)
+	w, _ := PerformRequest(e, http.MethodDelete, fmt.Sprintf("/company/%d", companyDb.Id), "ADMIN", nil)
 
 	var response sqlDomain.Company
 	json.Unmarshal([]byte(w.Body.String()), &response)
