@@ -1,16 +1,16 @@
 package nosqlDomain
 
 import (
-	sqlDomain2 "github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/shopspring/decimal"
 )
 
 type ShoppingCart struct {
-	Id        uint64               `json:"id"`
-	Owner     sqlDomain2.Profile   `json:"owner" gorm:"foreignkey:Id"`
-	ProfileId uint64               `json:"profileId"`
-	Price     decimal.Decimal      `json:"price"`
-	Products  []sqlDomain2.Company `json:"products" gorm:"many2many:cart_product;"`
+	Id        uint64              `bson:"id"`
+	Owner     sqlDomain.Profile   `bson:"owner"`
+	ProfileId uint64              `bson:"profileId"`
+	Price     decimal.Decimal     `bson:"price"`
+	Companies []sqlDomain.Company `bson:"companies"`
 	BasicNoSQL
 }
 

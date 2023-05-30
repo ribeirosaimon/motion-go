@@ -27,11 +27,11 @@ func NewShoppingCartService(ctx context.Context, c *db.Connections) ShoppingCart
 }
 
 func (s ShoppingCartService) GetShoppingCart(user middleware.LoggedUser) (nosqlDomain.ShoppingCart, error) {
-	exist := s.shoppingCartRepository.ExistByField("profile_id", user.UserId)
+	exist := s.shoppingCartRepository.ExistByField("owner.id", user.UserId)
 	if !exist {
 		return nosqlDomain.ShoppingCart{}, errors.New("not found")
 	}
-	cart, err := s.shoppingCartRepository.FindByField("profile_id", user.UserId)
+	cart, err := s.shoppingCartRepository.FindByField("owner.id", user.UserId)
 	if err != nil {
 		return nosqlDomain.ShoppingCart{}, err
 	}
@@ -82,7 +82,7 @@ func (s ShoppingCartService) AddProductInShoppingCart(loggedUser middleware.Logg
 	if err != nil {
 		return nosqlDomain.ShoppingCart{}, err
 	}
-	shoppingCart.Products = append(shoppingCart.Products, productDb)
+	shoppingCart.Companies = append(shoppingCart.Companies, productDb)
 
 	shoppingCart.UpdatedAt = time.Now()
 

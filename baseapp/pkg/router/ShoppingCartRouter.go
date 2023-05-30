@@ -13,13 +13,13 @@ func NewShoppingCartRouter() config.MotionController {
 
 	return config.NewMotionController(
 		"/shopping-cart",
-		config.NewMotionRouter(http.MethodPost, "/create", controller.NewShoppingCartController().CreateShoppingCart,
+		config.NewMotionRouter(http.MethodPost, "", controller.NewShoppingCartController().CreateShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodGet, "", controller.NewShoppingCartController().GetShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodDelete, "", controller.NewShoppingCartController().ExcludeShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
-		config.NewMotionRouter(http.MethodPost, "/company", controller.NewShoppingCartController().AddProductInShoppingCart,
+		config.NewMotionRouter(http.MethodPost, "/company/:id", controller.NewShoppingCartController().AddCompanyInShoppingCart,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 	)
 }

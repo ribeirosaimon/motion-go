@@ -42,7 +42,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 				}
 				// get Profile by sessionId
 				profile, err := repository.NewProfileRepository(db.Conn.GetPgsqTemplate()).
-					FindWithPreloads("roles", savedSession.ProfileId)
+					FindWithPreloads("Roles", savedSession.ProfileId)
 				if err != nil {
 					exceptions.Forbidden().Throw(c)
 					return

@@ -53,7 +53,7 @@ func (s shoppingCartController) ExcludeShoppingCart(c *gin.Context) {
 	httpresponse.Ok(c, nil)
 }
 
-func (s shoppingCartController) AddProductInShoppingCart(c *gin.Context) {
+func (s shoppingCartController) AddCompanyInShoppingCart(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {

@@ -89,5 +89,4 @@ func (c *Connections) InitializeTestDatabases(p *properties.Properties) {
 	c.sqlStruct.conn = db
 	c.sqlStruct.close = sqlDB
 	c.connectNoSQL(p)
-
 }
