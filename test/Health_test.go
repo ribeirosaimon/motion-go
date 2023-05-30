@@ -11,7 +11,9 @@ import (
 )
 
 func TestNewOpenHealthController(t *testing.T) {
-	e := CreateEngine(router.NewHealthRouter)
+
+	var e = CreateEngine(router.NewHealthRouter)
+
 	w, _ := PerformRequest(e, http.MethodGet, "/health/open", "", nil)
 	var res dto.HealthApiResponseDTO
 
@@ -22,14 +24,14 @@ func TestNewOpenHealthController(t *testing.T) {
 }
 
 func TestCloseHealthControllerError(t *testing.T) {
-	e := CreateEngine(router.NewHealthRouter)
+	var e = CreateEngine(router.NewHealthRouter)
+
 	w, _ := PerformRequest(e, http.MethodGet, "/health/close", "", nil)
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
 func TestCloseHealthControllerSuccess(t *testing.T) {
-
-	e := CreateEngine(router.NewHealthRouter)
+	var e = CreateEngine(router.NewHealthRouter)
 
 	w, _ := PerformRequest(e, http.MethodGet, "/health/close", "USER", nil)
 	var res dto.HealthApiResponseDTO

@@ -36,6 +36,7 @@ func PerformRequest(r http.Handler, method, path, role string, body io.Reader) (
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
+
 	return w, dto
 }
 
@@ -57,7 +58,6 @@ func CreateEngine(controller func() config.MotionController) *gin.Engine {
 	group := motion.MotionEngine.Group(c.Path)
 	for _, v := range c.Handlers {
 		v.Middleware = append(v.Middleware, v.Service)
-
 		group.Handle(v.Method, v.Path, v.Middleware...)
 	}
 	return motion.MotionEngine

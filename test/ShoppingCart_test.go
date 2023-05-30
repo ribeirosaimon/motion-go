@@ -13,7 +13,7 @@ import (
 )
 
 func TestSaveShoppingCartController(t *testing.T) {
-	e := CreateEngine(router.NewShoppingCartRouter)
+	var e = CreateEngine(router.NewShoppingCartRouter)
 
 	w, u := PerformRequest(e, http.MethodPost, "/shopping-cart/create", "USER", nil)
 
