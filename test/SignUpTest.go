@@ -46,7 +46,7 @@ func signUp(roles ...sqlDomain.RoleEnum) (string, SignUpTestDto) {
 		panic(err)
 	}
 
-	dto := loginDto{Email: user.Email, Password: user.Password}
+	dto := loginTestDto{Email: user.Email, Password: user.Password}
 	jsonLoginDto, err := json.Marshal(dto)
 
 	loginResp := httptest.NewRecorder()
@@ -91,12 +91,14 @@ func createUser(roles ...sqlDomain.RoleEnum) SignUpTestDto {
 }
 
 type SignUpTestDto struct {
-	loginDto
+	loginTestDto
 	Name  string               `json:"name"`
 	Roles []sqlDomain.RoleEnum `json:"roles"`
 }
 
-type loginDto struct {
-	Email    string `json:"email"`
-	Password string `json:"password,omitempty"`
+type loginTestDto struct {
+	Email      string             `json:"email"`
+	Password   string             `json:"password,omitempty"`
+	Token      string             `json:"token"`
+	LoggedRole sqlDomain.RoleEnum `json:"loggedRole"`
 }

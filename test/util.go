@@ -15,27 +15,38 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
-func PerformRequest(r http.Handler, method, path, role string, body io.Reader) (*httptest.ResponseRecorder, SignUpTestDto) {
+func PerformRequest(r http.Handler, method, path, role, loggedUserToken string, body io.Reader) (*httptest.ResponseRecorder, SignUpTestDto) {
 	req := httptest.NewRequest(method, path, body)
 
 	req.Header.Set("Content-Type", "application/json")
 	var dto SignUpTestDto
 	var token string
-	if role != "" {
-		if role == "ADMIN" {
-			token, dto = Token(sqlDomain.ADMIN)
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-			req.Header.Set("MotionRole", "ADMIN")
-		} else if role == "USER" {
-			token, dto = Token(sqlDomain.USER)
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
-			req.Header.Set("MotionRole", role)
+
+	if loggedUserToken != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", loggedUserToken))
+		if role == "" {
+			panic("need role")
 		}
-
+		req.Header.Set("MotionRole", role)
+	} else {
+		if role != "" {
+			if role == "ADMIN" {
+				token, dto = Token(sqlDomain.ADMIN)
+				dto.loginTestDto.LoggedRole = sqlDomain.ADMIN
+				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+				req.Header.Set("MotionRole", "ADMIN")
+			} else if role == "USER" {
+				token, dto = Token(sqlDomain.USER)
+				dto.loginTestDto.LoggedRole = sqlDomain.USER
+				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+				req.Header.Set("MotionRole", role)
+			}
+		}
 	}
-
+	dto.Token = token
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
+
 	return w, dto
 }
 
@@ -57,7 +68,6 @@ func CreateEngine(controller func() config.MotionController) *gin.Engine {
 	group := motion.MotionEngine.Group(c.Path)
 	for _, v := range c.Handlers {
 		v.Middleware = append(v.Middleware, v.Service)
-
 		group.Handle(v.Method, v.Path, v.Middleware...)
 	}
 	return motion.MotionEngine

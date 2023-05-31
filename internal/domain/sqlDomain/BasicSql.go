@@ -7,7 +7,7 @@ import (
 )
 
 type BasicSQL struct {
-	CreatedAt time.Time     `json:"createdAt"`
-	UpdatedAt time.Time     `json:"updatedAt"`
-	Status    domain.Status `json:"status"`
+	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time     `json:"updatedAt" bson:"updatedAt"`
+	Status    domain.Status `json:"status" bson:"status"`
 }
