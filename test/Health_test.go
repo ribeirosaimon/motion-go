@@ -2,85 +2,42 @@ package test
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/magiconair/properties/assert"
 	"net/http"
-	"net/http/httptest"
 	"testing"
-	"time"
 
-	"github.com/ribeirosaimon/motion-go/pkg/health"
-
-	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/domain"
-	"github.com/ribeirosaimon/motion-go/pkg/security"
-	"github.com/ribeirosaimon/motion-go/test/util"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/router"
+	"github.com/stretchr/testify/assert"
 )
 
-func BenchmarkController(b *testing.B) {
-	start := time.Now()
-	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, req, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
-		nil, "", domain.USER)
-	if resp.Code != http.StatusOK {
-		// util.AssertEquals(b, http.StatusOK, resp.Code)
-	}
-	if err != nil {
-		b.Error("error in request")
-	}
-	for i := 0; i < b.N; i++ {
-		// Grava a resposta HTTP
-		response := httptest.NewRecorder()
+func TestNewOpenHealthController(t *testing.T) {
 
-		// Processa a solicitação HTTP usando o roteador do Gin
-		gin.New().ServeHTTP(response, req)
-	}
-	duration := time.Since(start)
-	util.SuccessTest(fmt.Sprintf("Its all ok! Time: %f", float64(duration.Microseconds())/1000))
+	var e = CreateEngine(router.NewHealthRouter)
+
+	w, _ := PerformRequest(e, http.MethodGet, "/health/open", "", "", nil)
+	var res dto.HealthApiResponseDTO
+
+	json.Unmarshal([]byte(w.Body.String()), &res)
+
+	assert.Equal(t, res.Ready, true)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func TestOpenController(t *testing.T) {
-	t.Log("Test open controller")
-	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/open",
-		nil, "", domain.USER)
+func TestCloseHealthControllerError(t *testing.T) {
+	var e = CreateEngine(router.NewHealthRouter)
 
-	assert.Equal(t, resp.Code, http.StatusOK)
-
-	var response healthApiResponse
-	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, response.Ready, true)
-	assert.Equal(t, response.Time.Day(), time.Now().Day())
+	w, _ := PerformRequest(e, http.MethodGet, "/health/close", "", "", nil)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
-func TestCloseControllerSendError(t *testing.T) {
-	t.Log("Test close controller send error")
-	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
-	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
-		nil, "", domain.USER)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, http.StatusForbidden, resp.Code)
-}
+func TestCloseHealthControllerSuccess(t *testing.T) {
+	var e = CreateEngine(router.NewHealthRouter)
 
-func TestCloseControllerSuccess(t *testing.T) {
-	t.Log("Test close controller sucess")
-	util.AddController(testEnginer, "/api/v1/health", health.NewHealthRouter)
-	session, err := util.SignUp(testEnginer, domain.USER, domain.ADMIN, domain.USER)
-	resp, _, err := util.CreateEngineRequest(testEnginer, http.MethodGet, "/api/v1/health/close",
-		nil, session, domain.USER)
+	w, _ := PerformRequest(e, http.MethodGet, "/health/close", "USER", "", nil)
+	var res dto.HealthApiResponseDTO
 
-	assert.Equal(t, http.StatusOK, resp.Code)
+	json.Unmarshal([]byte(w.Body.String()), &res)
 
-	var response healthApiResponse
-	err = json.Unmarshal(resp.Body.Bytes(), &response)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, response.Ready, true)
-	assert.Equal(t, response.Time.Day(), time.Now().Day())
-}
-
-type healthApiResponse struct {
-	Ready      bool                `json:"ready"`
-	Time       time.Time           `json:"time"`
-	LoggedUSer security.LoggedUser `json:"loggedUser"`
+	assert.Equal(t, res.Ready, true)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
