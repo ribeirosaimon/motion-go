@@ -13,19 +13,19 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
-type shoppingCartController struct {
-	shoppingCartService *service.ShoppingCartService
+type portfolioController struct {
+	portfolioService *service.PortfolioService
 }
 
-func NewShoppingCartController() shoppingCartController {
-	shoppingCartService := service.NewShoppingCartService(context.Background(), db.Conn)
+func NewPortfolioController() portfolioController {
+	shoppingCartService := service.NewPortfolioService(context.Background(), db.Conn)
 
-	return shoppingCartController{shoppingCartService: &shoppingCartService}
+	return portfolioController{portfolioService: &shoppingCartService}
 }
 
-func (s shoppingCartController) CreateShoppingCart(c *gin.Context) {
+func (s portfolioController) CreatePortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
-	_, err = s.shoppingCartService.CreateShoppingCart(loggedUser)
+	_, err = s.portfolioService.CreatePortfolio(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -33,9 +33,9 @@ func (s shoppingCartController) CreateShoppingCart(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func (s shoppingCartController) GetShoppingCart(c *gin.Context) {
+func (s portfolioController) GetPortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
-	cart, err := s.shoppingCartService.GetShoppingCart(loggedUser)
+	cart, err := s.portfolioService.GetPortfolio(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -43,9 +43,9 @@ func (s shoppingCartController) GetShoppingCart(c *gin.Context) {
 	httpresponse.Created(c, cart)
 }
 
-func (s shoppingCartController) ExcludeShoppingCart(c *gin.Context) {
+func (s portfolioController) ExcludePortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
-	err = s.shoppingCartService.DeleteShoppingCart(loggedUser)
+	err = s.portfolioService.DeletePortfolio(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -53,7 +53,7 @@ func (s shoppingCartController) ExcludeShoppingCart(c *gin.Context) {
 	httpresponse.Ok(c, nil)
 }
 
-func (s shoppingCartController) AddCompanyInShoppingCart(c *gin.Context) {
+func (s portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -61,7 +61,7 @@ func (s shoppingCartController) AddCompanyInShoppingCart(c *gin.Context) {
 		return
 	}
 
-	cart, err := s.shoppingCartService.AddProductInShoppingCart(loggedUser, id)
+	cart, err := s.portfolioService.AddProductInPortfolio(loggedUser, id)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return

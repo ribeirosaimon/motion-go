@@ -9,17 +9,17 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
-func NewShoppingCartRouter() config.MotionController {
+func NewPortfolioRouter() config.MotionController {
 
 	return config.NewMotionController(
-		"/shopping-cart",
-		config.NewMotionRouter(http.MethodPost, "", controller.NewShoppingCartController().CreateShoppingCart,
+		"/portfolio",
+		config.NewMotionRouter(http.MethodPost, "", controller.NewPortfolioController().CreatePortfolio,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
-		config.NewMotionRouter(http.MethodGet, "", controller.NewShoppingCartController().GetShoppingCart,
+		config.NewMotionRouter(http.MethodGet, "", controller.NewPortfolioController().GetPortfolio,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
-		config.NewMotionRouter(http.MethodDelete, "", controller.NewShoppingCartController().ExcludeShoppingCart,
+		config.NewMotionRouter(http.MethodDelete, "", controller.NewPortfolioController().ExcludePortfolio,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
-		config.NewMotionRouter(http.MethodPost, "/company/:id", controller.NewShoppingCartController().AddCompanyInShoppingCart,
+		config.NewMotionRouter(http.MethodPost, "/company/:id", controller.NewPortfolioController().AddCompanyInPortfolio,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 	)
 }

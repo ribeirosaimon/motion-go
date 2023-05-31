@@ -3,7 +3,6 @@ package test
 import (
 	"context"
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"net/http"
 	"testing"
 
@@ -14,22 +13,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSaveShoppingCartController(t *testing.T) {
+func TestSavePortfolioController(t *testing.T) {
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.DatabaseName).Drop(context.Background())
-	var e = CreateEngine(router.NewShoppingCartRouter)
+	var e = CreateEngine(router.NewPortfolioRouter)
 
 	w, u := PerformRequest(e, http.MethodPost, "/shopping-cart", "USER", "", nil)
 
-	cartRepository := repository.NewShoppingCartRepository(context.Background(), db.Conn.GetMongoTemplate())
+	cartRepository := repository.NewPortfolioRepository(context.Background(), db.Conn.GetMongoTemplate())
 	shopingCart, _ := cartRepository.FindByField("owner.name", u.Name)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	assert.Equal(t, u.Name, shopingCart.Owner.Name)
 }
 
-func TestAddCompanyInShoppingCartController(t *testing.T) {
+func TestAddCompanyInPortfolioController(t *testing.T) {
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.DatabaseName).Drop(context.Background())
-	var e = CreateEngine(router.NewShoppingCartRouter)
+	var e = CreateEngine(router.NewPortfolioRouter)
 
 	defer db.Conn.ClosePostgreSQL()
 	dbCompany, _ := repository.NewCompanyRepository(db.Conn.GetPgsqTemplate()).Save(createCompany())
@@ -38,16 +37,16 @@ func TestAddCompanyInShoppingCartController(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, y.Code)
 	w, u := PerformRequest(e, http.MethodPost, fmt.Sprintf("/shopping-cart/company/%d", dbCompany.Id), string(dto.loginTestDto.LoggedRole), dto.loginTestDto.Token, nil)
 
-	cartRepository := repository.NewShoppingCartRepository(context.Background(), db.Conn.GetMongoTemplate())
+	cartRepository := repository.NewPortfolioRepository(context.Background(), db.Conn.GetMongoTemplate())
 	shoopingCart, _ := cartRepository.FindByField("owner.name", dto.Name)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, u.Name, shoopingCart.Owner.Name)
-	assert.True(t, containsCompany(dbCompany.Name, shoopingCart.Companies))
+	assert.True(t, containsCompany(dbCompany.Id, shoopingCart.Companies))
 }
 
-func TestAddCompanyInShoppingCartControllerWithError(t *testing.T) {
+func TestAddCompanyInPortfolioControllerWithError(t *testing.T) {
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.DatabaseName).Drop(context.Background())
-	var e = CreateEngine(router.NewShoppingCartRouter)
+	var e = CreateEngine(router.NewPortfolioRouter)
 
 	y, dto := PerformRequest(e, http.MethodPost, "/shopping-cart", "USER", "", nil)
 	assert.Equal(t, http.StatusCreated, y.Code)
@@ -57,9 +56,9 @@ func TestAddCompanyInShoppingCartControllerWithError(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, w.Code)
 }
 
-func containsCompany(companyName string, companies []sqlDomain.Company) bool {
+func containsCompany(companyId uint64, companies []uint64) bool {
 	for _, v := range companies {
-		if v.Name == companyName {
+		if v == companyId {
 			return true
 		}
 	}

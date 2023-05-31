@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -9,12 +10,12 @@ import (
 )
 
 var (
-	userRepository         *MotionSQLRepository[sqlDomain.MotionUser]
-	sessionRepository      *MotionSQLRepository[sqlDomain.Session]
-	profileRepository      *MotionSQLRepository[sqlDomain.Profile]
-	roleRepository         *MotionSQLRepository[sqlDomain.Role]
-	shoppingCartRepository *motionNoSQLRepository[nosqlDomain.ShoppingCart]
-	companyRepository      *MotionSQLRepository[sqlDomain.Company]
+	userRepository      *MotionSQLRepository[sqlDomain.MotionUser]
+	sessionRepository   *MotionSQLRepository[sqlDomain.Session]
+	profileRepository   *MotionSQLRepository[sqlDomain.Profile]
+	roleRepository      *MotionSQLRepository[sqlDomain.Role]
+	portfolioRepository *MotionNoSQLRepository[nosqlDomain.Portfolio]
+	companyRepository   *MotionSQLRepository[sqlDomain.Company]
 )
 
 func NewUserRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.MotionUser] {
@@ -49,12 +50,12 @@ func NewRoleRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Role] {
 	return roleRepository
 }
 
-func NewShoppingCartRepository(ctx context.Context, mongoConnection *mongo.Client) *motionNoSQLRepository[nosqlDomain.ShoppingCart] {
-	if shoppingCartRepository != nil {
-		return shoppingCartRepository
+func NewPortfolioRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain.Portfolio] {
+	if portfolioRepository != nil {
+		return portfolioRepository
 	}
-	shoppingCartRepository := newMotionNoSQLRepository[nosqlDomain.ShoppingCart](ctx, mongoConnection)
-	return shoppingCartRepository
+	portfolioRepository := newMotionNoSQLRepository[nosqlDomain.Portfolio](ctx, mongoConnection)
+	return portfolioRepository
 }
 
 func NewCompanyRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Company] {

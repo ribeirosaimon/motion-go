@@ -48,7 +48,7 @@ var version1 = config.RoutersVersion{
 		router.NewHealthRouter,
 		router.NewLoginRouter,
 		router.NewCompanyRouter,
-		router.NewShoppingCartRouter,
+		router.NewPortfolioRouter,
 	},
 }
 
