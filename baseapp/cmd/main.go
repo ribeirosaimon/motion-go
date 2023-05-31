@@ -37,7 +37,6 @@ func setUpRoles() {
 		if !existByName {
 			roleRepository.Save(sqlDomain.Role{Name: i})
 		}
-
 	}
 
 }
