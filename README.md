@@ -67,7 +67,6 @@ var version2 = config.RoutersVersion{
 ```
 o intuito é facilitar a troca de versão da aplicação
 
-
 ----------
 * Banco de dados
 
