@@ -76,17 +76,22 @@ func (s PortfolioService) DeletePortfolio(loggedUser middleware.LoggedUser) erro
 }
 
 func (s PortfolioService) AddProductInPortfolio(loggedUser middleware.LoggedUser, id int64) (nosqlDomain.Portfolio, error) {
-	shoppingCart, err := s.GetPortfolio(loggedUser)
+	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
 	}
-	productDb, err := s.companyService.GetCompany(id)
+	companyDb, err := s.companyService.GetCompany(id)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
 	}
-	shoppingCart.Companies = append(shoppingCart.Companies, productDb.Id)
+	for _, v := range portfolio.Companies {
+		if v == companyDb.Id {
+			return nosqlDomain.Portfolio{}, errors.New("company already exist in your portfolio")
+		}
+	}
+	portfolio.Companies = append(portfolio.Companies, companyDb.Id)
 
-	shoppingCart.UpdatedAt = time.Now()
+	portfolio.UpdatedAt = time.Now()
 
-	return s.portfolioRepository.Save(shoppingCart)
+	return s.portfolioRepository.Save(portfolio)
 }

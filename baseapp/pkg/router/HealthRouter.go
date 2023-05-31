@@ -10,7 +10,6 @@ import (
 )
 
 func NewHealthRouter() config.MotionController {
-
 	return config.NewMotionController(
 		"/health",
 		config.NewMotionRouter(http.MethodGet, "/close", controller.NewHealthController().CloseHealth,
