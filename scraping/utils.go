@@ -44,13 +44,35 @@ func transformToInteger(v string) int {
 	return 0
 }
 
-func transformDate(layout, dateString string) (time.Time, error) {
-	parse, err2 := time.Parse("Jan 3 2006 00:00", "Mar 30 2023")
+func TransformDate(dateString string) (time.Time, error) {
+	var err error
+	var year, day int
+	var month time.Month
 
-	fmt.Println(parse, err2)
-	date, err := time.Parse(layout, dateString+" 00:00")
+	if strings.Contains(dateString, "/") {
+		splitedDate := strings.Split(dateString, "/")
+		day, err = strconv.Atoi(splitedDate[1])
+		month, err = monthAbbreviationToNumber(splitedDate[0])
+		year, err = strconv.Atoi(splitedDate[2])
+
+	} else {
+		replacedString := strings.ReplaceAll(dateString, ",", "")
+		split := strings.Split(replacedString, " ")
+
+		month, err = monthAbbreviationToNumber(split[0])
+	}
 	if err != nil {
 		return time.Time{}, err
 	}
+	date := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
 	return date, nil
+}
+
+func monthAbbreviationToNumber(monthAbbreviation string) (time.Month, error) {
+	t, err := time.Parse("Jan", monthAbbreviation)
+	if err != nil {
+		return 0, err
+	}
+	return t.Month(), nil
 }

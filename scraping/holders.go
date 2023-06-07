@@ -7,11 +7,11 @@ import (
 	"github.com/gocolly/colly"
 )
 
-func GetHolders(ticket string) {
-	getHolders(ticket)
+func GetHolders(ticket string) Holders {
+	return getHolders(ticket)
 }
 
-func getHolders(v string) {
+func getHolders(v string) Holders {
 	url := fmt.Sprintf("%s/quote/%s/holders", domain, v)
 	c := prepareColly()
 
@@ -48,7 +48,7 @@ func getHolders(v string) {
 						} else if y == 1 {
 							iHolder.Shares = uint32(transformToInteger(el.Text))
 						} else if y == 2 {
-							date, _ := transformDate(historyDataLayout, el.Text)
+							date, _ := TransformDate(el.Text)
 							iHolder.DateReported = date
 						} else if y == 3 {
 							iHolder.PercentOut = uint8(transformToFloat(el.Text))
@@ -63,13 +63,12 @@ func getHolders(v string) {
 					}
 				})
 			}
-
 			count++
-
 		})
 	})
 	c.Visit(url)
 	c.Wait()
+	return holders
 }
 
 type Holders struct {

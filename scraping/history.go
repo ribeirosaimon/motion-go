@@ -52,7 +52,7 @@ func getHistoryPrice(v string, dayRange int) StockHistory {
 				el.ForEach("td", func(_ int, el *colly.HTMLElement) {
 					cnt += 1
 					if cnt == 1 {
-						date, _ := transformDate(historyDataLayout, el.Text)
+						date, _ := TransformDate(el.Text)
 						day.Date = date
 					} else if cnt == 2 {
 						day.Open = TransformToPrice(el.Text)

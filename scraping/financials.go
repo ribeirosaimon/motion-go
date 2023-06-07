@@ -24,7 +24,7 @@ func scrapingFinancials(ticket string) map[string]map[string]interface{} {
 			var count = 0
 			e.ForEach("span", func(_ int, el *colly.HTMLElement) {
 
-				date, err := transformDate(financialDataLayout, el.Text)
+				date, err := TransformDate(el.Text)
 				if err == nil {
 					yearsResults[fmt.Sprintf("%d", date.Year())] = count
 					count++
