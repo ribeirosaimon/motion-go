@@ -7,10 +7,6 @@ import (
 	"github.com/gocolly/colly"
 )
 
-func GetHolders(ticket string) Holders {
-	return getHolders(ticket)
-}
-
 func getHolders(v string) Holders {
 	url := fmt.Sprintf("%s/quote/%s/holders", domain, v)
 	c := prepareColly()
@@ -21,11 +17,11 @@ func getHolders(v string) Holders {
 
 	c.OnHTML("table", func(e *colly.HTMLElement) {
 
-		e.ForEach("tbody", func(_ int, el *colly.HTMLElement) {
+		e.ForEach("tbody", func(_ int, tr *colly.HTMLElement) {
 			if count == 0 {
-				e.ForEach("tr", func(_ int, el *colly.HTMLElement) {
+				tr.ForEach("tr", func(_ int, td *colly.HTMLElement) {
 
-					e.ForEach("td", func(v int, el *colly.HTMLElement) {
+					td.ForEach("td", func(v int, el *colly.HTMLElement) {
 						if v == 0 {
 							majorHolders["allInsiders"] = transformToFloat(el.Text)
 						} else if v == 2 {
@@ -39,36 +35,47 @@ func getHolders(v string) Holders {
 				})
 				holders.MajorHolders = majorHolders
 			} else {
-				e.ForEach("tr", func(_ int, el *colly.HTMLElement) {
-					var iHolder InstitutionalHolders
-					e.ForEach("td", func(y int, el *colly.HTMLElement) {
 
-						if y == 0 {
-							iHolder.Holder = el.Text
-						} else if y == 1 {
-							iHolder.Shares = uint32(transformToInteger(el.Text))
-						} else if y == 2 {
-							date, _ := TransformDate(el.Text)
-							iHolder.DateReported = date
-						} else if y == 3 {
-							iHolder.PercentOut = uint8(transformToFloat(el.Text))
-						} else if y == 4 {
-							iHolder.Value = uint64(transformToInteger(el.Text))
+				tr.ForEach("tr", func(countTr int, el *colly.HTMLElement) {
+					if countTr != 0 {
+						iHolder := getHoldersInTable(el)
+						if count == 1 {
+							holders.TopInstitutionalHolders = append(holders.TopInstitutionalHolders, iHolder)
+						} else {
+							holders.TopMutualFundHolders = append(holders.TopMutualFundHolders, iHolder)
 						}
-					})
-					if count == 1 {
-						holders.TopInstitutionalHolders = append(holders.TopInstitutionalHolders, iHolder)
-					} else {
-						holders.TopMutualFundHolders = append(holders.TopMutualFundHolders, iHolder)
 					}
+
 				})
+
 			}
+			// change table
 			count++
 		})
+
 	})
 	c.Visit(url)
 	c.Wait()
 	return holders
+}
+
+func getHoldersInTable(td *colly.HTMLElement) InstitutionalHolders {
+	var iHolder InstitutionalHolders
+	td.ForEach("td", func(y int, el *colly.HTMLElement) {
+		if y == 0 {
+			iHolder.Holder = el.Text
+		} else if y == 1 {
+			iHolder.Shares = uint32(transformToInteger(el.Text))
+		} else if y == 2 {
+			date, _ := TransformDate(el.Text)
+			iHolder.DateReported = date
+		} else if y == 3 {
+			iHolder.PercentOut = transformToFloat(el.Text)
+		} else if y == 4 {
+			iHolder.Value = uint64(transformToInteger(el.Text))
+		}
+	})
+	return iHolder
 }
 
 type Holders struct {
@@ -81,6 +88,6 @@ type InstitutionalHolders struct {
 	Holder       string    `json:"holders"`
 	Shares       uint32    `json:"shares"`
 	DateReported time.Time `json:"DateReported"`
-	PercentOut   uint8     `json:"percentOut"`
+	PercentOut   float32   `json:"percentOut"`
 	Value        uint64    `json:"value"`
 }

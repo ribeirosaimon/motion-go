@@ -6,11 +6,7 @@ import (
 	"github.com/gocolly/colly"
 )
 
-func Financials(v string) map[string]map[string]interface{} {
-	return scrapingFinancials(v)
-}
-
-func scrapingFinancials(ticket string) map[string]map[string]interface{} {
+func financials(ticket string) map[string]map[string]interface{} {
 	financialsType := []string{"financials", "balance-sheet", "cash-flow"}
 	result := make(map[string]map[string]interface{})
 
@@ -22,36 +18,39 @@ func scrapingFinancials(ticket string) map[string]map[string]interface{} {
 
 		c.OnHTML("div[class='D(tbr) C($primaryColor)']", func(e *colly.HTMLElement) {
 			var count = 0
-			e.ForEach("span", func(_ int, el *colly.HTMLElement) {
+			e.ForEach("span", func(v int, el *colly.HTMLElement) {
 
-				date, err := TransformDate(el.Text)
-				if err == nil {
-					yearsResults[fmt.Sprintf("%d", date.Year())] = count
-					count++
+				if v > 1 {
+					date, err := TransformDate(el.Text)
+					if err == nil {
+						yearsResults[fmt.Sprintf("%d", date.Year())] = count
+						count++
+					}
 				}
 
 			})
 		})
 
 		c.OnHTML("div[data-test='fin-row']", func(e *colly.HTMLElement) {
-			var count = 0
 			var keyMap string
 			breakdown := make(map[string]interface{})
-			e.ForEach("span", func(_ int, el *colly.HTMLElement) {
-				if count == 0 {
+			e.ForEach("span", func(spanCount int, el *colly.HTMLElement) {
+				if spanCount == 0 {
+					if el.Text == "Diluted EPS" {
+						fmt.Sprintf(" ok")
+					}
 					keyMap = el.Text
 				} else {
-					if count == 1 {
+					if spanCount == 1 {
 						breakdown[getKeyByValue(yearsResults, 0)] = transformToInteger(el.Text)
-					} else if count == 2 {
+					} else if spanCount == 2 {
 						breakdown[getKeyByValue(yearsResults, 1)] = transformToInteger(el.Text)
-					} else if count == 3 {
+					} else if spanCount == 3 {
 						breakdown[getKeyByValue(yearsResults, 2)] = transformToInteger(el.Text)
-					} else if count == 4 {
+					} else if spanCount == 4 {
 						breakdown[getKeyByValue(yearsResults, 3)] = transformToInteger(el.Text)
 					}
 				}
-				count++
 			})
 
 			result[keyMap] = breakdown

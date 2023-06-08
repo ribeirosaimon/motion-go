@@ -60,9 +60,9 @@ func TestTransformDate(t *testing.T) {
 }
 
 func TestTransformDateOtherLayout(t *testing.T) {
-	historyDataLayout := "01/12/2006"
+	historyDataLayout := "01/13/2006"
 	date, _ := scraping.TransformDate(historyDataLayout)
 	assert.Equal(t, date.Year(), 2006)
-	assert.Equal(t, date.Month(), time.Month(12))
-	assert.Equal(t, date.Day(), 1)
+	assert.Equal(t, date.Day(), 13)
+	assert.Equal(t, date.Month(), time.Month(1))
 }

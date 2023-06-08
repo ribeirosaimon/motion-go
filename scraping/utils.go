@@ -52,14 +52,24 @@ func TransformDate(dateString string) (time.Time, error) {
 	if strings.Contains(dateString, "/") {
 		splitedDate := strings.Split(dateString, "/")
 		day, err = strconv.Atoi(splitedDate[1])
-		month, err = monthAbbreviationToNumber(splitedDate[0])
+		monthInt, _ := strconv.Atoi(splitedDate[0])
+		month = time.Month(monthInt)
 		year, err = strconv.Atoi(splitedDate[2])
+	} else if strings.Contains(dateString, "-") {
+		dateString = strings.Split(dateString, " ")[0]
+		split := strings.Split(dateString, "-")
+
+		day, err = strconv.Atoi(split[2])
+		month, err = monthAbbreviationToNumber(split[1])
+		year, err = strconv.Atoi(split[0])
 
 	} else {
 		replacedString := strings.ReplaceAll(dateString, ",", "")
 		split := strings.Split(replacedString, " ")
 
+		day, err = strconv.Atoi(split[1])
 		month, err = monthAbbreviationToNumber(split[0])
+		year, err = strconv.Atoi(split[2])
 	}
 	if err != nil {
 		return time.Time{}, err
