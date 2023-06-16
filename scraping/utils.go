@@ -2,6 +2,7 @@ package scraping
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -10,6 +11,8 @@ import (
 )
 
 func TransformToPrice(v string) decimal.Decimal {
+
+	v = strings.TrimSpace(v)
 	if strings.Contains(v, ",") {
 		v = strings.ReplaceAll(v, ",", "")
 
@@ -23,11 +26,14 @@ func TransformToPrice(v string) decimal.Decimal {
 }
 
 func transformToFloat(v string) float32 {
-	if strings.Contains(v, "%") {
-		v = strings.ReplaceAll(v, "%", "")
-
+	re := regexp.MustCompile("[0-9.]+")
+	matches := re.FindAllString(v, -1)
+	result := ""
+	for _, match := range matches {
+		result += match
 	}
-	float32Value, err := strconv.ParseFloat(v, 32)
+
+	float32Value, err := strconv.ParseFloat(result, 32)
 	if err != nil {
 		return float32(0)
 	}
