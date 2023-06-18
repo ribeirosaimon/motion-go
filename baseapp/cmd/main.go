@@ -7,6 +7,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/util"
 )
@@ -21,6 +22,7 @@ func main() {
 	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
 
 	setUpRoles()
+	middleware.NewMotionCache(db.Conn.GetMongoTemplate())
 	motionGo.AddRouter(version1)
 	motionGo.CreateRouters()
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))

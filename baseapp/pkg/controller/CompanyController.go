@@ -87,8 +87,5 @@ func (c companyController) GetProduct(ctx *gin.Context) {
 
 func (c companyController) getCompanyInfo(ctx *gin.Context) {
 	companyName := ctx.Param("companyName")
-	if err != nil {
-		exceptions.BodyError().Throw(ctx)
-		return
-	}
+	httpresponse.Ok(ctx, companyName)
 }

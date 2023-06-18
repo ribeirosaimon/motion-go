@@ -7,7 +7,7 @@ import (
 )
 
 type Portfolio struct {
-	BasicNoSQL `bson:",inline"`
+	BasicNoSQL `bson:"inline"`
 	Id         primitive.ObjectID `json:"id" bson:"_id" gorm:"primaryKey"`
 	Owner      sqlDomain.Profile  `json:"owner" bson:"owner"`
 	ProfileId  uint64             `json:"profileId" bson:"profileId"`

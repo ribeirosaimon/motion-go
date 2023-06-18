@@ -10,12 +10,13 @@ import (
 )
 
 var (
-	userRepository      *MotionSQLRepository[sqlDomain.MotionUser]
-	sessionRepository   *MotionSQLRepository[sqlDomain.Session]
-	profileRepository   *MotionSQLRepository[sqlDomain.Profile]
-	roleRepository      *MotionSQLRepository[sqlDomain.Role]
-	portfolioRepository *MotionNoSQLRepository[nosqlDomain.Portfolio]
-	companyRepository   *MotionSQLRepository[sqlDomain.Company]
+	userRepository         *MotionSQLRepository[sqlDomain.MotionUser]
+	sessionRepository      *MotionSQLRepository[sqlDomain.Session]
+	profileRepository      *MotionSQLRepository[sqlDomain.Profile]
+	roleRepository         *MotionSQLRepository[sqlDomain.Role]
+	companyRepository      *MotionSQLRepository[sqlDomain.Company]
+	portfolioRepository    *MotionNoSQLRepository[nosqlDomain.Portfolio]
+	summaryStockRepository *MotionNoSQLRepository[nosqlDomain.SummaryStock]
 )
 
 func NewUserRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.MotionUser] {
@@ -50,6 +51,14 @@ func NewRoleRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Role] {
 	return roleRepository
 }
 
+func NewCompanyRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Company] {
+	if companyRepository != nil {
+		return companyRepository
+	}
+	companyRepository := newMotionSQLRepository[sqlDomain.Company](conn)
+	return companyRepository
+}
+
 func NewPortfolioRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain.Portfolio] {
 	if portfolioRepository != nil {
 		return portfolioRepository
@@ -58,10 +67,10 @@ func NewPortfolioRepository(ctx context.Context, mongoConnection *mongo.Client) 
 	return portfolioRepository
 }
 
-func NewCompanyRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Company] {
-	if companyRepository != nil {
-		return companyRepository
+func NewSummaryStockRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain.SummaryStock] {
+	if summaryStockRepository != nil {
+		return summaryStockRepository
 	}
-	companyRepository := newMotionSQLRepository[sqlDomain.Company](conn)
-	return companyRepository
+	summaryStockRepository := newMotionNoSQLRepository[nosqlDomain.SummaryStock](ctx, mongoConnection)
+	return summaryStockRepository
 }

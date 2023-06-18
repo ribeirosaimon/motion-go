@@ -5,25 +5,25 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly"
-	"github.com/shopspring/decimal"
+	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 )
 
-func GetStockSummary(v string) SummaryStock {
+func GetStockSummary(v string) nosqlDomain.SummaryStock {
 	url := fmt.Sprintf("%s/quote/%s", domain, v)
 	c := prepareColly()
 
-	var sumStock SummaryStock
+	var sumStock nosqlDomain.SummaryStock
 	c.OnHTML("#Lead-5-QuoteHeader-Proxy", func(e *colly.HTMLElement) {
 		e.ForEach("h1", func(_ int, translate *colly.HTMLElement) {
 			sumStock.CompanyName = translate.Text
 		})
 		sumStock.StockValue = getSummaryStockValue(e)
-
+		sumStock.CompanyCode = v
 	})
 
 	c.OnHTML("#quote-summary", func(e *colly.HTMLElement) {
 		e.ForEach("tbody", func(tbodyNumber int, tbody *colly.HTMLElement) {
-			var summary Summary
+			var summary nosqlDomain.Summary
 			if tbodyNumber == 0 {
 				tbody.ForEach("tr", func(trCount int, tr *colly.HTMLElement) {
 					if trCount == 0 {
@@ -65,8 +65,8 @@ func getTdValue(tr *colly.HTMLElement) string {
 	return s
 }
 
-func getSummaryStockValue(v *colly.HTMLElement) SumarryStockValue {
-	var sumarryStockValue SumarryStockValue
+func getSummaryStockValue(v *colly.HTMLElement) nosqlDomain.SumarryStockValue {
+	var sumarryStockValue nosqlDomain.SumarryStockValue
 	v.ForEach("fin-streamer", func(countValue int, value *colly.HTMLElement) {
 		if countValue == 0 {
 			sumarryStockValue.Price = TransformToPrice(value.Text)
@@ -77,30 +77,4 @@ func getSummaryStockValue(v *colly.HTMLElement) SumarryStockValue {
 		}
 	})
 	return sumarryStockValue
-}
-
-type SummaryStock struct {
-	CompanyName string            `json:"companyName"`
-	StockValue  SumarryStockValue `json:"stockValue"`
-	Summary     Summary           `json:"summary"`
-}
-
-type SumarryStockValue struct {
-	Price        decimal.Decimal `json:"price"`
-	RangeDay     decimal.Decimal `json:"rangeDay"`
-	PersentRange float32         `json:"percentRange"`
-}
-
-type Summary struct {
-	PreviousClose decimal.Decimal `json:"previousClose"`
-	Open          decimal.Decimal `json:"open"`
-	DayRange      RangePrice      `json:"dayRange"`
-	YearRange     RangePrice      `json:"yearRange"`
-	Volume        uint64          `json:"volume"`
-	AvgVol        uint64          `json:"avgVol"`
-}
-
-type RangePrice struct {
-	Start decimal.Decimal `json:"start"`
-	End   decimal.Decimal `json:"end"`
 }

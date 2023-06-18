@@ -1,44 +1,70 @@
 package middleware
 
 import (
-	"github.com/ribeirosaimon/motion-go/internal/domain/cache"
+	"context"
+	"fmt"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/repository"
+	"github.com/ribeirosaimon/motion-go/scraping"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MotionCache struct {
-	after  *Store
-	before *Store
-	Size   uint16
+	Company map[string]*Store
 }
 
 type Store struct {
-	Key        string
-	Info       interface{}
+	Info       nosqlDomain.SummaryStock
+	Code       string
 	expiration time.Time
-	next       *Store
 }
 
-func (m *MotionCache) Get(i string) {
-	for _, v := range m.store {
-		if v.expiration.After(time.Now()) {
-			v = nil
+var Cache *MotionCache
+
+func NewMotionCache(db *mongo.Client) *MotionCache {
+	ctx := context.Background()
+	if Cache == nil {
+		Cache = &MotionCache{
+			Company: make(map[string]*Store),
 		}
+		Cache.cron(ctx, db)
+		return Cache
 	}
+	Cache.cron(ctx, db)
+	return Cache
 }
 
-func (m *MotionCache) Add(company cache.Company) {
-	if m.Size == 0 {
+func (m *MotionCache) Get(i string) *Store {
+	return m.Company[i]
+}
+
+func (m *MotionCache) Add(companyCode string) {
+	if len(m.Company) >= 50 {
+		summary := scraping.GetStockSummary(companyCode)
 		var store = &Store{
-			Key:        company.Name,
-			Info:       company.Code,
-			expiration: time.Now().Add(time.Minute),
+			Info:       summary,
+			Code:       summary.CompanyCode,
+			expiration: time.Now().Add(time.Minute * 5),
 		}
-		m.before, m.after = nil, store
-	} else {
-		var store = Store{
-			Key:        company.Name,
-			Info:       company.Code,
-			expiration: time.Now().Add(time.Minute),
-		}
+		m.Company[store.Code] = store
 	}
+}
+
+func (m *MotionCache) cron(ctx context.Context, mongoConnection *mongo.Client) {
+	done := make(chan bool)
+
+	for {
+		time.Sleep(time.Second)
+		go func(s string) {
+			companyRepository := repository.NewSummaryStockRepository(ctx, mongoConnection)
+			summary := scraping.GetStockSummary(s)
+			companyRepository.Save(summary)
+			done <- true
+		}("meli")
+		<-done
+		fmt.Println("tudo certo")
+	}
+
 }

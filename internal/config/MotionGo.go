@@ -22,7 +22,7 @@ type MotionGo struct {
 }
 
 func NewMotionGo(propertiesFile string) *MotionGo {
-	//gin.DefaultWriter = ioutil.Discard
+	// gin.DefaultWriter = ioutil.Discard
 	var engine *gin.Engine
 	engine = gin.New()
 	return &MotionGo{
