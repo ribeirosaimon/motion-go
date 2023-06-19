@@ -25,7 +25,7 @@ func TransformToPrice(v string) decimal.Decimal {
 	return dec
 }
 
-func transformToFloat(v string) float32 {
+func transformToFloat(v string) float64 {
 	re := regexp.MustCompile("[0-9.]+")
 	matches := re.FindAllString(v, -1)
 	result := ""
@@ -33,11 +33,11 @@ func transformToFloat(v string) float32 {
 		result += match
 	}
 
-	float32Value, err := strconv.ParseFloat(result, 32)
+	float32Value, err := strconv.ParseFloat(result, 64)
 	if err != nil {
-		return float32(0)
+		return float64(0)
 	}
-	return float32(float32Value)
+	return float32Value
 }
 
 func transformToInteger(v string) int {

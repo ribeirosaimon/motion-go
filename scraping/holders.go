@@ -88,6 +88,6 @@ type InstitutionalHolders struct {
 	Holder       string    `json:"holders"`
 	Shares       uint32    `json:"shares"`
 	DateReported time.Time `json:"DateReported"`
-	PercentOut   float32   `json:"percentOut"`
+	PercentOut   float64   `json:"percentOut"`
 	Value        uint64    `json:"value"`
 }

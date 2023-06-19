@@ -22,7 +22,7 @@ func main() {
 	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
 
 	setUpRoles()
-	middleware.NewMotionCache(db.Conn.GetMongoTemplate())
+	go middleware.NewMotionCache(db.Conn.GetMongoTemplate())
 	motionGo.AddRouter(version1)
 	motionGo.CreateRouters()
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))

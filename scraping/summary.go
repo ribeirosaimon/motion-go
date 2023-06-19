@@ -28,17 +28,17 @@ func GetStockSummary(v string) nosqlDomain.SummaryStock {
 				tbody.ForEach("tr", func(trCount int, tr *colly.HTMLElement) {
 					if trCount == 0 {
 						getTdValue(tr)
-						summary.PreviousClose = TransformToPrice(getTdValue(tr))
+						summary.PreviousClose = transformToFloat(getTdValue(tr))
 					} else if trCount == 1 {
-						summary.Open = TransformToPrice(getTdValue(tr))
+						summary.Open = transformToFloat(getTdValue(tr))
 					} else if trCount == 4 {
 						splitedValue := strings.Split(getTdValue(tr), "-")
-						summary.DayRange.Start = TransformToPrice(splitedValue[0])
-						summary.DayRange.End = TransformToPrice(splitedValue[1])
+						summary.DayRange.Start = transformToFloat(splitedValue[0])
+						summary.DayRange.End = transformToFloat(splitedValue[1])
 					} else if trCount == 5 {
 						splitedValue := strings.Split(getTdValue(tr), "-")
-						summary.YearRange.Start = TransformToPrice(splitedValue[0])
-						summary.YearRange.End = TransformToPrice(splitedValue[1])
+						summary.YearRange.Start = transformToFloat(splitedValue[0])
+						summary.YearRange.End = transformToFloat(splitedValue[1])
 					} else if trCount == 6 {
 						summary.Volume = uint64(transformToInteger(getTdValue(tr)))
 					} else if trCount == 7 {
@@ -69,9 +69,9 @@ func getSummaryStockValue(v *colly.HTMLElement) nosqlDomain.SumarryStockValue {
 	var sumarryStockValue nosqlDomain.SumarryStockValue
 	v.ForEach("fin-streamer", func(countValue int, value *colly.HTMLElement) {
 		if countValue == 0 {
-			sumarryStockValue.Price = TransformToPrice(value.Text)
+			sumarryStockValue.Price = transformToFloat(value.Text)
 		} else if countValue == 1 {
-			sumarryStockValue.RangeDay = TransformToPrice(value.Text)
+			sumarryStockValue.RangeDay = transformToFloat(value.Text)
 		} else if countValue == 2 {
 			sumarryStockValue.PersentRange = transformToFloat(value.Text)
 		}

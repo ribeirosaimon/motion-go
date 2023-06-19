@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gocolly/colly"
-	"github.com/shopspring/decimal"
 )
 
 func getStockOptions(v string) StockOptions {
@@ -48,13 +47,13 @@ func getOptionsValue(tr *colly.HTMLElement) Options {
 		} else if v == 2 {
 			options.Strike = float64(transformToFloat(el.Text))
 		} else if v == 3 {
-			options.LastPrice = TransformToPrice(el.Text)
+			options.LastPrice = transformToFloat(el.Text)
 		} else if v == 4 {
-			options.Bid = TransformToPrice(el.Text)
+			options.Bid = transformToFloat(el.Text)
 		} else if v == 5 {
-			options.Ask = TransformToPrice(el.Text)
+			options.Ask = transformToFloat(el.Text)
 		} else if v == 6 {
-			options.Change = TransformToPrice(el.Text)
+			options.Change = transformToFloat(el.Text)
 		} else if v == 7 {
 			options.PercentChange = transformToFloat(el.Text)
 		} else if v == 8 {
@@ -74,15 +73,15 @@ type StockOptions struct {
 }
 
 type Options struct {
-	ContractName      string          `json:"contractName"`
-	LastTradeDate     time.Time       `json:"lastTradeDate"`
-	Strike            float64         `json:"strike"`
-	LastPrice         decimal.Decimal `json:"lastPrice"`
-	Bid               decimal.Decimal `json:"bid"`
-	Ask               decimal.Decimal `json:"ask"`
-	Change            decimal.Decimal `json:"change"`
-	PercentChange     float32         `json:"percentChange"`
-	Volume            uint64          `json:"volume"`
-	OpenInterest      uint64          `json:"openInterest"`
-	ImpliedVolatility float32         `json:"impliedVolatility"`
+	ContractName      string    `json:"contractName"`
+	LastTradeDate     time.Time `json:"lastTradeDate"`
+	Strike            float64   `json:"strike"`
+	LastPrice         float64   `json:"lastPrice"`
+	Bid               float64   `json:"bid"`
+	Ask               float64   `json:"ask"`
+	Change            float64   `json:"change"`
+	PercentChange     float64   `json:"percentChange"`
+	Volume            uint64    `json:"volume"`
+	OpenInterest      uint64    `json:"openInterest"`
+	ImpliedVolatility float64   `json:"impliedVolatility"`
 }

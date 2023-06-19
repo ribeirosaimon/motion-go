@@ -8,6 +8,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/scraping"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -53,18 +54,18 @@ func (m *MotionCache) Add(companyCode string) {
 }
 
 func (m *MotionCache) cron(ctx context.Context, mongoConnection *mongo.Client) {
-	done := make(chan bool)
-
 	for {
 		time.Sleep(time.Second)
-		go func(s string) {
+		func(s string) {
 			companyRepository := repository.NewSummaryStockRepository(ctx, mongoConnection)
 			summary := scraping.GetStockSummary(s)
-			companyRepository.Save(summary)
-			done <- true
+			if !companyRepository.ExistByField("companyCode", s) {
+				summary.Id = primitive.NewObjectID()
+				summary.CreatedAt = time.Now()
+				summary.UpdatedAt = time.Now()
+				companyRepository.Save(summary)
+			}
 		}("meli")
-		<-done
 		fmt.Println("tudo certo")
 	}
-
 }

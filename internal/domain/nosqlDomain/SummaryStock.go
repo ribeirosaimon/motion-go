@@ -1,7 +1,6 @@
 package nosqlDomain
 
 import (
-	"github.com/shopspring/decimal"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,21 +18,21 @@ func (s SummaryStock) GetId() interface{} {
 }
 
 type SumarryStockValue struct {
-	Price        decimal.Decimal `json:"price" bson:"price"`
-	RangeDay     decimal.Decimal `json:"rangeDay" bson:"rangeDay"`
-	PersentRange float32         `json:"percentRange" bson:"persent_range"`
+	Price        float64 `json:"price" bson:"price"`
+	RangeDay     float64 `json:"rangeDay" bson:"rangeDay"`
+	PersentRange float64 `json:"percentRange" bson:"persentRange"`
 }
 
 type Summary struct {
-	PreviousClose decimal.Decimal `json:"previousClose" json:"previousClose"`
-	Open          decimal.Decimal `json:"open" bson:"open"`
-	DayRange      RangePrice      `json:"dayRange" bson:"dayRange"`
-	YearRange     RangePrice      `json:"yearRange" bson:"yearRange"`
-	Volume        uint64          `json:"volume" bson:"volume"`
-	AvgVol        uint64          `json:"avgVol" bson:"avgVol"`
+	PreviousClose float64    `json:"previousClose" bson:"previousClose"`
+	Open          float64    `json:"open" bson:"open"`
+	DayRange      RangePrice `json:"dayRange" bson:"dayRange"`
+	YearRange     RangePrice `json:"yearRange" bson:"yearRange"`
+	Volume        uint64     `json:"volume" bson:"volume"`
+	AvgVol        uint64     `json:"avgVol" bson:"avgVol"`
 }
 
 type RangePrice struct {
-	Start decimal.Decimal `json:"start" bson:"start"`
-	End   decimal.Decimal `json:"end" bson:"end"`
+	Start float64 `json:"start" bson:"start"`
+	End   float64 `json:"end" bson:"end"`
 }
