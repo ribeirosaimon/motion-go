@@ -9,27 +9,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// func getHistory(stock ...string) []StockHistory {
-// 	init := time.Now()
-// 	var result []StockHistory
-//
-// 	var wg sync.WaitGroup
-// 	wg.Add(len(stock))
-//
-// 	for _, v := range stock {
-// 		go func(stock string) {
-// 			defer wg.Done()
-// 			result = append(result, getHistoryPrice(stock, 30))
-// 		}(v)
-// 	}
-// 	wg.Wait()
-// 	fim := time.Now()
-// 	duration := fim.Sub(init)
-// 	fmt.Println(duration)
-//
-// 	return result
-// }
-
 func getHistoryPrice(v string, dayRange int) StockHistory {
 
 	url := fmt.Sprintf("%s/quote/%s/history", domain, v)

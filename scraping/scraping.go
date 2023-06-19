@@ -7,7 +7,7 @@ import (
 	"github.com/gocolly/colly"
 )
 
-func GetStockInformations(v string) StockInfo {
+func getStockInformations(v string) StockInfo {
 	now := time.Now()
 	var stockInfo StockInfo
 	stockInfo.Financials = financials(v)

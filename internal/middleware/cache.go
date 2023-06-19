@@ -1,19 +1,16 @@
 package middleware
 
 import (
-	"context"
-	"fmt"
+	"github.com/ribeirosaimon/motion-go/internal/db"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
-	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/scraping"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MotionCache struct {
 	Company map[string]*Store
+	Service *scraping.Service
 }
 
 type Store struct {
@@ -24,16 +21,16 @@ type Store struct {
 
 var Cache *MotionCache
 
-func NewMotionCache(db *mongo.Client) *MotionCache {
-	ctx := context.Background()
+func NewMotionCache(conn *db.Connections) *MotionCache {
 	if Cache == nil {
 		Cache = &MotionCache{
 			Company: make(map[string]*Store),
+			Service: scraping.NewScrapingService(conn),
 		}
-		Cache.cron(ctx, db)
+		Cache.cron()
 		return Cache
 	}
-	Cache.cron(ctx, db)
+	Cache.cron()
 	return Cache
 }
 
@@ -43,7 +40,7 @@ func (m *MotionCache) Get(i string) *Store {
 
 func (m *MotionCache) Add(companyCode string) {
 	if len(m.Company) >= 50 {
-		summary := scraping.GetStockSummary(companyCode)
+		summary := m.Service.GetSummaryStock(companyCode)
 		var store = &Store{
 			Info:       summary,
 			Code:       summary.CompanyCode,
@@ -53,19 +50,12 @@ func (m *MotionCache) Add(companyCode string) {
 	}
 }
 
-func (m *MotionCache) cron(ctx context.Context, mongoConnection *mongo.Client) {
+func (m *MotionCache) cron() {
 	for {
-		time.Sleep(time.Second)
+		time.Sleep(time.Minute * 15)
 		func(s string) {
-			companyRepository := repository.NewSummaryStockRepository(ctx, mongoConnection)
-			summary := scraping.GetStockSummary(s)
-			if !companyRepository.ExistByField("companyCode", s) {
-				summary.Id = primitive.NewObjectID()
-				summary.CreatedAt = time.Now()
-				summary.UpdatedAt = time.Now()
-				companyRepository.Save(summary)
-			}
+			m.Service.GetSummaryStock(s)
 		}("meli")
-		fmt.Println("tudo certo")
+
 	}
 }

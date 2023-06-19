@@ -8,7 +8,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 )
 
-func GetStockSummary(v string) nosqlDomain.SummaryStock {
+func getStockSummary(v string) nosqlDomain.SummaryStock {
 	url := fmt.Sprintf("%s/quote/%s", domain, v)
 	c := prepareColly()
 
