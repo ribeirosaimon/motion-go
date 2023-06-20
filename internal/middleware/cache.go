@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"github.com/ribeirosaimon/motion-go/internal/db"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/internal/db"
 
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/scraping"
@@ -10,7 +11,7 @@ import (
 
 type MotionCache struct {
 	Company map[string]*Store
-	Service *scraping.Service
+	service *scraping.Service
 }
 
 type Store struct {
@@ -23,9 +24,10 @@ var Cache *MotionCache
 
 func NewMotionCache(conn *db.Connections) *MotionCache {
 	if Cache == nil {
+		service := scraping.NewScrapingService(conn)
 		Cache = &MotionCache{
 			Company: make(map[string]*Store),
-			Service: scraping.NewScrapingService(conn),
+			service: service,
 		}
 		Cache.cron()
 		return Cache
@@ -40,7 +42,7 @@ func (m *MotionCache) Get(i string) *Store {
 
 func (m *MotionCache) Add(companyCode string) {
 	if len(m.Company) >= 50 {
-		summary := m.Service.GetSummaryStock(companyCode)
+		summary := m.service.GetSummaryStock(companyCode)
 		var store = &Store{
 			Info:       summary,
 			Code:       summary.CompanyCode,
@@ -52,10 +54,10 @@ func (m *MotionCache) Add(companyCode string) {
 
 func (m *MotionCache) cron() {
 	for {
-		time.Sleep(time.Minute * 15)
 		func(s string) {
-			m.Service.GetSummaryStock(s)
+			m.service.GetSummaryStock(s)
+			m.Add(s)
 		}("meli")
-
+		time.Sleep(time.Minute * 15)
 	}
 }

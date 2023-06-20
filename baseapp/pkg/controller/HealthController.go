@@ -6,7 +6,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
-	"github.com/ribeirosaimon/motion-go/scraping"
 )
 
 type healthController struct {
@@ -19,9 +18,9 @@ func NewHealthController() healthController {
 	return healthController{service: &healthService}
 }
 func (c healthController) OpenHealth(ctx *gin.Context) {
-	// health := c.service.GetOpenHealthService()
+	health := c.service.GetOpenHealthService()
 
-	httpresponse.Ok(ctx, scraping.GetStockInformations("meli"))
+	httpresponse.Ok(ctx, health)
 }
 
 func (c healthController) CloseHealth(ctx *gin.Context) {
