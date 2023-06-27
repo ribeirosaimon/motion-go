@@ -43,3 +43,7 @@ func (s *Service) GetSummaryStock(stock string) nosqlDomain.SummaryStock {
 	}
 	return foundCompany
 }
+
+func (s *Service) addSummaryStockLog(stock string) bool {
+	companyRepository := repository.NewSummaryStockRepository(context.Background(), s.conn.GetMongoTemplate())
+}
