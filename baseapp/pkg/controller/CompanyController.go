@@ -85,7 +85,7 @@ func (c companyController) GetProduct(ctx *gin.Context) {
 	httpresponse.Ok(ctx, product)
 }
 
-func (c companyController) getCompanyInfo(ctx *gin.Context) {
-	companyName := ctx.Param("companyName")
+func (c companyController) GetCompanyInfo(ctx *gin.Context) {
+	companyName := c.companyService.FindByCompanyName(ctx.Param("companyName"))
 	httpresponse.Ok(ctx, companyName)
 }

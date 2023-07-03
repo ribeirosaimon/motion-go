@@ -7,9 +7,9 @@ import (
 
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-
 	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 
@@ -25,6 +25,7 @@ func NewCompanyService(conn *db.Connections) CompanyService {
 }
 
 func (s CompanyService) GetCompany(id int64) (sqlDomain.Company, error) {
+
 	byId, err := s.companyRepository.FindById(id)
 	if err != nil || byId.Status == domain.INACTIVE {
 		return sqlDomain.Company{}, err
@@ -71,4 +72,8 @@ func (s CompanyService) DeleteCompany(id int64) bool {
 		return false
 	}
 	return true
+}
+
+func (s CompanyService) FindByCompanyName(companyName string) middleware.Store {
+	return *middleware.GetCache().Get(companyName)
 }

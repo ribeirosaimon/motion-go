@@ -109,3 +109,7 @@ func (m MotionNoSQLRepository[T]) Save(t T) (T, error) {
 	}
 	return m.FindById(hex.Hex())
 }
+
+func (m MotionNoSQLRepository[T]) GetCollection() *mongo.Collection {
+	return m.collection
+}

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -22,6 +23,10 @@ type Store struct {
 
 var Cache *MotionCache
 
+func GetCache() *MotionCache {
+	return Cache
+}
+
 func NewMotionCache(conn *db.Connections) *MotionCache {
 	if Cache == nil {
 		service := scraping.NewScrapingService(conn)
@@ -40,12 +45,11 @@ func (m *MotionCache) Get(i string) *Store {
 	return m.Company[i]
 }
 
-func (m *MotionCache) Add(companyCode string) {
-	if len(m.Company) >= 50 {
-		summary := m.service.GetSummaryStock(companyCode)
+func (m *MotionCache) Add(company nosqlDomain.SummaryStock) {
+	if len(m.Company) <= 50 {
 		var store = &Store{
-			Info:       summary,
-			Code:       summary.CompanyCode,
+			Info:       company,
+			Code:       company.CompanyCode,
 			expiration: time.Now().Add(time.Minute * 5),
 		}
 		m.Company[store.Code] = store
@@ -54,10 +58,17 @@ func (m *MotionCache) Add(companyCode string) {
 
 func (m *MotionCache) cron() {
 	for {
-		func(s string) {
-			m.service.GetSummaryStock(s)
-			m.Add(s)
-		}("meli")
-		time.Sleep(time.Minute * 15)
+		stocks := m.service.GetAllStocks()
+		for _, stock := range stocks {
+			cacheCompany := Cache.Get(stock)
+			if cacheCompany == nil || cacheCompany.expiration.Before(time.Now()) {
+				func(s string) {
+					summaryStock := m.service.GetSummaryStock(s)
+					m.Add(summaryStock)
+				}(stock)
+			}
+		}
+		log.Println("CRON FINISHED")
+		time.Sleep(time.Minute * 1)
 	}
 }

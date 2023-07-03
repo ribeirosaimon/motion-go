@@ -10,14 +10,13 @@ import (
 )
 
 var (
-	userRepository            *MotionSQLRepository[sqlDomain.MotionUser]
-	sessionRepository         *MotionSQLRepository[sqlDomain.Session]
-	profileRepository         *MotionSQLRepository[sqlDomain.Profile]
-	roleRepository            *MotionSQLRepository[sqlDomain.Role]
-	companyRepository         *MotionSQLRepository[sqlDomain.Company]
-	summaryStockLogRepository *MotionSQLRepository[sqlDomain.SummaryStockLog]
-	portfolioRepository       *MotionNoSQLRepository[nosqlDomain.Portfolio]
-	summaryStockRepository    *MotionNoSQLRepository[nosqlDomain.SummaryStock]
+	userRepository         *MotionSQLRepository[sqlDomain.MotionUser]
+	sessionRepository      *MotionSQLRepository[sqlDomain.Session]
+	profileRepository      *MotionSQLRepository[sqlDomain.Profile]
+	roleRepository         *MotionSQLRepository[sqlDomain.Role]
+	companyRepository      *MotionSQLRepository[sqlDomain.Company]
+	portfolioRepository    *MotionNoSQLRepository[nosqlDomain.Portfolio]
+	summaryStockRepository *MotionNoSQLRepository[nosqlDomain.SummaryStock]
 )
 
 func NewUserRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.MotionUser] {
@@ -74,12 +73,4 @@ func NewSummaryStockRepository(ctx context.Context, mongoConnection *mongo.Clien
 	}
 	summaryStockRepository := newMotionNoSQLRepository[nosqlDomain.SummaryStock](ctx, mongoConnection)
 	return summaryStockRepository
-}
-
-func NewSummaryStockLogRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.SummaryStockLog] {
-	if summaryStockLogRepository != nil {
-		return summaryStockLogRepository
-	}
-	summaryStockLogRepository := newMotionSQLRepository[sqlDomain.SummaryStockLog](conn)
-	return summaryStockLogRepository
 }
