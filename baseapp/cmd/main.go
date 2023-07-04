@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/router"
@@ -21,8 +22,11 @@ func main() {
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
 
+	motionConfig := config.NewMotionConfig(context.Background(), motionGo.PropertiesFile)
 	setUpRoles()
-	go middleware.NewMotionCache(db.Conn)
+
+	go middleware.NewMotionCache(db.Conn, motionConfig.HaveScraping, motionConfig.ScrapingTime, motionConfig.CacheTime)
+
 	motionGo.AddRouter(version1)
 	motionGo.CreateRouters()
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))
