@@ -8,19 +8,23 @@ import (
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
+	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
+	"github.com/ribeirosaimon/motion-go/scraping"
 )
 
 type CompanyService struct {
 	companyRepository repository.MotionRepository[sqlDomain.Company]
+	summaryStock repository.MotionNoSQLRepository[nosqlDomain.SummaryStock]
 	close             *sql.DB
 }
 
 func NewCompanyService(conn *db.Connections) CompanyService {
 	return CompanyService{
 		companyRepository: repository.NewCompanyRepository(conn.GetPgsqTemplate()),
+		summaryStock: repository.NewSummaryStockRepository(conn.Context, conn.GetMongoTemplate()),
 	}
 }
 
@@ -74,6 +78,10 @@ func (s CompanyService) DeleteCompany(id int64) bool {
 	return true
 }
 
-func (s CompanyService) FindByCompanyName(companyName string) middleware.Store {
-	return *middleware.GetCache().Get(companyName)
+func (s CompanyService) FindByCompanyName(companyName string) nosqlDomain.SummaryStock {
+	if scraping.GetTimeOpenMarket() {
+		field, err := s.companyRepository.FindByField("companyCode", companyName)
+		return field.
+	}
+	return middleware.GetCache().Get(companyName)
 }

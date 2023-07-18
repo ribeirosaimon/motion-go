@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+
 	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,13 +17,11 @@ type motionConfig struct {
 var config *motionConfig
 
 func NewMotionConfig(ctx context.Context, p *properties.Properties) *motionConfig {
-	var config = motionConfig{}
-	config.getConfigurations(ctx, p)
-	return &config
-}
-
-func GetMotionConfig() motionConfig {
-	return *config
+	if config == nil {
+		config = &motionConfig{}
+		config.getConfigurations(ctx, p)
+	}
+	return config
 }
 
 func (m *motionConfig) getConfigurations(ctx context.Context, p *properties.Properties) {
@@ -37,7 +36,7 @@ func (m *motionConfig) getConfigurations(ctx context.Context, p *properties.Prop
 	}
 	if documents >= 1 {
 		conn := collection.FindOne(ctx, bson.M{})
-		conn.Decode(&config)
+		conn.Decode(config)
 	} else {
 		config = &motionConfig{
 			CacheTime:    5,

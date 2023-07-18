@@ -92,3 +92,13 @@ func monthAbbreviationToNumber(monthAbbreviation string) (time.Month, error) {
 	}
 	return t.Month(), nil
 }
+
+func GetTimeOpenMarket() bool {
+	now := time.Now()
+	begin := time.Date(now.Year(), now.Month(), now.Day(), 9, 30, 0, 0, now.Location())
+	finish := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
+	if now.After(begin) && now.Before(finish) {
+		return true
+	}
+	return false
+}

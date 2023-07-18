@@ -71,7 +71,7 @@ func (c companyController) DeleteProduct(ctx *gin.Context) {
 	httpresponse.Ok(ctx, nil)
 }
 
-func (c companyController) GetProduct(ctx *gin.Context) {
+func (c companyController) GetCompany(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(ctx)

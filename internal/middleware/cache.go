@@ -11,8 +11,9 @@ import (
 )
 
 type MotionCache struct {
-	Company map[string]*Store
-	service *scraping.Service
+	Company   map[string]*Store
+	service   *scraping.Service
+	CacheTime uint8
 }
 
 type Store struct {
@@ -31,46 +32,67 @@ func NewMotionCache(conn *db.Connections, haveScraping bool, scrapingTime, cache
 	if Cache == nil {
 		service := scraping.NewScrapingService(conn)
 		Cache = &MotionCache{
-			Company: make(map[string]*Store),
-			service: service,
+			Company:   make(map[string]*Store),
+			service:   service,
+			CacheTime: cacheTime,
 		}
-		Cache.cron(haveScraping, scrapingTime, cacheTime)
+		Cache.cron(haveScraping, scrapingTime)
 		return Cache
 	}
-	Cache.cron(haveScraping, scrapingTime, cacheTime)
+	Cache.cron(haveScraping, scrapingTime)
 	return Cache
 }
 
-func (m *MotionCache) Get(i string) *Store {
-	return m.Company[i]
+func (m *MotionCache) Get(i string) nosqlDomain.SummaryStock {
+	if m.contains(i) {
+		return m.Company[i].Info
+	}
+	summaryStock := m.service.GetSummaryStock(i)
+	m.Add(summaryStock)
+	return summaryStock
 }
 
-func (m *MotionCache) Add(cacheTime uint8, company nosqlDomain.SummaryStock) {
+func (m *MotionCache) Add(company nosqlDomain.SummaryStock) {
 	if len(m.Company) <= 50 {
 		var store = &Store{
 			Info:       company,
 			Code:       company.CompanyCode,
-			expiration: time.Now().Add(time.Minute * time.Duration(cacheTime)),
+			expiration: time.Now().Add(time.Minute * time.Duration(m.CacheTime)),
 		}
 		m.Company[store.Code] = store
 	}
 }
 
-func (m *MotionCache) cron(haveScraping bool, scrapingTime, cacheTime uint8) {
-	if haveScraping {
-		for {
-			stocks := m.service.GetAllStocks()
-			for _, stock := range stocks {
-				cacheCompany := Cache.Get(stock)
-				if cacheCompany == nil || cacheCompany.expiration.Before(time.Now()) {
-					func(s string) {
-						summaryStock := m.service.GetSummaryStock(s)
-						m.Add(cacheTime, summaryStock)
-					}(stock)
+func (m *MotionCache) cron(haveScraping bool, scrapingTime uint8) {
+
+	if scraping.GetTimeOpenMarket() {
+		if haveScraping {
+			for {
+				stocks := m.service.GetAllStocks()
+				for _, stock := range stocks {
+					cacheCompany := m.Company[stock]
+					if cacheCompany == nil || cacheCompany.expiration.Before(time.Now()) {
+						func(s string) {
+							summaryStock := m.service.GetSummaryStock(s)
+							m.Add(summaryStock)
+						}(stock)
+					}
 				}
+				log.Println("cron was finished")
+				time.Sleep(time.Minute * time.Duration(scrapingTime))
 			}
-			log.Println("CRON FINISHED")
-			time.Sleep(time.Minute * time.Duration(scrapingTime))
+		}
+	} else {
+		log.Println("close market")
+	}
+
+}
+
+func (m *MotionCache) contains(company string) bool {
+	for _, v := range m.Company {
+		if v.Code == company {
+			return true
 		}
 	}
+	return false
 }

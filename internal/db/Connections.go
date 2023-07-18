@@ -18,6 +18,7 @@ var Conn *Connections
 type Connections struct {
 	sqlStruct
 	noSqlStruct
+	Context context.Context
 }
 
 type sqlStruct struct {
@@ -88,5 +89,6 @@ func (c *Connections) InitializeTestDatabases(p *properties.Properties) {
 
 	c.sqlStruct.conn = db
 	c.sqlStruct.close = sqlDB
+	c.Context = context.Background()
 	c.connectNoSQL(p)
 }

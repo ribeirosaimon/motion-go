@@ -16,8 +16,9 @@ type SessionService struct {
 }
 
 func NewSessionService(conn *db.Connections) SessionService {
-	return SessionService{sessionRepository: repository.NewSessionRepository(conn.GetPgsqTemplate()),
-		roleRepository: repository.NewRoleRepository(conn.GetPgsqTemplate()),
+	return SessionService{
+		sessionRepository: repository.NewSessionRepository(conn.GetPgsqTemplate()),
+		roleRepository:    repository.NewRoleRepository(conn.GetPgsqTemplate()),
 	}
 }
 

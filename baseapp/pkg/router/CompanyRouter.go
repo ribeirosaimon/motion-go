@@ -14,7 +14,7 @@ func NewCompanyRouter() config.MotionController {
 
 	return config.NewMotionController(
 		"/company",
-		config.NewMotionRouter(http.MethodGet, "/:id", controller.NewCompanyController().GetProduct,
+		config.NewMotionRouter(http.MethodGet, "/:id", controller.NewCompanyController().GetCompany,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodGet, "/code/:companyName", controller.NewCompanyController().GetCompanyInfo,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
