@@ -8,8 +8,8 @@ import (
 )
 
 type ProfileService struct {
-	profileRepository repository.MotionSQLRepository[sqlDomain.Profile]
-	roleRepository    repository.MotionSQLRepository[sqlDomain.Role]
+	profileRepository *repository.MotionSQLRepository[sqlDomain.Profile]
+	roleRepository    *repository.MotionSQLRepository[sqlDomain.Role]
 }
 
 func NewProfileService(conections *db.Connections) ProfileService {

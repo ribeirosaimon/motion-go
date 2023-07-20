@@ -61,10 +61,14 @@ func (s portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 		return
 	}
 
-	cart, err := s.portfolioService.AddProductInPortfolio(loggedUser, id)
+	cart, err := s.portfolioService.AddCompanyInPortfolio(loggedUser, id)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
 	httpresponse.Ok(c, cart)
+}
+
+func (s portfolioController) AddCompanyByCodeInPortfolio(c *gin.Context) {
+
 }

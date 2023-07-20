@@ -16,15 +16,15 @@ import (
 )
 
 type CompanyService struct {
-	companyRepository repository.MotionRepository[sqlDomain.Company]
-	summaryStock repository.MotionNoSQLRepository[nosqlDomain.SummaryStock]
-	close             *sql.DB
+	summaryStockRepository *repository.MotionNoSQLRepository[nosqlDomain.SummaryStock]
+	companyRepository      *repository.MotionSQLRepository[sqlDomain.Company]
+	close                  *sql.DB
 }
 
 func NewCompanyService(conn *db.Connections) CompanyService {
 	return CompanyService{
-		companyRepository: repository.NewCompanyRepository(conn.GetPgsqTemplate()),
-		summaryStock: repository.NewSummaryStockRepository(conn.Context, conn.GetMongoTemplate()),
+		companyRepository:      repository.NewCompanyRepository(conn.GetPgsqTemplate()),
+		summaryStockRepository: repository.NewSummaryStockRepository(conn.Context, conn.GetMongoTemplate()),
 	}
 }
 
@@ -78,10 +78,13 @@ func (s CompanyService) DeleteCompany(id int64) bool {
 	return true
 }
 
-func (s CompanyService) FindByCompanyName(companyName string) nosqlDomain.SummaryStock {
-	if scraping.GetTimeOpenMarket() {
-		field, err := s.companyRepository.FindByField("companyCode", companyName)
-		return field.
+func (s CompanyService) FindByCompanyName(companyName string) (nosqlDomain.SummaryStock, error) {
+	if !scraping.GetTimeOpenMarket() {
+		summaryStock, err := s.summaryStockRepository.FindByField("companyCode", companyName)
+		if err != nil {
+			return middleware.GetCache().Get(companyName), nil
+		}
+		return summaryStock, nil
 	}
-	return middleware.GetCache().Get(companyName)
+	return middleware.GetCache().Get(companyName), nil
 }

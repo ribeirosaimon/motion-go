@@ -86,6 +86,10 @@ func (c companyController) GetCompany(ctx *gin.Context) {
 }
 
 func (c companyController) GetCompanyInfo(ctx *gin.Context) {
-	companyName := c.companyService.FindByCompanyName(ctx.Param("companyName"))
+	companyName, err := c.companyService.FindByCompanyName(ctx.Param("companyName"))
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(ctx)
+		return
+	}
 	httpresponse.Ok(ctx, companyName)
 }
