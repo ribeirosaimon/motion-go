@@ -18,10 +18,6 @@ func NewCompanyRouter() config.MotionController {
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodGet, "/code/:companyName", controller.NewCompanyController().GetCompanyInfo,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
-		config.NewMotionRouter(http.MethodPost, "", controller.NewCompanyController().SaveCompany,
-			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
-		config.NewMotionRouter(http.MethodPut, "/:id", controller.NewCompanyController().UpdateProduct,
-			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
 		config.NewMotionRouter(http.MethodDelete, "/:id", controller.NewCompanyController().DeleteProduct,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.ADMIN})),
 	)

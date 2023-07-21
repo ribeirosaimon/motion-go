@@ -71,10 +71,10 @@ func (s *portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 
 func (s *portfolioController) AddCompanyByCodeInPortfolio(ctx *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(ctx)
-	err = s.portfolioService.AddCompanyInPortfolioByCode(loggedUser, ctx.Param("companyName"))
+	err = s.portfolioService.AddCompanyInPortfolioByCode(loggedUser, ctx.Param("companyCode"))
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	httpresponse.Ok(ctx, companyName)
+	httpresponse.Created(ctx, nil)
 }

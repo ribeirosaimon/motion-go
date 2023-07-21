@@ -28,11 +28,11 @@ func NewPortfolioService(ctx context.Context, c *db.Connections) PortfolioServic
 }
 
 func (s PortfolioService) GetPortfolio(user middleware.LoggedUser) (nosqlDomain.Portfolio, error) {
-	exist := s.portfolioRepository.ExistByField("owner.id", user.UserId)
+	exist := s.portfolioRepository.ExistByField("ownerId", user.UserId)
 	if !exist {
 		return nosqlDomain.Portfolio{}, errors.New("not found")
 	}
-	cart, err := s.portfolioRepository.FindByField("owner.id", user.UserId)
+	cart, err := s.portfolioRepository.FindByField("ownerId", user.UserId)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
 	}
@@ -53,8 +53,7 @@ func (s PortfolioService) CreatePortfolio(loggedUser middleware.LoggedUser) (nos
 	}
 
 	shoppingCart.Id = primitive.NewObjectID()
-	shoppingCart.ProfileId = loggedUser.UserId
-	shoppingCart.Owner = user
+	shoppingCart.OwnerId = user.UserId
 	shoppingCart.CreatedAt = time.Now()
 	savedShoppingCart, err := s.portfolioRepository.Save(shoppingCart)
 	if err != nil {
@@ -99,9 +98,13 @@ func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.Logged
 func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string) error {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
-		return err
+		return errors.New("you not have a portfolio")
 	}
 	companyDb, err := s.companyService.FindByCompanyCode(companyCode)
 
+	if err != nil {
+		return err
+	}
 	portfolio.Companies = append(portfolio.Companies, companyDb.Id)
+	return nil
 }

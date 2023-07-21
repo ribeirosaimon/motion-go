@@ -21,5 +21,8 @@ func NewPortfolioRouter() config.MotionController {
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodPost, "/company/:id", controller.NewPortfolioController().AddCompanyInPortfolio,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+		config.NewMotionRouter(http.MethodPost, "/company/code/:companyCode", controller.NewPortfolioController().
+			AddCompanyByCodeInPortfolio,
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 	)
 }

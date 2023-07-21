@@ -3,6 +3,8 @@ package test
 import (
 	"context"
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"testing"
 
@@ -31,17 +33,19 @@ func TestAddCompanyInPortfolioController(t *testing.T) {
 	var e = CreateEngine(router.NewPortfolioRouter)
 
 	defer db.Conn.ClosePostgreSQL()
-	dbCompany, _ := repository.NewCompanyRepository(db.Conn.GetPgsqTemplate()).Save(createCompany())
+	stock := nosqlDomain.SummaryStock{CompanyCode: "test"}
+	db.Conn.GetMongoTemplate().Database("Motion").Collection("summaryStock").
+		InsertOne(context.Background(), stock)
 
 	y, dto := PerformRequest(e, http.MethodPost, "/portfolio", "USER", "", nil)
 	assert.Equal(t, http.StatusCreated, y.Code)
-	w, _ := PerformRequest(e, http.MethodPost, fmt.Sprintf("/portfolio/company/%d", dbCompany.Id), string(dto.loginTestDto.LoggedRole), dto.loginTestDto.Token, nil)
+	w, _ := PerformRequest(e, http.MethodPost, fmt.Sprintf("/portfolio/company/%s", stock.CompanyCode), string(dto.loginTestDto.LoggedRole), dto.loginTestDto.Token, nil)
 
 	cartRepository := repository.NewPortfolioRepository(context.Background(), db.Conn.GetMongoTemplate())
 	shoopingCart, _ := cartRepository.FindByField("owner.name", dto.Name)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, dto.Name, shoopingCart.Owner.Name)
-	assert.True(t, containsCompany(dbCompany.Id, shoopingCart.Companies))
+	assert.True(t, containsCompany(stock.Id, shoopingCart.Companies))
 }
 
 func TestAddCompanyInPortfolioControllerWithError(t *testing.T) {
@@ -61,16 +65,18 @@ func TestNotAddCompanyInPortfolio(t *testing.T) {
 	var e = CreateEngine(router.NewPortfolioRouter)
 
 	defer db.Conn.ClosePostgreSQL()
-	dbCompany, _ := repository.NewCompanyRepository(db.Conn.GetPgsqTemplate()).Save(createCompany())
+	stock := nosqlDomain.SummaryStock{CompanyCode: "test"}
+	db.Conn.GetMongoTemplate().Database("Motion").Collection("summaryStock").
+		InsertOne(context.Background(), stock)
 
 	y, dto := PerformRequest(e, http.MethodPost, "/portfolio", "USER", "", nil)
 	assert.Equal(t, http.StatusCreated, y.Code)
-	PerformRequest(e, http.MethodPost, fmt.Sprintf("/portfolio/company/%d", dbCompany.Id), string(dto.loginTestDto.LoggedRole), dto.loginTestDto.Token, nil)
-	w, _ := PerformRequest(e, http.MethodPost, fmt.Sprintf("/portfolio/company/%d", dbCompany.Id), string(dto.loginTestDto.LoggedRole), dto.loginTestDto.Token, nil)
+	PerformRequest(e, http.MethodPost, fmt.Sprintf("/portfolio/company/!!"), string(dto.loginTestDto.LoggedRole), dto.loginTestDto.Token, nil)
+	w, _ := PerformRequest(e, http.MethodPost, fmt.Sprintf("/portfolio/company/!!"), string(dto.loginTestDto.LoggedRole), dto.loginTestDto.Token, nil)
 	assert.Equal(t, http.StatusConflict, w.Code)
 }
 
-func containsCompany(companyId uint64, companies []uint64) bool {
+func containsCompany(companyId primitive.ObjectID, companies []primitive.ObjectID) bool {
 	for _, v := range companies {
 		if v == companyId {
 			return true
