@@ -15,8 +15,8 @@ type SessionService struct {
 	roleRepository    repository.MotionRepository[sqlDomain.Role]
 }
 
-func NewSessionService(conn *db.Connections) SessionService {
-	return SessionService{
+func NewSessionService(conn *db.Connections) *SessionService {
+	return &SessionService{
 		sessionRepository: repository.NewSessionRepository(conn.GetPgsqTemplate()),
 		roleRepository:    repository.NewRoleRepository(conn.GetPgsqTemplate()),
 	}

@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
@@ -15,49 +14,12 @@ type companyController struct {
 	companyService *service.CompanyService
 }
 
-func NewCompanyController() companyController {
+func NewCompanyController() *companyController {
 	companyService := service.NewCompanyService(db.Conn)
-	return companyController{companyService: &companyService}
+	return &companyController{companyService: companyService}
 }
 
-func (c companyController) SaveCompany(ctx *gin.Context) {
-	var companyDto dto.CompanyDTO
-
-	if err := ctx.BindJSON(&companyDto); err != nil {
-		exceptions.BodyError().Throw(ctx)
-		return
-	}
-	company, err := c.companyService.SaveCompany(companyDto)
-	if err != nil {
-		exceptions.MotionError(err.Error()).Throw(ctx)
-		return
-	}
-	httpresponse.Created(ctx, company)
-}
-
-func (c companyController) UpdateProduct(ctx *gin.Context) {
-
-	var productDto dto.CompanyDTO
-
-	id, err := strconv.ParseInt(ctx.Params.ByName("id"), 10, 64)
-	if err != nil {
-		exceptions.BodyError().Throw(ctx)
-		return
-	}
-
-	if err := ctx.BindJSON(&productDto); err != nil {
-		exceptions.BodyError().Throw(ctx)
-		return
-	}
-	product, err := c.companyService.UpdateCompany(productDto, id)
-	if err != nil {
-		exceptions.MotionError(err.Error()).Throw(ctx)
-		return
-	}
-	httpresponse.Ok(ctx, product)
-}
-
-func (c companyController) DeleteProduct(ctx *gin.Context) {
+func (c *companyController) DeleteProduct(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(ctx)
@@ -71,7 +33,7 @@ func (c companyController) DeleteProduct(ctx *gin.Context) {
 	httpresponse.Ok(ctx, nil)
 }
 
-func (c companyController) GetCompany(ctx *gin.Context) {
+func (c *companyController) GetCompany(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(ctx)
@@ -85,8 +47,8 @@ func (c companyController) GetCompany(ctx *gin.Context) {
 	httpresponse.Ok(ctx, product)
 }
 
-func (c companyController) GetCompanyInfo(ctx *gin.Context) {
-	companyName, err := c.companyService.FindByCompanyName(ctx.Param("companyName"))
+func (c *companyController) GetCompanyInfo(ctx *gin.Context) {
+	companyName, err := c.companyService.FindByCompanyCode(ctx.Param("companyName"))
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return

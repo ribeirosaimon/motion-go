@@ -13,12 +13,12 @@ type loginController struct {
 	service *service.LoginService
 }
 
-func NewLoginControler() loginController {
+func NewLoginControler() *loginController {
 	loginService := service.NewLoginService(db.Conn)
-	return loginController{service: &loginService}
+	return &loginController{service: &loginService}
 }
 
-func (l loginController) SignUp(c *gin.Context) {
+func (l *loginController) SignUp(c *gin.Context) {
 	var signupDto dto.SignUpDto
 
 	if err := c.BindJSON(&signupDto); err != nil {
@@ -33,7 +33,7 @@ func (l loginController) SignUp(c *gin.Context) {
 	httpresponse.Created(c, profile)
 }
 
-func (l loginController) Login(c *gin.Context) {
+func (l *loginController) Login(c *gin.Context) {
 	var signupDto dto.LoginDto
 
 	if err := c.BindJSON(&signupDto); err != nil {

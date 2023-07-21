@@ -17,13 +17,13 @@ type portfolioController struct {
 	portfolioService *service.PortfolioService
 }
 
-func NewPortfolioController() portfolioController {
+func NewPortfolioController() *portfolioController {
 	shoppingCartService := service.NewPortfolioService(context.Background(), db.Conn)
 
-	return portfolioController{portfolioService: &shoppingCartService}
+	return &portfolioController{portfolioService: &shoppingCartService}
 }
 
-func (s portfolioController) CreatePortfolio(c *gin.Context) {
+func (s *portfolioController) CreatePortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
 	_, err = s.portfolioService.CreatePortfolio(loggedUser)
 	if err != nil {
@@ -33,7 +33,7 @@ func (s portfolioController) CreatePortfolio(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func (s portfolioController) GetPortfolio(c *gin.Context) {
+func (s *portfolioController) GetPortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
 	cart, err := s.portfolioService.GetPortfolio(loggedUser)
 	if err != nil {
@@ -43,7 +43,7 @@ func (s portfolioController) GetPortfolio(c *gin.Context) {
 	httpresponse.Created(c, cart)
 }
 
-func (s portfolioController) ExcludePortfolio(c *gin.Context) {
+func (s *portfolioController) ExcludePortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
 	err = s.portfolioService.DeletePortfolio(loggedUser)
 	if err != nil {
@@ -53,7 +53,7 @@ func (s portfolioController) ExcludePortfolio(c *gin.Context) {
 	httpresponse.Ok(c, nil)
 }
 
-func (s portfolioController) AddCompanyInPortfolio(c *gin.Context) {
+func (s *portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -61,7 +61,7 @@ func (s portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 		return
 	}
 
-	cart, err := s.portfolioService.AddCompanyInPortfolio(loggedUser, id)
+	cart, err := s.portfolioService.AddCompanyInPortfolioById(loggedUser, id)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -69,6 +69,12 @@ func (s portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 	httpresponse.Ok(c, cart)
 }
 
-func (s portfolioController) AddCompanyByCodeInPortfolio(c *gin.Context) {
-
+func (s *portfolioController) AddCompanyByCodeInPortfolio(ctx *gin.Context) {
+	loggedUser, err := middleware.GetLoggedUser(ctx)
+	err = s.portfolioService.AddCompanyInPortfolioByCode(loggedUser, ctx.Param("companyName"))
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(ctx)
+		return
+	}
+	httpresponse.Ok(ctx, companyName)
 }

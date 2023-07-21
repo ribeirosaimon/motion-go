@@ -14,7 +14,6 @@ var (
 	sessionRepository      *MotionSQLRepository[sqlDomain.Session]
 	profileRepository      *MotionSQLRepository[sqlDomain.Profile]
 	roleRepository         *MotionSQLRepository[sqlDomain.Role]
-	companyRepository      *MotionSQLRepository[sqlDomain.Company]
 	portfolioRepository    *MotionNoSQLRepository[nosqlDomain.Portfolio]
 	summaryStockRepository *MotionNoSQLRepository[nosqlDomain.SummaryStock]
 )
@@ -49,14 +48,6 @@ func NewRoleRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Role] {
 	}
 	roleRepository := newMotionSQLRepository[sqlDomain.Role](conn)
 	return roleRepository
-}
-
-func NewCompanyRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Company] {
-	if companyRepository != nil {
-		return companyRepository
-	}
-	companyRepository := newMotionSQLRepository[sqlDomain.Company](conn)
-	return companyRepository
 }
 
 func NewPortfolioRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain.Portfolio] {

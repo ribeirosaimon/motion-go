@@ -12,18 +12,18 @@ type healthController struct {
 	service *service.HealthService
 }
 
-func NewHealthController() healthController {
+func NewHealthController() *healthController {
 	healthService := service.NewHealthService()
 
-	return healthController{service: &healthService}
+	return &healthController{service: &healthService}
 }
-func (c healthController) OpenHealth(ctx *gin.Context) {
+func (c *healthController) OpenHealth(ctx *gin.Context) {
 	health := c.service.GetOpenHealthService()
 
 	httpresponse.Ok(ctx, health)
 }
 
-func (c healthController) CloseHealth(ctx *gin.Context) {
+func (c *healthController) CloseHealth(ctx *gin.Context) {
 	user, err := middleware.GetLoggedUser(ctx)
 	if err != nil {
 		exceptions.Forbidden().Throw(ctx)

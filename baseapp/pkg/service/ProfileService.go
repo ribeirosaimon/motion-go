@@ -12,14 +12,14 @@ type ProfileService struct {
 	roleRepository    *repository.MotionSQLRepository[sqlDomain.Role]
 }
 
-func NewProfileService(conections *db.Connections) ProfileService {
-	return ProfileService{
+func NewProfileService(conections *db.Connections) *ProfileService {
+	return &ProfileService{
 		profileRepository: repository.NewProfileRepository(conections.GetPgsqTemplate()),
 		roleRepository:    repository.NewRoleRepository(conections.GetPgsqTemplate()),
 	}
 
 }
-func (l ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.RoleEnum) (sqlDomain.Profile, error) {
+func (l *ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.RoleEnum) (sqlDomain.Profile, error) {
 	var profile sqlDomain.Profile
 
 	profile.Name = user.Name
@@ -46,7 +46,7 @@ func (l ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDo
 	return save, nil
 }
 
-func (l ProfileService) FindProfileByUserId(id uint64) (sqlDomain.Profile, error) {
+func (l *ProfileService) FindProfileByUserId(id uint64) (sqlDomain.Profile, error) {
 	byId, err := l.profileRepository.FindWithPreloads("Roles", id)
 	if err != nil {
 		return sqlDomain.Profile{}, err

@@ -14,9 +14,9 @@ import (
 )
 
 type PortfolioService struct {
-	portfolioRepository repository.MotionRepository[nosqlDomain.Portfolio]
-	profileService      ProfileService
-	companyService      CompanyService
+	portfolioRepository *repository.MotionNoSQLRepository[nosqlDomain.Portfolio]
+	profileService      *ProfileService
+	companyService      *CompanyService
 }
 
 func NewPortfolioService(ctx context.Context, c *db.Connections) PortfolioService {
@@ -75,7 +75,7 @@ func (s PortfolioService) DeletePortfolio(loggedUser middleware.LoggedUser) erro
 	return nil
 }
 
-func (s PortfolioService) AddCompanyInPortfolio(loggedUser middleware.LoggedUser, id int64) (nosqlDomain.Portfolio, error) {
+func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.LoggedUser, id int64) (nosqlDomain.Portfolio, error) {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
@@ -94,4 +94,14 @@ func (s PortfolioService) AddCompanyInPortfolio(loggedUser middleware.LoggedUser
 	portfolio.UpdatedAt = time.Now()
 
 	return s.portfolioRepository.Save(portfolio)
+}
+
+func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string) error {
+	portfolio, err := s.GetPortfolio(loggedUser)
+	if err != nil {
+		return err
+	}
+	companyDb, err := s.companyService.FindByCompanyCode(companyCode)
+
+	portfolio.Companies = append(portfolio.Companies, companyDb.Id)
 }

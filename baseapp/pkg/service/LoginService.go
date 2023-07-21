@@ -12,9 +12,9 @@ import (
 )
 
 type LoginService struct {
-	userRepository repository.MotionRepository[sqlDomain.MotionUser]
-	profileService ProfileService
-	sessionService SessionService
+	userRepository *repository.MotionSQLRepository[sqlDomain.MotionUser]
+	profileService *ProfileService
+	sessionService *SessionService
 }
 
 func NewLoginService(conn *db.Connections) LoginService {
