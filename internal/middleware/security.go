@@ -85,7 +85,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 
 func putLoggedUserInContext(c *gin.Context, roleLoggedser sqlDomain.Role, p sqlDomain.Profile) {
 	var loggedUser LoggedUser
-	loggedUser.UserId = p.UserId
+	loggedUser.UserId = uint64(roleLoggedser.Id)
 	loggedUser.Name = p.Name
 	loggedUser.Role = roleLoggedser
 

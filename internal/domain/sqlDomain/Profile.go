@@ -10,8 +10,7 @@ type Profile struct {
 	FamilyName string     `json:"familyName"`
 	Age        uint8      `json:"age"`
 	Birthday   time.Time  `json:"birthday"`
-	UserId     uint64     `json:"userId"`
-	User       MotionUser `json:"user,omitempty"  gorm:"foreignkey:Id"`
+	User       MotionUser `json:"-"  gorm:"foreignkey:Id"`
 	Roles      []Role     `json:"roles,omitempty" gorm:"many2many:profile_roles;"`
 	BasicSQL
 }

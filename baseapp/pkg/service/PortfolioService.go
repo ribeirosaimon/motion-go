@@ -54,7 +54,7 @@ func (s PortfolioService) CreatePortfolio(loggedUser middleware.LoggedUser) (nos
 	}
 
 	portfolio.Id = primitive.NewObjectID()
-	portfolio.OwnerId = user.UserId
+	portfolio.OwnerId = user.User.Id
 	portfolio.CreatedAt = time.Now()
 	portfolio.Status = domain.ACTIVE
 	savedShoppingCart, err := s.portfolioRepository.Save(portfolio)
