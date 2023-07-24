@@ -33,32 +33,46 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 				// verify if exist Session for this user
 				savedSession, err := repository.NewSessionRepository(db.Conn.GetPgsqTemplate()).
 					FindByField("session_id", bearerToken)
-				// verify if exist this Role
-				motionLoggedRole, err := repository.NewRoleRepository(db.Conn.GetPgsqTemplate()).
-					FindByField("name", motionValues)
+
 				if err != nil {
-					exceptions.FieldError("you no have motion roles").Throw(c)
+					exceptions.FieldError("this user does not exist").Throw(c)
 					return
 				}
-				// get Profile by sessionId
-				profile, err := repository.NewProfileRepository(db.Conn.GetPgsqTemplate()).
-					FindWithPreloads("Roles", savedSession.ProfileId)
-				if err != nil {
-					exceptions.Forbidden().Throw(c)
-					return
-				}
-				// verify if profile have loggedRole send by header
-				if !profile.HaveRole(motionLoggedRole.Name) || err != nil {
-					exceptions.Forbidden().Throw(c)
-					return
-				}
-				for _, v := range roles {
-					if profile.HaveRole(v.Name) {
-						putLoggedUserInContext(c, motionLoggedRole, profile)
-						c.Next()
+
+				if roles != nil {
+					// verify if exist this Role
+					motionLoggedRole, err := repository.NewRoleRepository(db.Conn.GetPgsqTemplate()).
+						FindByField("name", motionValues)
+					if err != nil {
+						exceptions.FieldError("you no have motion roles").Throw(c)
 						return
 					}
+					// get Profile by sessionId
+					profile, err := repository.NewProfileRepository(db.Conn.GetPgsqTemplate()).
+						FindWithPreloads("Roles", savedSession.ProfileId)
+					if err != nil {
+						exceptions.Forbidden().Throw(c)
+						return
+					}
+					// verify if profile have loggedRole send by header
+					if !profile.HaveRole(motionLoggedRole.Name) || err != nil {
+						exceptions.Forbidden().Throw(c)
+						return
+					}
+					for _, v := range roles {
+						if profile.HaveRole(v.Name) {
+							putLoggedUserInContext(c, motionLoggedRole, profile)
+							c.Next()
+							return
+						}
+					}
 				}
+				profile, err := repository.NewProfileRepository(db.Conn.GetPgsqTemplate()).
+					FindWithPreloads("Roles", savedSession.ProfileId)
+				putLoggedUserInContext(c, profile.Roles[0], profile)
+				c.Next()
+				return
+
 			} else {
 				exceptions.Forbidden().Throw(c)
 				c.Next()

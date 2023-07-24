@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
+	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -45,17 +46,18 @@ func (s PortfolioService) CreatePortfolio(loggedUser middleware.LoggedUser) (nos
 		return nosqlDomain.Portfolio{}, errors.New("you already have a shopping cart")
 	}
 
-	var shoppingCart nosqlDomain.Portfolio
+	var portfolio nosqlDomain.Portfolio
 
 	user, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
 	}
 
-	shoppingCart.Id = primitive.NewObjectID()
-	shoppingCart.OwnerId = user.UserId
-	shoppingCart.CreatedAt = time.Now()
-	savedShoppingCart, err := s.portfolioRepository.Save(shoppingCart)
+	portfolio.Id = primitive.NewObjectID()
+	portfolio.OwnerId = user.UserId
+	portfolio.CreatedAt = time.Now()
+	portfolio.Status = domain.ACTIVE
+	savedShoppingCart, err := s.portfolioRepository.Save(portfolio)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
 	}
@@ -95,16 +97,20 @@ func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.Logged
 	return s.portfolioRepository.Save(portfolio)
 }
 
-func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string) error {
+func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string) (nosqlDomain.Portfolio, error) {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
-		return errors.New("you not have a portfolio")
+		return nosqlDomain.Portfolio{}, errors.New("you not have a portfolio")
 	}
 	companyDb, err := s.companyService.FindByCompanyCode(companyCode)
 
 	if err != nil {
-		return err
+		return nosqlDomain.Portfolio{}, err
 	}
 	portfolio.Companies = append(portfolio.Companies, companyDb.Id)
-	return nil
+	save, err := s.portfolioRepository.Save(portfolio)
+	if err != nil {
+		return nosqlDomain.Portfolio{}, err
+	}
+	return save, nil
 }

@@ -18,7 +18,7 @@ func main() {
 	dir, _ := util.FindRootDir()
 
 	motionGo := config.NewMotionGo(fmt.Sprintf("%s/%s", dir, propertiesFile))
-
+	motionGo.MotionEngine.Use(middleware.CorsMiddleware)
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
 

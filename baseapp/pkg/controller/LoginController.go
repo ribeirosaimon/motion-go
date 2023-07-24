@@ -7,6 +7,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 
 type loginController struct {
@@ -46,4 +47,18 @@ func (l *loginController) Login(c *gin.Context) {
 		return
 	}
 	httpresponse.Ok(c, session)
+}
+
+func (l *loginController) WhoAmI(c *gin.Context) {
+	user, err := middleware.GetLoggedUser(c)
+	if err != nil {
+		exceptions.Forbidden().Throw(c)
+		return
+	}
+	i, err := l.service.WhoAmI(user.UserId)
+	if err != nil {
+		exceptions.Forbidden().Throw(c)
+		return
+	}
+	httpresponse.Ok(c, i)
 }

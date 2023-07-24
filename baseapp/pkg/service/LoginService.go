@@ -25,7 +25,7 @@ func NewLoginService(conn *db.Connections) LoginService {
 	}
 }
 
-func (l LoginService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
+func (l *LoginService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 	user, err := l.userRepository.FindByField("email", loginDto.Email)
 	if err != nil {
 		return "", exceptions.NotFound()
@@ -52,7 +52,7 @@ func (l LoginService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 	return userSession.SessionId, nil
 }
 
-func (l LoginService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *exceptions.Error) {
+func (l *LoginService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *exceptions.Error) {
 
 	if signupDto.Email == "" {
 		return sqlDomain.Profile{}, exceptions.FieldError("email")
@@ -81,4 +81,13 @@ func (l LoginService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *excep
 		return sqlDomain.Profile{}, exceptions.InternalServer(err.Error())
 	}
 	return profileUser, nil
+}
+
+func (l *LoginService) WhoAmI(userId uint64) (sqlDomain.Profile, error) {
+
+	user, err := l.profileService.FindProfileByUserId(userId)
+	if err != nil {
+		return sqlDomain.Profile{}, err
+	}
+	return user, nil
 }
