@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
@@ -55,13 +54,12 @@ func (s *portfolioController) ExcludePortfolio(c *gin.Context) {
 
 func (s *portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		exceptions.BodyError().Throw(c)
 		return
 	}
 
-	cart, err := s.portfolioService.AddCompanyInPortfolioById(loggedUser, id)
+	cart, err := s.portfolioService.AddCompanyInPortfolioById(loggedUser, c.Param("id"))
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return

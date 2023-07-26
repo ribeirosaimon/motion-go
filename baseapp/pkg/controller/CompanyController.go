@@ -34,12 +34,8 @@ func (c *companyController) DeleteProduct(ctx *gin.Context) {
 }
 
 func (c *companyController) GetCompany(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
-		exceptions.BodyError().Throw(ctx)
-		return
-	}
-	product, err := c.companyService.GetCompany(id)
+
+	product, err := c.companyService.GetCompany(ctx.Param("id"))
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return

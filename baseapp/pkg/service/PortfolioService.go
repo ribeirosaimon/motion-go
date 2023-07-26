@@ -77,7 +77,7 @@ func (s PortfolioService) DeletePortfolio(loggedUser middleware.LoggedUser) erro
 	return nil
 }
 
-func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.LoggedUser, id int64) (nosqlDomain.Portfolio, error) {
+func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.LoggedUser, id string) (nosqlDomain.Portfolio, error) {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err

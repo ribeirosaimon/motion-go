@@ -22,7 +22,7 @@ func NewCompanyService(conn *db.Connections) *CompanyService {
 	}
 }
 
-func (s CompanyService) GetCompany(id int64) (nosqlDomain.SummaryStock, error) {
+func (s CompanyService) GetCompany(id string) (nosqlDomain.SummaryStock, error) {
 
 	byId, err := s.summaryStockRepository.FindById(id)
 	if err != nil || byId.Status == domain.INACTIVE {
