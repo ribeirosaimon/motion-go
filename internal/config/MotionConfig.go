@@ -45,7 +45,6 @@ func (m *MotionConfig) getConfigurations(ctx context.Context, p *properties.Prop
 		}
 		collection.InsertOne(ctx, config)
 	}
-
 }
 
 func GetConfiguration() MotionConfig {
