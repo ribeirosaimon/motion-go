@@ -72,6 +72,9 @@ func (m MotionNoSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
 	if err := cursor.All(m.context, &results); err != nil {
 		return nil, err
 	}
+	if len(results) == 0 {
+		return []T{}, nil
+	}
 	return results, nil
 }
 

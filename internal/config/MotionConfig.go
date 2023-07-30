@@ -8,23 +8,23 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type motionConfig struct {
+type MotionConfig struct {
 	CacheTime    uint8
 	ScrapingTime uint8
 	HaveScraping bool
 }
 
-var config *motionConfig
+var config *MotionConfig
 
-func NewMotionConfig(ctx context.Context, p *properties.Properties) *motionConfig {
+func NewMotionConfig(ctx context.Context, p *properties.Properties) *MotionConfig {
 	if config == nil {
-		config = &motionConfig{}
+		config = &MotionConfig{}
 		config.getConfigurations(ctx, p)
 	}
 	return config
 }
 
-func (m *motionConfig) getConfigurations(ctx context.Context, p *properties.Properties) {
+func (m *MotionConfig) getConfigurations(ctx context.Context, p *properties.Properties) {
 	collection := db.Conn.GetMongoTemplate().
 		Database(p.GetString("database.mongo.name", "motion")).
 		Collection("MotionConfig")
@@ -38,12 +38,16 @@ func (m *motionConfig) getConfigurations(ctx context.Context, p *properties.Prop
 		conn := collection.FindOne(ctx, bson.M{})
 		conn.Decode(config)
 	} else {
-		config = &motionConfig{
+		config = &MotionConfig{
 			CacheTime:    5,
-			ScrapingTime: 5,
+			ScrapingTime: 3,
 			HaveScraping: true,
 		}
 		collection.InsertOne(ctx, config)
 	}
 
+}
+
+func GetConfiguration() MotionConfig {
+	return *config
 }

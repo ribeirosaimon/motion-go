@@ -51,3 +51,14 @@ func (c *companyController) GetCompanyInfo(ctx *gin.Context) {
 	}
 	httpresponse.Ok(ctx, companyName)
 }
+
+func (c *companyController) GetAllCompany(ctx *gin.Context) {
+	page, err := strconv.ParseUint(ctx.Query("page"), 10, 32)
+	limit, err := strconv.ParseUint(ctx.Query("limit"), 10, 32)
+	allCompany, err := c.companyService.FindAllCompany(uint32(limit), uint32(page))
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(ctx)
+		return
+	}
+	httpresponse.Ok(ctx, allCompany)
+}

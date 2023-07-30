@@ -16,5 +16,6 @@ func NewHealthRouter() config.MotionController {
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER}, sqlDomain.Role{Name: sqlDomain.ADMIN}),
 		),
 		config.NewMotionRouter(http.MethodGet, "/open", controller.NewHealthController().OpenHealth),
+		config.NewMotionRouter(http.MethodGet, "/config", controller.NewHealthController().GetConfigValue),
 	)
 }

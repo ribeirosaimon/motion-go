@@ -22,7 +22,7 @@ func NewCompanyService(conn *db.Connections) *CompanyService {
 	}
 }
 
-func (s CompanyService) GetCompany(id string) (nosqlDomain.SummaryStock, error) {
+func (s *CompanyService) GetCompany(id string) (nosqlDomain.SummaryStock, error) {
 
 	byId, err := s.summaryStockRepository.FindById(id)
 	if err != nil || byId.Status == domain.INACTIVE {
@@ -31,7 +31,7 @@ func (s CompanyService) GetCompany(id string) (nosqlDomain.SummaryStock, error) 
 	return byId, nil
 }
 
-func (s CompanyService) DeleteCompany(id int64) bool {
+func (s *CompanyService) DeleteCompany(id int64) bool {
 	product, err := s.summaryStockRepository.FindById(id)
 	if err != nil {
 		return false
@@ -44,7 +44,7 @@ func (s CompanyService) DeleteCompany(id int64) bool {
 	return true
 }
 
-func (s CompanyService) FindByCompanyCode(companyName string) (nosqlDomain.SummaryStock, error) {
+func (s *CompanyService) FindByCompanyCode(companyName string) (nosqlDomain.SummaryStock, error) {
 	if !scraping.GetTimeOpenMarket() {
 		summaryStock, err := s.summaryStockRepository.FindByField("companyCode", companyName)
 		if err != nil {
@@ -53,4 +53,12 @@ func (s CompanyService) FindByCompanyCode(companyName string) (nosqlDomain.Summa
 		return summaryStock, nil
 	}
 	return middleware.GetCache().Get(companyName), nil
+}
+
+func (s *CompanyService) FindAllCompany(limit, page uint32) ([]nosqlDomain.SummaryStock, error) {
+	allCompany, err := s.summaryStockRepository.FindAll(int(limit), int(page))
+	if err != nil {
+		return []nosqlDomain.SummaryStock{}, nil
+	}
+	return allCompany, nil
 }

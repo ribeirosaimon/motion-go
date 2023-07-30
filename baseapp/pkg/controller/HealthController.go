@@ -32,3 +32,8 @@ func (c *healthController) CloseHealth(ctx *gin.Context) {
 	health := c.service.GetHealthService(user)
 	httpresponse.Ok(ctx, health)
 }
+
+func (c *healthController) GetConfigValue(ctx *gin.Context) {
+	config := c.service.GetConfigurations()
+	httpresponse.Ok(ctx, config)
+}
