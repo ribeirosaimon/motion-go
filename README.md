@@ -1,27 +1,11 @@
-Com o objetivo de aprimorar minhas habilidades
-como desenvolvedor em Golang, decidi criar um
-projeto mais elaborado, levando em consideração
-minha falta de experiência na linguagem. Busquei
-uma abordagem que se aproximasse da realidade de um
-desenvolvedor backend, e gostaria de listar as
-funcionalidades da API para facilitar a identificação das
-tarefas que posso desempenhar como desenvolvedor.
+With the aim of improving my skills as a Golang developer, I decided to create a more elaborate project, considering my lack of experience in the language. I sought an approach that would resemble the reality of a backend developer, and I would like to list the API functionalities to facilitate the identification of tasks that I can undertake as a developer.
 
-Antes de mais nada, a ideia do projeto é criar uma
-aplicação que permita acompanhar ações em um portfólio.
-Decidi abordar esse tema porque imagino que seja uma
-área na qual posso explorar diversos tipos de
-funcionalidades. É importante ressaltar que este
-projeto é voltado para estudos, então tentei abordar
-várias áreas de uma vez para aproveitar ao máximo essa
-oportunidade de aprendizado.
-
+First and foremost, the idea of the project is to create an application that allows tracking stocks in a portfolio. I chose this topic because I believe it's an area where I can explore various types of functionalities. It's essential to highlight that this project is focused on learning, so I tried to cover multiple areas at once to make the most of this learning opportunity.
 ----------
 * Handlers
 
-`Router:` todas as funcoes de routers estão simples,
-apenas adicionar os controllers desse grupo, esses controllers
-são uma struct propria do projeto
+`Router:` 
+All router functions are straightforward, simply adding the controllers for this group. These controllers are a custom struct specific to the project.
 
 ````
 func NewHealthRouter() config.MotionController {
@@ -35,16 +19,13 @@ func NewHealthRouter() config.MotionController {
 }
 ````
 
-todos os `controllers` e `services` seguem facil de vizualização
+All the `controllers` and `services` are easy to understand.
 
-para a implementação desses routers fiz uma configuração
-no arquivo `internal/config/MotionGo.go` que é uma configuração
-inicial do projeto
+For the implementation of these routers, I made a configuration in the file `internal/config/MotionGo.go`, which serves as an initial setup for the project.
 
 ----------
-* Versionamento
-
-existe uma função aonde adiciona todas as verções da aplicação
+* Versioning
+There is a function where all versions of the application are added.
 
 ```
 func (m *MotionGo) AddRouter(version ...RoutersVersion) 
@@ -65,14 +46,11 @@ var version2 = config.RoutersVersion{
 	},
 }
 ```
-o intuito é facilitar a troca de versão da aplicação
+The intention is to facilitate the switching between different versions of the application.
 
 ----------
-* Banco de dados
-
-fiz uma interface de banco de dados para facilitar a inserção
-ou alteração de informação, confesso que copiei um pouco
-do JPA do Java
+* Database
+I created a database interface to simplify the insertion or modification of information. I must confess that I borrowed some ideas from Java's JPA (Java Persistence API).
 
 ```
 func (s CompanyService) GetCompany(id int64) (sqlDomain.Company, error) {
@@ -83,22 +61,20 @@ func (s CompanyService) GetCompany(id int64) (sqlDomain.Company, error) {
 	return byId, nil
 }
 ```
-lembrando que o mongo segue o mesmo padrão, isso facilita
-muito a vida do desenvolvedor, tudo com injeção de dependências
+MongoDB and Dependency Injection
+It's great to know that the MongoDB implementation follows the same pattern, making life easier for the developer with dependency injection.
 
 
 ----------
 * Middlewares
 
-adicionei middleware de logs e security (o usuario terá uma sessão)
+You've added middleware for logs and security, allowing users to have sessions.
 
 ----------
 * Testes
 
-Uma das maiores dificuldades foi criar configurações aonde
-uso a mesma aplicaçao tambem para criar os ambientes de testes, todos os testes
-sao E2E com banco de dados em memoria e no mongo um banco separado
-apenas adicionando as informações no `config.test.properties`
+One of the most significant challenges was creating configurations where you can use the same application to set up test environments. All tests are end-to-end (E2E) with an in-memory database for quick testing and a separate MongoDB database for more comprehensive testing. This is achieved by adding the necessary information to the `config.test.properties` file.
 
 ----------
-* Próximos passos: Consistência de dados no MongoDB, Telemetry, Multi Tenancy, Microservices,  
+* Next Steps:
+The upcoming steps include enhancing data consistency in MongoDB, implementing Telemetry, Multi-Tenancy, and exploring Microservices architecture.
