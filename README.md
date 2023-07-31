@@ -1,6 +1,7 @@
 With the aim of improving my skills as a Golang developer, I decided to create a more elaborate project, considering my lack of experience in the language. I sought an approach that would resemble the reality of a backend developer, and I would like to list the API functionalities to facilitate the identification of tasks that I can undertake as a developer.
 
 First and foremost, the idea of the project is to create an application that allows tracking stocks in a portfolio. I chose this topic because I believe it's an area where I can explore various types of functionalities. It's essential to highlight that this project is focused on learning, so I tried to cover multiple areas at once to make the most of this learning opportunity.
+
 ----------
 * Handlers
 
