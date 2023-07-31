@@ -72,7 +72,7 @@ It's great to know that the MongoDB implementation follows the same pattern, mak
 You've added middleware for logs and security, allowing users to have sessions.
 
 ----------
-* Testes
+* Tests
 
 One of the most significant challenges was creating configurations where you can use the same application to set up test environments. All tests are end-to-end (E2E) with an in-memory database for quick testing and a separate MongoDB database for more comprehensive testing. This is achieved by adding the necessary information to the `config.test.properties` file.
 
