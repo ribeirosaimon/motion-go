@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
@@ -13,9 +14,10 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
-func PutUserInContext(ctx *gin.Context, role sqlDomain.RoleEnum) sqlDomain.Session {
+func PutUserInContext(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser {
 	propertiesFile := "config.test.properties"
 
+	//var err error
 	gin.SetMode(gin.TestMode)
 	rootDir, _ := util.FindRootDir()
 	dir := fmt.Sprintf("%s/%s", rootDir, propertiesFile)
@@ -24,25 +26,35 @@ func PutUserInContext(ctx *gin.Context, role sqlDomain.RoleEnum) sqlDomain.Sessi
 	db.Conn.InitializeTestDatabases(properties.MustLoadFile(dir, properties.UTF8))
 
 	setUpRoles()
-	var user = sqlDomain.MotionUser{
-		Name:     "test",
-		Email:    "test@test.com",
-		Password: "123",
+	var roles []sqlDomain.RoleEnum
+
+	roles = append(roles, role)
+
+	var loginDto = dto.LoginDto{
+		Email:    "teste@teste.com",
+		Password: "teste",
 	}
-	profileUser, err := service.NewProfileService(db.Conn).SaveProfileUser(user, role)
+
+	var signUp = dto.SignUpDto{
+		Name:     "teste",
+		Roles:    roles,
+		LoginDto: loginDto,
+	}
+
+	loginService := service.NewLoginService(db.Conn)
+	profile, err := loginService.SignUp(signUp)
 	if err != nil {
-		panic("error in profileUser")
+		panic(err)
 	}
-	session, err := service.NewSessionService(db.Conn).SaveUserSession(profileUser)
-	if err != nil {
-		panic("error in sessionUser")
-	}
+	sessionService := service.NewSessionService(db.Conn)
+	sessionService.SaveUserSession(profile)
+
 	var loggedUser = middleware.LoggedUser{
-		Name:   profileUser.Name,
-		UserId: profileUser.User.Id,
+		Name:   profile.Name,
+		UserId: profile.User.Id,
 	}
-	ctx.Set("loggedUser")
-	return session
+	ctx.Set("loggedUser", loggedUser)
+	return loggedUser
 }
 
 func setUpRoles() {
