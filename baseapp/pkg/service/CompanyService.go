@@ -2,6 +2,7 @@ package service
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
@@ -31,12 +32,17 @@ func (s *CompanyService) GetCompany(id string) (nosqlDomain.SummaryStock, error)
 	return byId, nil
 }
 
-func (s *CompanyService) DeleteCompany(id int64) bool {
+func (s *CompanyService) DeleteCompany(id string) bool {
 	product, err := s.summaryStockRepository.FindById(id)
 	if err != nil {
 		return false
 	}
-	product.Status = domain.INACTIVE
+
+	product.BasicNoSQL = nosqlDomain.BasicNoSQL{
+		Status:    domain.INACTIVE,
+		UpdatedAt: time.Now(),
+	}
+
 	_, err = s.summaryStockRepository.Save(product)
 	if err != nil {
 		return false
@@ -46,13 +52,14 @@ func (s *CompanyService) DeleteCompany(id int64) bool {
 
 func (s *CompanyService) FindByCompanyCode(companyName string) (nosqlDomain.SummaryStock, error) {
 	if !scraping.GetTimeOpenMarket() {
-		summaryStock, err := s.summaryStockRepository.FindByField("companyCode", companyName)
+		summaryStock, err := s.summaryStockRepository.FindByField("companyName", companyName)
 		if err != nil {
-			return middleware.GetCache().Get(companyName), nil
+			nao ta achando a compania e ta entrando aqui, se caso nao achar precisa verificar se e um nome valido
+			return middleware.GetCache().GetByCompanyCode(summaryStock.CompanyCode), nil
 		}
 		return summaryStock, nil
 	}
-	return middleware.GetCache().Get(companyName), nil
+	return middleware.GetCache().GetByCompanyName(companyName), nil
 }
 
 func (s *CompanyService) FindAllCompany(limit, page uint32) ([]nosqlDomain.SummaryStock, error) {

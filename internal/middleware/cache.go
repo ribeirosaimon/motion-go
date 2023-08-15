@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -18,7 +19,6 @@ type MotionCache struct {
 
 type Store struct {
 	Info       nosqlDomain.SummaryStock
-	Code       string
 	expiration time.Time
 }
 
@@ -43,23 +43,31 @@ func NewMotionCache(conn *db.Connections, haveScraping bool, scrapingTime, cache
 	return Cache
 }
 
-func (m *MotionCache) Get(i string) nosqlDomain.SummaryStock {
-	if m.contains(i) {
-		return m.Company[i].Info
+func (m *MotionCache) GetByCompanyName(i string) nosqlDomain.SummaryStock {
+	return m.getCompanyInCache(i, false)
+}
+
+func (m *MotionCache) GetByCompanyCode(i string) nosqlDomain.SummaryStock {
+	return m.getCompanyInCache(i, false)
+}
+
+func (m *MotionCache) getCompanyInCache(i string, companyCode bool) nosqlDomain.SummaryStock {
+	contains, err := m.contains(i, companyCode)
+	if err != nil {
+		summaryStock := m.service.GetSummaryStock(i)
+		m.Add(summaryStock)
+		return summaryStock
 	}
-	summaryStock := m.service.GetSummaryStock(i)
-	m.Add(summaryStock)
-	return summaryStock
+	return contains
 }
 
 func (m *MotionCache) Add(company nosqlDomain.SummaryStock) {
 	if len(m.Company) <= 50 {
 		var store = &Store{
 			Info:       company,
-			Code:       company.CompanyCode,
 			expiration: time.Now().Add(time.Minute * time.Duration(m.CacheTime)),
 		}
-		m.Company[store.Code] = store
+		m.Company[store.Info.CompanyCode] = store
 	}
 }
 
@@ -88,11 +96,14 @@ func (m *MotionCache) cron(haveScraping bool, scrapingTime uint8) {
 
 }
 
-func (m *MotionCache) contains(company string) bool {
+func (m *MotionCache) contains(company string, companyCode bool) (nosqlDomain.SummaryStock, error) {
 	for _, v := range m.Company {
-		if v.Code == company {
-			return true
+		if companyCode && (v.Info.CompanyCode == company) {
+			return v.Info, nil
+		}
+		if !companyCode && (v.Info.CompanyName == company) {
+			return v.Info, nil
 		}
 	}
-	return false
+	return nosqlDomain.SummaryStock{}, errors.New("")
 }

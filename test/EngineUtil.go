@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 
 	"github.com/gin-gonic/gin"
@@ -14,11 +15,16 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
-func PutUserInContext(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser {
+func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser {
 	propertiesFile := "config.test.properties"
 
-	//var err error
+	// var err error
 	gin.SetMode(gin.TestMode)
+
+	middleware.Cache = &middleware.MotionCache{
+		Company: make(map[string]*middleware.Store),
+	}
+
 	rootDir, _ := util.FindRootDir()
 	dir := fmt.Sprintf("%s/%s", rootDir, propertiesFile)
 
@@ -41,12 +47,19 @@ func PutUserInContext(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.Logg
 		LoginDto: loginDto,
 	}
 
-	loginService := service.NewLoginService(db.Conn)
-	profile, err := loginService.SignUp(signUp)
-	if err != nil {
-		panic(err)
+	userRepository := repository.NewUserRepository(db.Conn.GetPgsqTemplate())
+	loginService := service.NewAuthService(db.Conn)
+	var profile sqlDomain.Profile
+
+	if !userRepository.ExistByField("email", loginDto.Email) {
+		profile, _ = loginService.SignUp(signUp)
+	} else {
+		profileRepository := repository.NewProfileRepository(db.Conn.GetPgsqTemplate())
+		profile, _ = profileRepository.FindByField("email", signUp.Email)
 	}
+
 	sessionService := service.NewSessionService(db.Conn)
+
 	sessionService.SaveUserSession(profile)
 
 	var loggedUser = middleware.LoggedUser{

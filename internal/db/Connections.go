@@ -43,6 +43,9 @@ func (c *Connections) ClosePostgreSQL() *sql.DB {
 	return c.sqlStruct.close
 }
 
+func (c *Connections) GetMongoDatabase() string {
+	return c.noSqlStruct.DatabaseName
+}
 func (c *Connections) InitializeDatabases(conf *properties.Properties) {
 	c.connectSQL(conf)
 	c.connectNoSQL(conf)

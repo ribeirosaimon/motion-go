@@ -19,13 +19,8 @@ func NewCompanyController() *companyController {
 	return &companyController{companyService: companyService}
 }
 
-func (c *companyController) DeleteProduct(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
-		exceptions.BodyError().Throw(ctx)
-		return
-	}
-
+func (c *companyController) DeleteCompany(ctx *gin.Context) {
+	id := ctx.Param("id")
 	if !c.companyService.DeleteCompany(id) {
 		exceptions.MotionError("cannot be deleted").Throw(ctx)
 		return

@@ -11,12 +11,12 @@ import (
 )
 
 type loginController struct {
-	service *service.LoginService
+	service *service.AuthService
 }
 
-func NewLoginControler() *loginController {
-	loginService := service.NewLoginService(db.Conn)
-	return &loginController{service: &loginService}
+func NewAuthController() *loginController {
+	authService := service.NewAuthService(db.Conn)
+	return &loginController{service: &authService}
 }
 
 func (l *loginController) SignUp(c *gin.Context) {

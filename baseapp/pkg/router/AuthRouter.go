@@ -12,9 +12,9 @@ func NewLoginRouter() config.MotionController {
 
 	return config.NewMotionController(
 		"/auth",
-		config.NewMotionRouter(http.MethodPost, "/login", controller.NewLoginControler().Login),
-		config.NewMotionRouter(http.MethodPost, "/sign-up", controller.NewLoginControler().SignUp),
-		config.NewMotionRouter(http.MethodGet, "/whoami", controller.NewLoginControler().WhoAmI,
+		config.NewMotionRouter(http.MethodPost, "/login", controller.NewAuthController().Login),
+		config.NewMotionRouter(http.MethodPost, "/sign-up", controller.NewAuthController().SignUp),
+		config.NewMotionRouter(http.MethodGet, "/whoami", controller.NewAuthController().WhoAmI,
 			middleware.Authorization()),
 	)
 }

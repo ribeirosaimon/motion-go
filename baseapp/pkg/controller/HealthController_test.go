@@ -2,11 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
-	"github.com/ribeirosaimon/motion-go/test"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/test"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
@@ -42,7 +43,7 @@ func TestHealthController_CloseHealth_Forbidden(t *testing.T) {
 func TestHealthController_CloseHealth_ReturnOk(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	loggedUser := test.PutUserInContext(c, sqlDomain.USER)
+	loggedUser := test.SetUpTest(c, sqlDomain.USER)
 	NewHealthController().CloseHealth(c)
 
 	var response dto.HealthApiResponseDTO
