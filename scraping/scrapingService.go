@@ -22,30 +22,38 @@ func NewScrapingService(conn *db.Connections) *Service {
 	return &Service{conn: conn}
 }
 
-func (s *Service) GetSummaryStock(stock string) nosqlDomain.SummaryStock {
+func (s *Service) GetSummaryStock(stock string) (nosqlDomain.SummaryStock, error) {
 
 	companyRepository := repository.NewSummaryStockRepository(context.Background(), s.conn.GetMongoTemplate())
 	foundCompany, err := companyRepository.FindByField("companyCode", stock)
 
 	if err != nil {
-		summary := getStockSummary(stock)
+		stockSummary, err := getStockSummary(stock)
+		if err != nil {
+			return nosqlDomain.SummaryStock{}, err
+		}
+		summary := stockSummary
 		summary.Id = primitive.NewObjectID()
 		summary.CreatedAt = time.Now()
 		summary.UpdatedAt = time.Now()
 		foundCompany, _ = companyRepository.Save(summary)
-		return foundCompany
+		return foundCompany, nil
 	}
 
 	add := time.Now().Add(time.Minute * 2)
 	if add.After(foundCompany.UpdatedAt) {
 		log.Printf(fmt.Sprintf("\033[0m Scraping:\033[0m Create scraping in stock: %s.\"", stock))
-		summary := getStockSummary(stock)
+		stockSummary, err := getStockSummary(stock)
+		if err != nil {
+			return nosqlDomain.SummaryStock{}, err
+		}
+		summary := stockSummary
 		summary.Id = foundCompany.Id
 		summary.UpdatedAt = time.Now()
 		foundCompany, _ = companyRepository.Save(summary)
-		return foundCompany
+		return foundCompany, nil
 	}
-	return foundCompany
+	return foundCompany, nil
 }
 
 func (s *Service) GetAllStocks() []string {

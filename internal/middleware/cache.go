@@ -43,22 +43,25 @@ func NewMotionCache(conn *db.Connections, haveScraping bool, scrapingTime, cache
 	return Cache
 }
 
-func (m *MotionCache) GetByCompanyName(i string) nosqlDomain.SummaryStock {
+func (m *MotionCache) GetByCompanyName(i string) (nosqlDomain.SummaryStock, error) {
 	return m.getCompanyInCache(i, false)
 }
 
-func (m *MotionCache) GetByCompanyCode(i string) nosqlDomain.SummaryStock {
+func (m *MotionCache) GetByCompanyCode(i string) (nosqlDomain.SummaryStock, error) {
 	return m.getCompanyInCache(i, false)
 }
 
-func (m *MotionCache) getCompanyInCache(i string, companyCode bool) nosqlDomain.SummaryStock {
+func (m *MotionCache) getCompanyInCache(i string, companyCode bool) (nosqlDomain.SummaryStock, error) {
 	contains, err := m.contains(i, companyCode)
 	if err != nil {
-		summaryStock := m.service.GetSummaryStock(i)
+		summaryStock, err := m.service.GetSummaryStock(i)
+		if err != nil {
+			return nosqlDomain.SummaryStock{}, err
+		}
 		m.Add(summaryStock)
-		return summaryStock
+		return summaryStock, nil
 	}
-	return contains
+	return contains, nil
 }
 
 func (m *MotionCache) Add(company nosqlDomain.SummaryStock) {
@@ -81,8 +84,11 @@ func (m *MotionCache) cron(haveScraping bool, scrapingTime uint8) {
 					cacheCompany := m.Company[stock]
 					if cacheCompany == nil || cacheCompany.expiration.Before(time.Now()) {
 						func(s string) {
-							summaryStock := m.service.GetSummaryStock(s)
-							m.Add(summaryStock)
+							getSummaryStock, err := m.service.GetSummaryStock(s)
+							if err == nil {
+								summaryStock := getSummaryStock
+								m.Add(summaryStock)
+							}
 						}(stock)
 					}
 				}

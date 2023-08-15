@@ -54,12 +54,11 @@ func (s *CompanyService) FindByCompanyCode(companyName string) (nosqlDomain.Summ
 	if !scraping.GetTimeOpenMarket() {
 		summaryStock, err := s.summaryStockRepository.FindByField("companyName", companyName)
 		if err != nil {
-			nao ta achando a compania e ta entrando aqui, se caso nao achar precisa verificar se e um nome valido
-			return middleware.GetCache().GetByCompanyCode(summaryStock.CompanyCode), nil
+			return middleware.GetCache().GetByCompanyCode(summaryStock.CompanyCode)
 		}
 		return summaryStock, nil
 	}
-	return middleware.GetCache().GetByCompanyName(companyName), nil
+	return middleware.GetCache().GetByCompanyName(companyName)
 }
 
 func (s *CompanyService) FindAllCompany(limit, page uint32) ([]nosqlDomain.SummaryStock, error) {
