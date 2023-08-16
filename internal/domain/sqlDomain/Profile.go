@@ -5,13 +5,13 @@ import (
 )
 
 type Profile struct {
-	Id         uint64     `json:"id" gorm:"primary_key"`
-	Name       string     `json:"name"`
-	FamilyName string     `json:"familyName"`
-	Age        uint8      `json:"age"`
-	Birthday   time.Time  `json:"birthday"`
-	User       MotionUser `json:"-"  gorm:"foreignkey:Id"`
-	Roles      []Role     `json:"roles,omitempty" gorm:"many2many:profile_roles;"`
+	Id           uint64    `json:"id" gorm:"primary_key"`
+	Name         string    `json:"name"`
+	FamilyName   string    `json:"familyName"`
+	Age          uint8     `json:"age"`
+	Birthday     time.Time `json:"birthday"`
+	MotionUserId uint64    `json:"-"  gorm:"foreignkey:Id"`
+	Roles        []Role    `json:"roles,omitempty" gorm:"many2many:profile_roles;"`
 	BasicSQL
 }
 

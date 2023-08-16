@@ -38,7 +38,7 @@ func (l *ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlD
 	profile.Birthday = user.Birthday
 	profile.FamilyName = user.LastName
 	profile.CreatedAt = time.Now()
-	profile.User = user
+	profile.MotionUserId = user.Id
 
 	save, err := l.profileRepository.Save(profile)
 	if err != nil {

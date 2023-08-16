@@ -1,13 +1,14 @@
 package controller
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
-	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 )
 
 type companyController struct {
@@ -25,7 +26,7 @@ func (c *companyController) DeleteCompany(ctx *gin.Context) {
 		exceptions.MotionError("cannot be deleted").Throw(ctx)
 		return
 	}
-	httpresponse.Ok(ctx, nil)
+	httpResponse.Entity(ctx, http.StatusOK, nil)
 }
 
 func (c *companyController) GetCompany(ctx *gin.Context) {
@@ -35,7 +36,7 @@ func (c *companyController) GetCompany(ctx *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	httpresponse.Ok(ctx, product)
+	httpResponse.Entity(ctx, http.StatusOK, product)
 }
 
 func (c *companyController) GetCompanyInfo(ctx *gin.Context) {
@@ -44,7 +45,7 @@ func (c *companyController) GetCompanyInfo(ctx *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	httpresponse.Ok(ctx, companyName)
+	httpResponse.Entity(ctx, http.StatusOK, companyName)
 }
 
 func (c *companyController) GetAllCompany(ctx *gin.Context) {
@@ -55,5 +56,5 @@ func (c *companyController) GetAllCompany(ctx *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	httpresponse.Ok(ctx, allCompany)
+	httpResponse.Entity(ctx, http.StatusOK, allCompany)
 }

@@ -2,14 +2,13 @@ package controller
 
 import (
 	"context"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
-	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
+	"net/http"
 )
 
 type portfolioController struct {
@@ -29,7 +28,7 @@ func (s *portfolioController) CreatePortfolio(c *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
-	c.Status(http.StatusCreated)
+	httpResponse.Entity(c, http.StatusCreated, nil)
 }
 
 func (s *portfolioController) GetPortfolio(c *gin.Context) {
@@ -39,7 +38,7 @@ func (s *portfolioController) GetPortfolio(c *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
-	httpresponse.Created(c, cart)
+	httpResponse.Entity(c, http.StatusCreated, cart)
 }
 
 func (s *portfolioController) ExcludePortfolio(c *gin.Context) {
@@ -49,7 +48,7 @@ func (s *portfolioController) ExcludePortfolio(c *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
-	httpresponse.Ok(c, nil)
+	httpResponse.Entity(c, http.StatusOK, nil)
 }
 
 func (s *portfolioController) AddCompanyInPortfolio(c *gin.Context) {
@@ -64,7 +63,7 @@ func (s *portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
-	httpresponse.Ok(c, cart)
+	httpResponse.Entity(c, http.StatusOK, cart)
 }
 
 func (s *portfolioController) AddCompanyByCodeInPortfolio(ctx *gin.Context) {
@@ -74,5 +73,5 @@ func (s *portfolioController) AddCompanyByCodeInPortfolio(ctx *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	httpresponse.Created(ctx, portfolio)
+	httpResponse.Entity(ctx, http.StatusCreated, portfolio)
 }

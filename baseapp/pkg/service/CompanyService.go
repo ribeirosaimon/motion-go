@@ -58,7 +58,11 @@ func (s *CompanyService) FindByCompanyCode(companyName string) (nosqlDomain.Summ
 		}
 		return summaryStock, nil
 	}
-	return middleware.GetCache().GetByCompanyName(companyName)
+	name, err := middleware.GetCache().GetByCompanyName(companyName)
+	if err != nil {
+		return nosqlDomain.SummaryStock{}, err
+	}
+	return name, nil
 }
 
 func (s *CompanyService) FindAllCompany(limit, page uint32) ([]nosqlDomain.SummaryStock, error) {

@@ -13,7 +13,7 @@ import (
 
 type MotionCache struct {
 	Company   map[string]*Store
-	service   *scraping.Service
+	Service   *scraping.Service
 	CacheTime uint8
 }
 
@@ -33,7 +33,7 @@ func NewMotionCache(conn *db.Connections, haveScraping bool, scrapingTime, cache
 		service := scraping.NewScrapingService(conn)
 		Cache = &MotionCache{
 			Company:   make(map[string]*Store),
-			service:   service,
+			Service:   service,
 			CacheTime: cacheTime,
 		}
 		Cache.cron(haveScraping, scrapingTime)
@@ -54,7 +54,7 @@ func (m *MotionCache) GetByCompanyCode(i string) (nosqlDomain.SummaryStock, erro
 func (m *MotionCache) getCompanyInCache(i string, companyCode bool) (nosqlDomain.SummaryStock, error) {
 	contains, err := m.contains(i, companyCode)
 	if err != nil {
-		summaryStock, err := m.service.GetSummaryStock(i)
+		summaryStock, err := m.Service.GetSummaryStock(i)
 		if err != nil {
 			return nosqlDomain.SummaryStock{}, err
 		}
@@ -79,12 +79,12 @@ func (m *MotionCache) cron(haveScraping bool, scrapingTime uint8) {
 	if scraping.GetTimeOpenMarket() {
 		if haveScraping {
 			for {
-				stocks := m.service.GetAllStocks()
+				stocks := m.Service.GetAllStocks()
 				for _, stock := range stocks {
 					cacheCompany := m.Company[stock]
 					if cacheCompany == nil || cacheCompany.expiration.Before(time.Now()) {
 						func(s string) {
-							getSummaryStock, err := m.service.GetSummaryStock(s)
+							getSummaryStock, err := m.Service.GetSummaryStock(s)
 							if err == nil {
 								summaryStock := getSummaryStock
 								m.Add(summaryStock)

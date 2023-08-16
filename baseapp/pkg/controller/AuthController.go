@@ -6,8 +6,9 @@ import (
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
-	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
+	"net/http"
 )
 
 type loginController struct {
@@ -31,7 +32,7 @@ func (l *loginController) SignUp(c *gin.Context) {
 		err.Throw(c)
 		return
 	}
-	httpresponse.Created(c, profile)
+	httpResponse.Entity(c, http.StatusCreated, profile)
 }
 
 func (l *loginController) Login(c *gin.Context) {
@@ -46,7 +47,7 @@ func (l *loginController) Login(c *gin.Context) {
 		err.Throw(c)
 		return
 	}
-	httpresponse.Ok(c, session)
+	httpResponse.Entity(c, http.StatusOK, session)
 }
 
 func (l *loginController) WhoAmI(c *gin.Context) {
@@ -60,5 +61,5 @@ func (l *loginController) WhoAmI(c *gin.Context) {
 		exceptions.Forbidden().Throw(c)
 		return
 	}
-	httpresponse.Ok(c, i)
+	httpResponse.Entity(c, http.StatusOK, i)
 }

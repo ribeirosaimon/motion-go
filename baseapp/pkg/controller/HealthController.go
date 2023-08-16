@@ -4,8 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
-	"github.com/ribeirosaimon/motion-go/internal/httpresponse"
+	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
+	"net/http"
 )
 
 type healthController struct {
@@ -20,7 +21,7 @@ func NewHealthController() *healthController {
 func (c *healthController) OpenHealth(ctx *gin.Context) {
 	health := c.service.GetOpenHealthService()
 
-	httpresponse.Ok(ctx, health)
+	httpResponse.Entity(ctx, http.StatusOK, health)
 }
 
 func (c *healthController) CloseHealth(ctx *gin.Context) {
@@ -30,10 +31,10 @@ func (c *healthController) CloseHealth(ctx *gin.Context) {
 		return
 	}
 	health := c.service.GetHealthService(user)
-	httpresponse.Ok(ctx, health)
+	httpResponse.Entity(ctx, http.StatusOK, health)
 }
 
 func (c *healthController) GetConfigValue(ctx *gin.Context) {
 	config := c.service.GetConfigurations()
-	httpresponse.Ok(ctx, config)
+	httpResponse.Entity(ctx, http.StatusOK, config)
 }

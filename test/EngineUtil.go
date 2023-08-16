@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/scraping"
 
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 
@@ -21,15 +22,16 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 	// var err error
 	gin.SetMode(gin.TestMode)
 
-	middleware.Cache = &middleware.MotionCache{
-		Company: make(map[string]*middleware.Store),
-	}
-
 	rootDir, _ := util.FindRootDir()
 	dir := fmt.Sprintf("%s/%s", rootDir, propertiesFile)
 
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeTestDatabases(properties.MustLoadFile(dir, properties.UTF8))
+
+	middleware.Cache = &middleware.MotionCache{
+		Company: make(map[string]*middleware.Store),
+		Service: scraping.NewScrapingService(db.Conn),
+	}
 
 	setUpRoles()
 	var roles []sqlDomain.RoleEnum
@@ -55,7 +57,8 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 		profile, _ = loginService.SignUp(signUp)
 	} else {
 		profileRepository := repository.NewProfileRepository(db.Conn.GetPgsqTemplate())
-		profile, _ = profileRepository.FindByField("email", signUp.Email)
+		user, _ := userRepository.FindByField("email", signUp.Email)
+		profile, _ = profileRepository.FindByField("motion_user_id", user.Id)
 	}
 
 	sessionService := service.NewSessionService(db.Conn)
@@ -64,7 +67,7 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 
 	var loggedUser = middleware.LoggedUser{
 		Name:   profile.Name,
-		UserId: profile.User.Id,
+		UserId: profile.MotionUserId,
 	}
 	ctx.Set("loggedUser", loggedUser)
 	return loggedUser
