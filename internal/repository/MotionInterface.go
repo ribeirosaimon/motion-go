@@ -11,4 +11,5 @@ type MotionRepository[T Entity] interface {
 	FindAll(int, int) ([]T, error)
 	DeleteById(interface{}) error
 	Save(T) (T, error)
+	FindWithPreloads(preloads string, s interface{}) (T, error)
 }

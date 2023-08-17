@@ -103,7 +103,7 @@ func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.Logg
 	if err != nil {
 		return nosqlDomain.Portfolio{}, errors.New("you not have a portfolio")
 	}
-	companyDb, err := s.companyService.FindByCompanyCode(companyCode)
+	companyDb, err := s.companyService.FindByCompanyByCodeOrName(companyCode, true)
 
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err

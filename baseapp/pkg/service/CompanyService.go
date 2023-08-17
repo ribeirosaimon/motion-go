@@ -50,9 +50,15 @@ func (s *CompanyService) DeleteCompany(id string) bool {
 	return true
 }
 
-func (s *CompanyService) FindByCompanyCode(companyName string) (nosqlDomain.SummaryStock, error) {
+func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool) (nosqlDomain.SummaryStock, error) {
+	var foundField string
+	if code {
+		foundField = "companyCode"
+	} else {
+		foundField = "companyName"
+	}
 	if !scraping.GetTimeOpenMarket() {
-		summaryStock, err := s.summaryStockRepository.FindByField("companyName", companyName)
+		summaryStock, err := s.summaryStockRepository.FindByField(foundField, companyName)
 		if err != nil {
 			return middleware.GetCache().GetByCompanyCode(summaryStock.CompanyCode)
 		}

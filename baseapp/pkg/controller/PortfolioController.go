@@ -2,13 +2,14 @@ package controller
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
-	"net/http"
 )
 
 type portfolioController struct {
@@ -38,7 +39,7 @@ func (s *portfolioController) GetPortfolio(c *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
 	}
-	httpResponse.Entity(c, http.StatusCreated, cart)
+	httpResponse.Entity(c, http.StatusOK, cart)
 }
 
 func (s *portfolioController) ExcludePortfolio(c *gin.Context) {
@@ -73,5 +74,5 @@ func (s *portfolioController) AddCompanyByCodeInPortfolio(ctx *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	httpResponse.Entity(ctx, http.StatusCreated, portfolio)
+	httpResponse.Entity(ctx, http.StatusOK, portfolio)
 }
