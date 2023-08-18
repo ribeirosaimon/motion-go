@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -54,12 +55,19 @@ func (s *portfolioController) ExcludePortfolio(c *gin.Context) {
 
 func (s *portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 	loggedUser, err := middleware.GetLoggedUser(c)
+
+	var price PriceDTO
+	if err := c.BindJSON(&price); err != nil {
+		exceptions.BodyError().Throw(c)
+		return
+	}
+
 	if err != nil {
 		exceptions.BodyError().Throw(c)
 		return
 	}
 
-	cart, err := s.portfolioService.AddCompanyInPortfolioById(loggedUser, c.Param("id"))
+	cart, err := s.portfolioService.AddCompanyInPortfolioById(loggedUser, c.Param("id"), price.Price)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -67,12 +75,21 @@ func (s *portfolioController) AddCompanyInPortfolio(c *gin.Context) {
 	httpResponse.Entity(c, http.StatusOK, cart)
 }
 
-func (s *portfolioController) AddCompanyByCodeInPortfolio(ctx *gin.Context) {
-	loggedUser, err := middleware.GetLoggedUser(ctx)
-	portfolio, err := s.portfolioService.AddCompanyInPortfolioByCode(loggedUser, ctx.Param("companyCode"))
-	if err != nil {
-		exceptions.MotionError(err.Error()).Throw(ctx)
+func (s *portfolioController) AddCompanyByCodeInPortfolio(c *gin.Context) {
+	loggedUser, err := middleware.GetLoggedUser(c)
+	var price PriceDTO
+	if err := c.BindJSON(&price); err != nil {
+		exceptions.BodyError().Throw(c)
 		return
 	}
-	httpResponse.Entity(ctx, http.StatusOK, portfolio)
+	portfolio, err := s.portfolioService.AddCompanyInPortfolioByCode(loggedUser, c.Param("companyCode"), price.Price)
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(c)
+		return
+	}
+	httpResponse.Entity(c, http.StatusOK, portfolio)
+}
+
+type PriceDTO struct {
+	Price decimal.Decimal `json:"price"`
 }

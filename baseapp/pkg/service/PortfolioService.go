@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/shopspring/decimal"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -57,7 +58,7 @@ func (s PortfolioService) CreatePortfolio(loggedUser middleware.LoggedUser) (nos
 	portfolio.OwnerId = user.GetId().(uint64)
 	portfolio.CreatedAt = time.Now()
 	portfolio.Status = domain.ACTIVE
-	portfolio.Companies = make([]primitive.ObjectID, 0)
+	portfolio.Companies = make([]nosqlDomain.MineStock, 0)
 	savedShoppingCart, err := s.portfolioRepository.Save(portfolio)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
@@ -77,7 +78,7 @@ func (s PortfolioService) DeletePortfolio(loggedUser middleware.LoggedUser) erro
 	return nil
 }
 
-func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.LoggedUser, id string) (nosqlDomain.Portfolio, error) {
+func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.LoggedUser, id string, price decimal.Decimal) (nosqlDomain.Portfolio, error) {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
@@ -87,18 +88,22 @@ func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.Logged
 		return nosqlDomain.Portfolio{}, err
 	}
 	for _, v := range portfolio.Companies {
-		if v == companyDb.Id {
+		if v.StockId == companyDb.Id {
 			return nosqlDomain.Portfolio{}, errors.New("company already exist in your portfolio")
 		}
 	}
-	portfolio.Companies = append(portfolio.Companies, companyDb.Id)
+	var mineStock = nosqlDomain.MineStock{
+		StockId:  companyDb.Id,
+		BuyPrice: price,
+	}
+	portfolio.Companies = append(portfolio.Companies, mineStock)
 
 	portfolio.UpdatedAt = time.Now()
 
 	return s.portfolioRepository.Save(portfolio)
 }
 
-func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string) (nosqlDomain.Portfolio, error) {
+func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string, price decimal.Decimal) (nosqlDomain.Portfolio, error) {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, errors.New("you not have a portfolio")
@@ -108,7 +113,12 @@ func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.Logg
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
 	}
-	portfolio.Companies = append(portfolio.Companies, companyDb.Id)
+	var mineStock = nosqlDomain.MineStock{
+		StockId:  companyDb.Id,
+		BuyPrice: price,
+	}
+	portfolio.Companies = append(portfolio.Companies, mineStock)
+
 	save, err := s.portfolioRepository.Save(portfolio)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err

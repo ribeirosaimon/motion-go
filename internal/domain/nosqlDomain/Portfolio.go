@@ -7,12 +7,17 @@ import (
 
 type Portfolio struct {
 	BasicNoSQL `bson:"inline"`
-	Id         primitive.ObjectID   `json:"id" bson:"_id" gorm:"primaryKey"`
-	OwnerId    uint64               `json:"ownerId" bson:"ownerId"`
-	Price      decimal.Decimal      `json:"price" bson:"price"`
-	Companies  []primitive.ObjectID `json:"companies" bson:"companies"`
+	Id         primitive.ObjectID `json:"id" bson:"_id" gorm:"primaryKey"`
+	OwnerId    uint64             `json:"ownerId" bson:"ownerId"`
+	Price      decimal.Decimal    `json:"price" bson:"price"`
+	Companies  []MineStock        `json:"companies" bson:"companies"`
 }
 
 func (s Portfolio) GetId() interface{} {
 	return s.Id.Hex()
+}
+
+type MineStock struct {
+	StockId  primitive.ObjectID `json:"stockId" bson:"stockId"`
+	BuyPrice decimal.Decimal    `json:"buyPrice" bson:"buyPrice"`
 }

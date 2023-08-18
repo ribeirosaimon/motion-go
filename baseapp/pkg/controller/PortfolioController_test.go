@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/shopspring/decimal"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -77,10 +80,46 @@ func TestPortfolioController_AddCompanyByCodeInPortfolio(t *testing.T) {
 		},
 	}
 	c.Params = *param
+
+	var price = PriceDTO{Price: decimal.NewFromFloat32(10)}
+	jsonBytes, err := json.Marshal(price)
+	reader := bytes.NewReader(jsonBytes)
+
+	c.Request = &http.Request{Body: ioutil.NopCloser(reader)}
+
 	portfolioService := service.NewPortfolioService(c, db.Conn)
 	portfolioService.CreatePortfolio(loggedUser)
 
 	NewPortfolioController().AddCompanyByCodeInPortfolio(c)
+	var response nosqlDomain.Portfolio
+	err = json.Unmarshal(w.Body.Bytes(), &response)
+	if err != nil {
+		t.Errorf("Error in unmarshal json %d", w.Body)
+	}
+
+	portfolioRepository := repository.NewPortfolioRepository(c, db.Conn.GetMongoTemplate())
+	portfolio, _ := portfolioRepository.FindById(response.Id.Hex())
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, portfolio.Id, response.Id)
+	assert.Equal(t, portfolio.Companies[0].StockId, response.Companies[0].StockId)
+	assert.Equal(t, portfolio.Status, response.Status)
+}
+
+func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
+	w, c, stock1, _ := configTest()
+	loggedUser := test.SetUpTest(c, sqlDomain.USER)
+	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
+	var param = &gin.Params{
+		{
+			Key:   "id",
+			Value: stock1.Id.Hex(),
+		},
+	}
+	c.Params = *param
+	portfolioService := service.NewPortfolioService(c, db.Conn)
+	portfolioService.CreatePortfolio(loggedUser)
+
+	NewPortfolioController().AddCompanyInPortfolio(c)
 	var response nosqlDomain.Portfolio
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	if err != nil {
@@ -91,14 +130,44 @@ func TestPortfolioController_AddCompanyByCodeInPortfolio(t *testing.T) {
 	portfolio, _ := portfolioRepository.FindById(response.Id.Hex())
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, portfolio.Id, response.Id)
-	assert.Equal(t, portfolio.Companies[0].Hex(), response.Companies[0].Hex())
+	assert.Equal(t, portfolio.Companies[0].StockId, response.Companies[0].StockId)
 	assert.Equal(t, portfolio.Status, response.Status)
 }
 
-func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
-	assert.Equal(t, false, true)
+func TestPortfolioController_AddCompanyInPortfolioWithError(t *testing.T) {
+	w, c, stock1, _ := configTest()
+	test.SetUpTest(c, sqlDomain.USER)
+	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
+	var param = &gin.Params{
+		{
+			Key:   "id",
+			Value: stock1.Id.Hex(),
+		},
+	}
+	c.Params = *param
+
+	NewPortfolioController().AddCompanyInPortfolio(c)
+
+	assert.Equal(t, http.StatusConflict, w.Code)
+
 }
 
 func TestPortfolioController_ExcludePortfolio(t *testing.T) {
-	assert.Equal(t, false, true)
+	w, c, _, _ := configTest()
+	loggedUser := test.SetUpTest(c, sqlDomain.USER)
+	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
+	portfolioService := service.NewPortfolioService(c, db.Conn)
+	portfolioService.CreatePortfolio(loggedUser)
+
+	NewPortfolioController().ExcludePortfolio(c)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestPortfolioController_ExcludePortfolioDoesNotExist(t *testing.T) {
+	w, c, _, _ := configTest()
+	test.SetUpTest(c, sqlDomain.USER)
+	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
+
+	NewPortfolioController().ExcludePortfolio(c)
+	assert.Equal(t, http.StatusConflict, w.Code)
 }
