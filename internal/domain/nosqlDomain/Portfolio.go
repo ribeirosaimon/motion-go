@@ -20,4 +20,9 @@ func (s Portfolio) GetId() interface{} {
 type MineStock struct {
 	StockId  primitive.ObjectID `json:"stockId" bson:"stockId"`
 	BuyPrice decimal.Decimal    `json:"buyPrice" bson:"buyPrice"`
+	Quantity float64            `json:"quantity" bson:"quantity"`
+}
+
+func (m MineStock) CalculeValue() decimal.Decimal {
+	return m.BuyPrice.Mul(decimal.NewFromFloat(m.Quantity))
 }

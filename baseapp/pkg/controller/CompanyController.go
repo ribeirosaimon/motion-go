@@ -30,7 +30,6 @@ func (c *companyController) DeleteCompany(ctx *gin.Context) {
 }
 
 func (c *companyController) GetCompany(ctx *gin.Context) {
-
 	product, err := c.companyService.GetCompany(ctx.Param("id"))
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)

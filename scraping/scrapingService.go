@@ -2,6 +2,7 @@ package scraping
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -28,10 +29,12 @@ func (s *Service) GetSummaryStock(stock string) (nosqlDomain.SummaryStock, error
 	foundCompany, err := companyRepository.FindByField("companyCode", stock)
 
 	if err != nil {
-		stockSummary, err := getStockSummary(stock)
-		if err != nil {
-			return nosqlDomain.SummaryStock{}, err
+		stockSummary := getStockSummary(stock)
+
+		if stockSummary.StockValue.Price == float64(0) {
+			return nosqlDomain.SummaryStock{}, errors.New("this stock does not exist")
 		}
+
 		summary := stockSummary
 		summary.Id = primitive.NewObjectID()
 		summary.CreatedAt = time.Now()
@@ -43,9 +46,9 @@ func (s *Service) GetSummaryStock(stock string) (nosqlDomain.SummaryStock, error
 	add := time.Now().Add(time.Minute * 2)
 	if add.After(foundCompany.UpdatedAt) {
 		log.Printf(fmt.Sprintf("\033[0m Scraping:\033[0m Create scraping in stock: %s.\"", stock))
-		stockSummary, err := getStockSummary(stock)
-		if err != nil {
-			return nosqlDomain.SummaryStock{}, err
+		stockSummary := getStockSummary(stock)
+		if stockSummary.StockValue.Price == float64(0) {
+			return nosqlDomain.SummaryStock{}, errors.New("this stock does not exist")
 		}
 		summary := stockSummary
 		summary.Id = foundCompany.Id

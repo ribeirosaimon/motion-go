@@ -1,7 +1,6 @@
 package scraping
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -9,7 +8,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 )
 
-func getStockSummary(v string) (nosqlDomain.SummaryStock, error) {
+func getStockSummary(v string) nosqlDomain.SummaryStock {
 	url := fmt.Sprintf("%s/quote/%s", domain, v)
 	c := prepareColly()
 
@@ -21,10 +20,6 @@ func getStockSummary(v string) (nosqlDomain.SummaryStock, error) {
 		sumStock.StockValue = getSummaryStockValue(e)
 		sumStock.CompanyCode = v
 	})
-
-	if sumStock.StockValue.Price == float64(0) {
-		return nosqlDomain.SummaryStock{}, errors.New("this stock does not exist")
-	}
 
 	c.OnHTML("#quote-summary", func(e *colly.HTMLElement) {
 		e.ForEach("tbody", func(tbodyNumber int, tbody *colly.HTMLElement) {
@@ -57,7 +52,7 @@ func getStockSummary(v string) (nosqlDomain.SummaryStock, error) {
 	})
 	c.Visit(url)
 	c.Wait()
-	return sumStock, nil
+	return sumStock
 }
 
 func getTdValue(tr *colly.HTMLElement) string {

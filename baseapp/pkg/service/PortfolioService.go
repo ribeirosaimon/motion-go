@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/shopspring/decimal"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
@@ -78,7 +79,7 @@ func (s PortfolioService) DeletePortfolio(loggedUser middleware.LoggedUser) erro
 	return nil
 }
 
-func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.LoggedUser, id string, price decimal.Decimal) (nosqlDomain.Portfolio, error) {
+func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.LoggedUser, id string, buyPrice dto.BuyPriceDTO) (nosqlDomain.Portfolio, error) {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, err
@@ -94,7 +95,8 @@ func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.Logged
 	}
 	var mineStock = nosqlDomain.MineStock{
 		StockId:  companyDb.Id,
-		BuyPrice: price,
+		BuyPrice: buyPrice.Price,
+		Quantity: buyPrice.Quantity,
 	}
 	portfolio.Companies = append(portfolio.Companies, mineStock)
 
@@ -103,7 +105,7 @@ func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.Logged
 	return s.portfolioRepository.Save(portfolio)
 }
 
-func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string, price decimal.Decimal) (nosqlDomain.Portfolio, error) {
+func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.LoggedUser, companyCode string, buyPrice dto.BuyPriceDTO) (nosqlDomain.Portfolio, error) {
 	portfolio, err := s.GetPortfolio(loggedUser)
 	if err != nil {
 		return nosqlDomain.Portfolio{}, errors.New("you not have a portfolio")
@@ -115,8 +117,10 @@ func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.Logg
 	}
 	var mineStock = nosqlDomain.MineStock{
 		StockId:  companyDb.Id,
-		BuyPrice: price,
+		BuyPrice: buyPrice.Price,
+		Quantity: buyPrice.Quantity,
 	}
+	portfolio.Price = mineStock.CalculeValue()
 	portfolio.Companies = append(portfolio.Companies, mineStock)
 
 	save, err := s.portfolioRepository.Save(portfolio)

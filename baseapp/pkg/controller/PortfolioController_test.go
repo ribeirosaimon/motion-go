@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/shopspring/decimal"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
+	"github.com/shopspring/decimal"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
@@ -81,7 +83,11 @@ func TestPortfolioController_AddCompanyByCodeInPortfolio(t *testing.T) {
 	}
 	c.Params = *param
 
-	var price = PriceDTO{Price: decimal.NewFromFloat32(10)}
+	var price = dto.BuyPriceDTO{
+		Price:    decimal.NewFromFloat32(11.5),
+		Quantity: 100,
+	}
+
 	jsonBytes, err := json.Marshal(price)
 	reader := bytes.NewReader(jsonBytes)
 
@@ -103,6 +109,7 @@ func TestPortfolioController_AddCompanyByCodeInPortfolio(t *testing.T) {
 	assert.Equal(t, portfolio.Id, response.Id)
 	assert.Equal(t, portfolio.Companies[0].StockId, response.Companies[0].StockId)
 	assert.Equal(t, portfolio.Status, response.Status)
+	assert.Equal(t, portfolio.Price, decimal.NewFromFloat(115.0))
 }
 
 func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
@@ -116,12 +123,23 @@ func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
 		},
 	}
 	c.Params = *param
+
+	var price = dto.BuyPriceDTO{
+		Price:    decimal.NewFromFloat(11.5),
+		Quantity: 100,
+	}
+
+	jsonBytes, err := json.Marshal(price)
+	reader := bytes.NewReader(jsonBytes)
+
+	c.Request = &http.Request{Body: ioutil.NopCloser(reader)}
+
 	portfolioService := service.NewPortfolioService(c, db.Conn)
 	portfolioService.CreatePortfolio(loggedUser)
 
 	NewPortfolioController().AddCompanyInPortfolio(c)
 	var response nosqlDomain.Portfolio
-	err := json.Unmarshal(w.Body.Bytes(), &response)
+	err = json.Unmarshal(w.Body.Bytes(), &response)
 	if err != nil {
 		t.Errorf("Error in unmarshal json %d", w.Body)
 	}
@@ -132,6 +150,7 @@ func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
 	assert.Equal(t, portfolio.Id, response.Id)
 	assert.Equal(t, portfolio.Companies[0].StockId, response.Companies[0].StockId)
 	assert.Equal(t, portfolio.Status, response.Status)
+	assert.Equal(t, portfolio.Price, decimal.NewFromFloat(115.0))
 }
 
 func TestPortfolioController_AddCompanyInPortfolioWithError(t *testing.T) {

@@ -58,9 +58,10 @@ func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool
 		foundField = "companyName"
 	}
 	if !scraping.GetTimeOpenMarket() {
+		// looking for this stock in repository
 		summaryStock, err := s.summaryStockRepository.FindByField(foundField, companyName)
 		if err != nil {
-			return middleware.GetCache().GetByCompanyCode(summaryStock.CompanyCode)
+			return middleware.GetCache().GetByCompanyName(companyName)
 		}
 		return summaryStock, nil
 	}
@@ -68,7 +69,7 @@ func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool
 	if err != nil {
 		summaryStock, err := s.summaryStockRepository.FindByField(foundField, companyName)
 		if err != nil {
-			return middleware.GetCache().GetByCompanyCode(summaryStock.CompanyCode)
+			return middleware.GetCache().GetByCompanyName(companyName)
 		}
 		return summaryStock, nil
 	}
