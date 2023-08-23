@@ -45,6 +45,9 @@ func (s PortfolioService) GetPortfolio(user middleware.LoggedUser) (nosqlDomain.
 func (s PortfolioService) CreatePortfolio(loggedUser middleware.LoggedUser) (nosqlDomain.Portfolio, error) {
 	_, err := s.GetPortfolio(loggedUser)
 	if err == nil {
+		return nosqlDomain.Portfolio{}, errors.New("error in loggedUser")
+	}
+	if s.portfolioRepository.ExistByField("ownerId", loggedUser.UserId) {
 		return nosqlDomain.Portfolio{}, errors.New("you already have a shopping cart")
 	}
 
@@ -98,6 +101,7 @@ func (s PortfolioService) AddCompanyInPortfolioById(loggedUser middleware.Logged
 		BuyPrice: buyPrice.Price,
 		Quantity: buyPrice.Quantity,
 	}
+	portfolio.Price += mineStock.CalculeValue()
 	portfolio.Companies = append(portfolio.Companies, mineStock)
 
 	portfolio.UpdatedAt = time.Now()
@@ -120,7 +124,7 @@ func (s PortfolioService) AddCompanyInPortfolioByCode(loggedUser middleware.Logg
 		BuyPrice: buyPrice.Price,
 		Quantity: buyPrice.Quantity,
 	}
-	portfolio.Price = mineStock.CalculeValue()
+	portfolio.Price += mineStock.CalculeValue()
 	portfolio.Companies = append(portfolio.Companies, mineStock)
 
 	save, err := s.portfolioRepository.Save(portfolio)

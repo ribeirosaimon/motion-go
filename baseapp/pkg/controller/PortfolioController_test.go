@@ -9,10 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
-	"github.com/shopspring/decimal"
-
 	"github.com/gin-gonic/gin"
+	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
@@ -84,7 +82,7 @@ func TestPortfolioController_AddCompanyByCodeInPortfolio(t *testing.T) {
 	c.Params = *param
 
 	var price = dto.BuyPriceDTO{
-		Price:    decimal.NewFromFloat32(11.5),
+		Price:    11.5,
 		Quantity: 100,
 	}
 
@@ -95,6 +93,7 @@ func TestPortfolioController_AddCompanyByCodeInPortfolio(t *testing.T) {
 
 	portfolioService := service.NewPortfolioService(c, db.Conn)
 	portfolioService.CreatePortfolio(loggedUser)
+	portfolioService.AddCompanyInPortfolioByCode(loggedUser, "TEST2", price)
 
 	NewPortfolioController().AddCompanyByCodeInPortfolio(c)
 	var response nosqlDomain.Portfolio
@@ -109,7 +108,7 @@ func TestPortfolioController_AddCompanyByCodeInPortfolio(t *testing.T) {
 	assert.Equal(t, portfolio.Id, response.Id)
 	assert.Equal(t, portfolio.Companies[0].StockId, response.Companies[0].StockId)
 	assert.Equal(t, portfolio.Status, response.Status)
-	assert.Equal(t, portfolio.Price, decimal.NewFromFloat(115.0))
+	assert.Equal(t, portfolio.Price, float64(2300))
 }
 
 func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
@@ -125,7 +124,7 @@ func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
 	c.Params = *param
 
 	var price = dto.BuyPriceDTO{
-		Price:    decimal.NewFromFloat(11.5),
+		Price:    11.5,
 		Quantity: 100,
 	}
 
@@ -150,7 +149,7 @@ func TestPortfolioController_AddCompanyInPortfolio(t *testing.T) {
 	assert.Equal(t, portfolio.Id, response.Id)
 	assert.Equal(t, portfolio.Companies[0].StockId, response.Companies[0].StockId)
 	assert.Equal(t, portfolio.Status, response.Status)
-	assert.Equal(t, portfolio.Price, decimal.NewFromFloat(115.0))
+	assert.Equal(t, portfolio.Price, float64(1150))
 }
 
 func TestPortfolioController_AddCompanyInPortfolioWithError(t *testing.T) {
@@ -167,7 +166,7 @@ func TestPortfolioController_AddCompanyInPortfolioWithError(t *testing.T) {
 
 	NewPortfolioController().AddCompanyInPortfolio(c)
 
-	assert.Equal(t, http.StatusConflict, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 }
 

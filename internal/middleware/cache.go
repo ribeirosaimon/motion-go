@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"errors"
+	"github.com/ribeirosaimon/motion-go/internal/config"
+
 	"log"
 	"time"
 
@@ -12,9 +14,9 @@ import (
 )
 
 type MotionCache struct {
-	Company   map[string]*Store
-	Service   *scraping.Service
-	CacheTime uint8
+	Service *scraping.Service
+	Config  *config.MotionConfig
+	Company map[string]*Store
 }
 
 type Store struct {
@@ -28,18 +30,18 @@ func GetCache() *MotionCache {
 	return Cache
 }
 
-func NewMotionCache(conn *db.Connections, haveScraping bool, scrapingTime, cacheTime uint8) *MotionCache {
+func NewMotionCache(conn *db.Connections, motionConfig *config.MotionConfig) *MotionCache {
 	if Cache == nil {
 		service := scraping.NewScrapingService(conn)
 		Cache = &MotionCache{
-			Company:   make(map[string]*Store),
-			Service:   service,
-			CacheTime: cacheTime,
+			Company: make(map[string]*Store),
+			Service: service,
+			Config:  motionConfig,
 		}
-		Cache.cron(haveScraping, scrapingTime)
+		Cache.cron()
 		return Cache
 	}
-	Cache.cron(haveScraping, scrapingTime)
+	Cache.cron()
 	return Cache
 }
 
@@ -68,16 +70,17 @@ func (m *MotionCache) Add(company nosqlDomain.SummaryStock) {
 	if len(m.Company) <= 50 {
 		var store = &Store{
 			Info:       company,
-			expiration: time.Now().Add(time.Minute * time.Duration(m.CacheTime)),
+			expiration: time.Now().Add(time.Minute * time.Duration(m.Config.CacheTime)),
 		}
 		m.Company[store.Info.CompanyCode] = store
 	}
 }
 
-func (m *MotionCache) cron(haveScraping bool, scrapingTime uint8) {
+func (m *MotionCache) cron() {
 
 	if scraping.GetTimeOpenMarket() {
-		if haveScraping {
+
+		if m.Config.HaveScraping {
 			for {
 				stocks := m.Service.GetAllStocks()
 				for _, stock := range stocks {
@@ -93,7 +96,7 @@ func (m *MotionCache) cron(haveScraping bool, scrapingTime uint8) {
 					}
 				}
 				log.Println("cron was finished")
-				time.Sleep(time.Minute * time.Duration(scrapingTime))
+				time.Sleep(time.Minute * time.Duration(m.Config.ScrapingTime))
 			}
 		}
 	} else {

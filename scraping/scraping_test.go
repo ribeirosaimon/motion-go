@@ -6,7 +6,6 @@ import (
 )
 
 func TestScrapingReturnError(t *testing.T) {
-	summary, err := getStockSummary("test")
+	summary := getStockSummary("test")
 	assert.Equal(t, summary.Summary.Open, float64(0))
-	assert.Error(t, err, "this stock does not exist")
 }

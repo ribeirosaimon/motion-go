@@ -25,10 +25,10 @@ func main() {
 	motionConfig := config.NewMotionConfig(context.Background(), motionGo.PropertiesFile)
 	setUpRoles()
 
-	go middleware.NewMotionCache(db.Conn, motionConfig.HaveScraping, motionConfig.ScrapingTime, motionConfig.CacheTime)
+	go middleware.NewMotionCache(db.Conn, motionConfig)
 
 	motionGo.AddRouter(version1)
-	motionGo.CreateRouters()
+	motionGo.CreateRouters(middleware.NewLogger)
 	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))
 }
 

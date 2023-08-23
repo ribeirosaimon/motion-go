@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ribeirosaimon/motion-go/internal/middleware"
-
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
 )
@@ -35,8 +33,8 @@ func (m *MotionGo) AddRouter(version ...RoutersVersion) {
 	m.Routers = append(m.Routers, version...)
 }
 
-func (m *MotionGo) CreateRouters() {
-	m.MotionEngine.Use(middleware.NewLogger())
+func (m *MotionGo) CreateRouters(logger func() gin.HandlerFunc) {
+	m.MotionEngine.Use(logger())
 	for _, routerVersions := range m.Routers {
 		apiVersion := m.MotionEngine.Group(fmt.Sprintf("/api/%s", routerVersions.Version))
 		for _, routersFunc := range routerVersions.Handlers {

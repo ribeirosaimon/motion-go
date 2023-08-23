@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/scraping"
 
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
@@ -31,6 +32,11 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 	middleware.Cache = &middleware.MotionCache{
 		Company: make(map[string]*middleware.Store),
 		Service: scraping.NewScrapingService(db.Conn),
+		Config: &config.MotionConfig{
+			CacheTime:    100,
+			ScrapingTime: 100,
+			HaveScraping: false,
+		},
 	}
 
 	setUpRoles()
