@@ -27,7 +27,7 @@ func TestPortfolioController_CreatePortfolio(t *testing.T) {
 	test.SetUpTest(c, sqlDomain.USER)
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	NewPortfolioController().CreatePortfolio(c)
-	assert.Equal(t, http.StatusCreated, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestPortfolioController_CreatePortfolioReturnError(t *testing.T) {

@@ -5,5 +5,9 @@ import (
 )
 
 func Entity(c *gin.Context, httpStatus int, body interface{}) {
-	c.JSON(httpStatus, body)
+	if body == nil {
+		c.Status(httpStatus)
+	} else {
+		c.JSON(httpStatus, body)
+	}
 }

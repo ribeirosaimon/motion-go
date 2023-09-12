@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
@@ -8,7 +10,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
-	"net/http"
 )
 
 type loginController struct {

@@ -61,11 +61,20 @@ func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool
 		// looking for this stock in repository
 		summaryStock, err := s.summaryStockRepository.FindByField(foundField, companyName)
 		if err != nil {
+			if code {
+				return middleware.GetCache().GetByCompanyCode(companyName)
+			}
 			return middleware.GetCache().GetByCompanyName(companyName)
 		}
 		return summaryStock, nil
 	}
-	name, err := middleware.GetCache().GetByCompanyName(companyName)
+	name := nosqlDomain.SummaryStock{}
+	var err error
+	if code {
+		name, err = middleware.GetCache().GetByCompanyCode(companyName)
+	} else {
+		name, err = middleware.GetCache().GetByCompanyName(companyName)
+	}
 	if err != nil {
 		summaryStock, err := s.summaryStockRepository.FindByField(foundField, companyName)
 		if err != nil {

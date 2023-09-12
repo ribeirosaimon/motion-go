@@ -87,4 +87,5 @@ func (s *Service) GetAllStocks() []string {
 
 type stockDTO struct {
 	CompanyCode string `bson:"companyCode"`
+	IsBrazilian bool   `bson:"isBrazilian"`
 }

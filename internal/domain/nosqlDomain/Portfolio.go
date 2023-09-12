@@ -8,6 +8,7 @@ type Portfolio struct {
 	BasicNoSQL `bson:"inline"`
 	Id         primitive.ObjectID `json:"id" bson:"_id" gorm:"primaryKey"`
 	OwnerId    uint64             `json:"ownerId" bson:"ownerId"`
+	Cash       float64            `json:"cash" bson:"cash"`
 	Price      float64            `json:"price" bson:"price"`
 	Companies  []MineStock        `json:"companies" bson:"companies"`
 }
