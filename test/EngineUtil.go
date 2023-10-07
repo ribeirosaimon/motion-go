@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/scraping"
 
@@ -60,7 +61,7 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 	var profile sqlDomain.Profile
 
 	if !userRepository.ExistByField("email", loginDto.Email) {
-		profile, _ = loginService.SignUp(signUp)
+		profile, _ = loginService.SignUp(ctx, signUp)
 	} else {
 		profileRepository := repository.NewProfileRepository(db.Conn.GetPgsqTemplate())
 		user, _ := userRepository.FindByField("email", signUp.Email)

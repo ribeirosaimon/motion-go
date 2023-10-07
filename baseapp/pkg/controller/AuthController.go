@@ -21,34 +21,34 @@ func NewAuthController() *loginController {
 	return &loginController{service: &authService}
 }
 
-func (l *loginController) SignUp(c *gin.Context) {
+func (l *loginController) SignUp(ctx *gin.Context) {
 	var signupDto dto.SignUpDto
 
-	if err := c.BindJSON(&signupDto); err != nil {
-		exceptions.BodyError().Throw(c)
+	if err := ctx.BindJSON(&signupDto); err != nil {
+		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	profile, err := l.service.SignUp(signupDto)
+	profile, err := l.service.SignUp(ctx, signupDto)
 	if err != nil {
-		err.Throw(c)
+		err.Throw(ctx)
 		return
 	}
-	httpResponse.Entity(c, http.StatusCreated, profile)
+	httpResponse.Entity(ctx, http.StatusCreated, profile)
 }
 
-func (l *loginController) Login(c *gin.Context) {
+func (l *loginController) Login(ctx *gin.Context) {
 	var signupDto dto.LoginDto
 
-	if err := c.BindJSON(&signupDto); err != nil {
-		exceptions.BodyError().Throw(c)
+	if err := ctx.BindJSON(&signupDto); err != nil {
+		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	session, err := l.service.Login(signupDto)
+	session, err := l.service.Login(ctx, signupDto)
 	if err != nil {
-		err.Throw(c)
+		exceptions.InternalServer(err.Error()).Throw(ctx)
 		return
 	}
-	httpResponse.Entity(c, http.StatusOK, session)
+	httpResponse.Entity(ctx, http.StatusOK, session)
 }
 
 func (l *loginController) WhoAmI(c *gin.Context) {

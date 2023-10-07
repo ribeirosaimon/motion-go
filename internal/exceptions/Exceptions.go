@@ -76,5 +76,6 @@ func Forbidden() *Error {
 
 func (e Error) Throw(c *gin.Context) {
 	c.JSON(e.Status, e)
+	c.Done()
 	c.Abort()
 }
