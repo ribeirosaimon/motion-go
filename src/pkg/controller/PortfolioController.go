@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
+	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/src/pkg/service"
 )
 
 type portfolioController struct {

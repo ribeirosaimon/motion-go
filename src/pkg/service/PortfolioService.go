@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"

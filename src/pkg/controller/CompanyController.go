@@ -5,10 +5,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
+	"github.com/ribeirosaimon/motion-go/src/pkg/service"
 )
 
 type companyController struct {
@@ -39,7 +39,7 @@ func (c *companyController) GetCompany(ctx *gin.Context) {
 }
 
 func (c *companyController) GetCompanyInfo(ctx *gin.Context) {
-	companyName, err := c.companyService.FindByCompanyByCodeOrName(ctx.Param("companyName"), false)
+	companyName, err := c.companyService.FindByCompanyByCodeOrName(ctx.Param("companyCode"), false)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return

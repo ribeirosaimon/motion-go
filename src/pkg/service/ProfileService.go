@@ -19,8 +19,8 @@ func NewProfileService(conections *db.Connections) *ProfileService {
 		profileRepository: repository.NewProfileRepository(conections.GetPgsqTemplate()),
 		roleRepository:    repository.NewRoleRepository(conections.GetPgsqTemplate()),
 	}
-
 }
+
 func (l *ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlDomain.RoleEnum) (sqlDomain.Profile, error) {
 	var profile sqlDomain.Profile
 

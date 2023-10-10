@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/router"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/util"
+	"github.com/ribeirosaimon/motion-go/src/pkg/router"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 
 	motionGo.AddRouter(version1)
 	motionGo.CreateRouters(middleware.NewLogger)
-	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.baseapp", 0))
+	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.src", 0))
 }
 
 func setUpRoles() {

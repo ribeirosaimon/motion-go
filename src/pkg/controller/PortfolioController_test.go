@@ -10,13 +10,13 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
+	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/src/pkg/service"
 	"github.com/ribeirosaimon/motion-go/test"
 	"github.com/stretchr/testify/assert"
 )

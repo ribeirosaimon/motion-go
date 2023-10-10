@@ -13,6 +13,10 @@ type Transaction struct {
 	BasicSQL
 }
 
+func (t Transaction) GetId() interface{} {
+	return t.Id
+}
+
 type OperationType string
 
 const (

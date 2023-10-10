@@ -1,12 +1,13 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
-	"net/http"
+	"github.com/ribeirosaimon/motion-go/src/pkg/service"
 )
 
 type healthController struct {
@@ -18,6 +19,7 @@ func NewHealthController() *healthController {
 
 	return &healthController{service: &healthService}
 }
+
 func (c *healthController) OpenHealth(ctx *gin.Context) {
 	health := c.service.GetOpenHealthService()
 

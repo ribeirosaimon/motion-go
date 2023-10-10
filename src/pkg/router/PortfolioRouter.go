@@ -3,10 +3,10 @@ package router
 import (
 	"net/http"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/controller"
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
+	"github.com/ribeirosaimon/motion-go/src/pkg/controller"
 )
 
 func NewPortfolioRouter() config.MotionController {

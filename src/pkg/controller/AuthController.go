@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/httpResponse"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
+	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/src/pkg/service"
 )
 
 type loginController struct {
@@ -28,7 +28,7 @@ func (l *loginController) SignUp(ctx *gin.Context) {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	profile, err := l.service.SignUp(ctx, signupDto)
+	profile, err := l.service.SignUp(signupDto)
 	if err != nil {
 		err.Throw(ctx)
 		return
@@ -43,9 +43,9 @@ func (l *loginController) Login(ctx *gin.Context) {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	session, err := l.service.Login(ctx, signupDto)
+	session, err := l.service.Login(signupDto)
 	if err != nil {
-		exceptions.InternalServer(err.Error()).Throw(ctx)
+		exceptions.NotFound().Throw(ctx)
 		return
 	}
 	httpResponse.Entity(ctx, http.StatusOK, session)

@@ -1,11 +1,13 @@
-FROM golang:1.19-alpine as builder
-
+FROM golang:latest as builder
 WORKDIR /app
-COPY . .
 COPY go.mod .
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o server ./cmd/main.go
+COPY go.sum .
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o motion-go src/cmd/main.go
+
 
 FROM scratch
-COPY --from=builder /app/server .
-COPY --from=builder /app/config.properties .
-CMD ["./server"]
+COPY --from=builder /app/motion-go /motion-go
+COPY config.properties /config.properties
+ENTRYPOINT ["/motion-go"]

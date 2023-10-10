@@ -3,12 +3,12 @@ package service
 import (
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
+	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
 )
 
 type AuthService struct {

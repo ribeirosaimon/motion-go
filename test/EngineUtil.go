@@ -6,16 +6,16 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/scraping"
 
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/service"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/util"
+	"github.com/ribeirosaimon/motion-go/src/pkg/service"
 )
 
 func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser {
@@ -61,7 +61,7 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 	var profile sqlDomain.Profile
 
 	if !userRepository.ExistByField("email", loginDto.Email) {
-		profile, _ = loginService.SignUp(ctx, signUp)
+		profile, _ = loginService.SignUp(signUp)
 	} else {
 		profileRepository := repository.NewProfileRepository(db.Conn.GetPgsqTemplate())
 		user, _ := userRepository.FindByField("email", signUp.Email)

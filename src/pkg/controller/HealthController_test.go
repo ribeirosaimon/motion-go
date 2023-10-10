@@ -10,7 +10,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/test"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/baseapp/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
 	"github.com/stretchr/testify/assert"
 )
 
