@@ -16,5 +16,7 @@ func NewLoginRouter() config.MotionController {
 		config.NewMotionRouter(http.MethodPost, "/sign-up", controller.NewAuthController().SignUp),
 		config.NewMotionRouter(http.MethodGet, "/whoami", controller.NewAuthController().WhoAmI,
 			middleware.Authorization()),
+		config.NewMotionRouter(http.MethodPost, "/validate", controller.NewAuthController().ValidateEmail,
+			middleware.Authorization()),
 	)
 }

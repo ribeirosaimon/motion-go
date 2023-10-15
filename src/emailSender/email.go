@@ -7,7 +7,7 @@ func emailValue(code string) string {
     <!DOCTYPE html>
     <html>
     <head>
-    <title>Binary Code: 101010</title>
+    <title>Motion Code:</title>
     <style>
     body {
     font-family: Arial, sans-serif;

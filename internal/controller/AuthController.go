@@ -64,7 +64,7 @@ func (l *loginController) WhoAmI(c *gin.Context) {
 	}
 	response.Entity(c, http.StatusOK, i)
 }
-func (l *loginController) validateEmail(ctx *gin.Context) {
+func (l *loginController) ValidateEmail(ctx *gin.Context) {
 	user, err := middleware.GetLoggedUser(ctx)
 	if err != nil {
 		exceptions.Forbidden().Throw(ctx)
