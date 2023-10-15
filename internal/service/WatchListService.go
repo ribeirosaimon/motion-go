@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -59,7 +58,6 @@ func (s WatchListService) CreateWatchList(loggedUser middleware.LoggedUser) (nos
 	portfolio.Id = primitive.NewObjectID()
 	portfolio.OwnerId = user.GetId().(uint64)
 	portfolio.CreatedAt = time.Now()
-	portfolio.Status = domain.ACTIVE
 	portfolio.Companies = make([]primitive.ObjectID, 0)
 	savedShoppingCart, err := s.watchListRepository.Save(portfolio)
 	if err != nil {

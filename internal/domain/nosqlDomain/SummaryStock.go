@@ -10,6 +10,7 @@ type SummaryStock struct {
 	CompanyCode string             `json:"companyCode" bson:"companyCode"`
 	StockValue  SumarryStockValue  `json:"stockValue" bson:"stockValue"`
 	Summary     Summary            `json:"summary" bson:"summary"`
+	Status      SummaryStatus      `json:"status" bson:"status"`
 	BasicNoSQL  `bson:"inline"`
 }
 
@@ -36,3 +37,10 @@ type RangePrice struct {
 	Start float64 `json:"start" bson:"start"`
 	End   float64 `json:"end" bson:"end"`
 }
+
+type SummaryStatus string
+
+const (
+	ACTIVE   SummaryStatus = "ACTIVE"
+	INACTIVE SummaryStatus = "INACTIVE"
+)

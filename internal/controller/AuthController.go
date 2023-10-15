@@ -64,3 +64,21 @@ func (l *loginController) WhoAmI(c *gin.Context) {
 	}
 	response.Entity(c, http.StatusOK, i)
 }
+func (l *loginController) validateEmail(ctx *gin.Context) {
+	user, err := middleware.GetLoggedUser(ctx)
+	if err != nil {
+		exceptions.Forbidden().Throw(ctx)
+		return
+	}
+
+	var code validateEmailDTO
+	if err := ctx.BindJSON(&code); err != nil {
+		exceptions.BodyError().Throw(ctx)
+		return
+	}
+	l.service.ValidateEmail(user, code.Code)
+}
+
+type validateEmailDTO struct {
+	Code string `json:"code"`
+}

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
@@ -34,7 +33,6 @@ func (s *TransactionService) Deposit(loggedUser middleware.LoggedUser, deposit d
 		return transaction, err
 	}
 
-	transaction.Status = domain.ACTIVE
 	transaction.OperationType = sqlDomain.DEPOSIT
 	transaction.Value = deposit.Value
 	transaction.SessionId = session

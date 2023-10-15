@@ -1,10 +1,11 @@
 package service
 
 import (
+	"errors"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
+
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
@@ -44,7 +45,7 @@ func (l *AuthService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 		return "", exceptions.Unauthorized()
 	}
 	profileUser, err := l.profileService.FindProfileByUserId(savedUser.Id)
-	if profileUser.Status == domain.INACTIVE {
+	if profileUser.Status == sqlDomain.INACTIVE {
 		return "", exceptions.Unauthorized()
 	}
 	if err != nil {
@@ -83,8 +84,8 @@ func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *excep
 	}
 
 	profileUser, err := l.profileService.SaveProfileUser(savedUser, signupDto.Roles)
-	code := emailSender.GenerateEmailCode()
-	go emailSender.SendEmail(code)
+
+	go emailSender.SendEmail(profileUser.Code)
 
 	if err != nil {
 		return sqlDomain.Profile{}, exceptions.InternalServer(err.Error())
@@ -99,4 +100,22 @@ func (l *AuthService) WhoAmI(userId uint64) (sqlDomain.Profile, error) {
 		return sqlDomain.Profile{}, err
 	}
 	return user, nil
+}
+
+func (l *AuthService) ValidateEmail(user middleware.LoggedUser, code string) error {
+	profile, err := l.WhoAmI(user.UserId)
+	if err != nil {
+		return err
+	}
+	if profile.Code != code {
+		return errors.New("this code was wrong")
+	}
+	profile.Status = sqlDomain.ACTIVE
+	profile.UpdatedAt = time.Now()
+
+	profile, err = l.profileService.profileRepository.Save(profile)
+	if err != nil {
+		return err
+	}
+	return nil
 }

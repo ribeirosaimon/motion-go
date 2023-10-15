@@ -1,10 +1,10 @@
 package service
 
 import (
+	"github.com/ribeirosaimon/motion-go/src/emailSender"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
@@ -34,11 +34,11 @@ func (l *ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlD
 		profile.Roles = append(profile.Roles, field)
 	}
 
-	profile.Status = domain.INACTIVE
-	profile.Birthday = user.Birthday
-	profile.FamilyName = user.LastName
+	profile.Status = sqlDomain.EMAIL_SYNC
 	profile.CreatedAt = time.Now()
 	profile.MotionUserId = user.Id
+	code := emailSender.GenerateEmailCode()
+	profile.Code = code
 
 	save, err := l.profileRepository.Save(profile)
 	if err != nil {

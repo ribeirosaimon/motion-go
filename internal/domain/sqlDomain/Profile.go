@@ -1,11 +1,12 @@
 package sqlDomain
 
 type Profile struct {
-	Id           uint64 `json:"id" gorm:"primary_key"`
-	Name         string `json:"name"`
-	MotionUserId uint64 `json:"-"  gorm:"foreignkey:Id"`
-	Roles        []Role `json:"roles,omitempty" gorm:"many2many:profile_roles;"`
-	Status
+	Id           uint64        `json:"id" gorm:"primary_key"`
+	Name         string        `json:"name"`
+	MotionUserId uint64        `json:"-"  gorm:"foreignkey:Id"`
+	Code         string        `json:"code"`
+	Status       ProfileStatus `json:"status"`
+	Roles        []Role        `json:"roles,omitempty" gorm:"many2many:profile_roles;"`
 	BasicSQL
 }
 
@@ -23,3 +24,11 @@ func (p Profile) GetId() interface{} {
 }
 
 type RoleList []string
+
+type ProfileStatus string
+
+const (
+	ACTIVE     ProfileStatus = "ACTIVE"
+	INACTIVE   ProfileStatus = "INACTIVE"
+	EMAIL_SYNC ProfileStatus = "EMAIL_SYNC"
+)

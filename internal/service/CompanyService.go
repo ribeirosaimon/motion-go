@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
@@ -26,7 +25,7 @@ func NewCompanyService(conn *db.Connections) *CompanyService {
 func (s *CompanyService) GetCompany(id string) (nosqlDomain.SummaryStock, error) {
 
 	byId, err := s.summaryStockRepository.FindById(id)
-	if err != nil || byId.Status == domain.INACTIVE {
+	if err != nil || byId.Status == nosqlDomain.INACTIVE {
 		return nosqlDomain.SummaryStock{}, err
 	}
 	return byId, nil
@@ -39,7 +38,6 @@ func (s *CompanyService) DeleteCompany(id string) bool {
 	}
 
 	product.BasicNoSQL = nosqlDomain.BasicNoSQL{
-		Status:    domain.INACTIVE,
 		UpdatedAt: time.Now(),
 	}
 
