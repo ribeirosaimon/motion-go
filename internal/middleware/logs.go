@@ -13,7 +13,7 @@ import (
 type motionLog struct {
 	Api          string      `json:"api"`
 	HttpRequest  request     `json:"httpRequest"`
-	HttpResponse response    `json:"httpResponse"`
+	HttpResponse response    `json:"response"`
 	LoggedUser   *LoggedUser `json:"loggedUser,omitempty"`
 	Timestamp    time.Time   `json:"timestamp"`
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 func FindRootDir() (string, error) {
@@ -33,4 +34,13 @@ func FindRootDir() (string, error) {
 	}
 
 	return "", fmt.Errorf("raiz do projeto não encontrada")
+}
+
+func ValidateEmail(email string) bool {
+	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+
+	if re.MatchString(email) {
+		return true
+	}
+	return false
 }

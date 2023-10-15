@@ -61,7 +61,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 					}
 					for _, v := range roles {
 						if profile.HaveRole(v.Name) {
-							putLoggedUserInContext(c, motionLoggedRole, profile)
+							putLoggedUserInContext(c, motionLoggedRole, profile, savedSession)
 							c.Next()
 							return
 						}
@@ -69,7 +69,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 				}
 				profile, err := repository.NewProfileRepository(db.Conn.GetPgsqTemplate()).
 					FindWithPreloads("Roles", savedSession.ProfileId)
-				putLoggedUserInContext(c, profile.Roles[0], profile)
+				putLoggedUserInContext(c, profile.Roles[0], profile, savedSession)
 				c.Next()
 				return
 
@@ -83,11 +83,12 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 	}
 }
 
-func putLoggedUserInContext(c *gin.Context, roleLoggedser sqlDomain.Role, p sqlDomain.Profile) {
+func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain.Role, p sqlDomain.Profile, s sqlDomain.Session) {
 	var loggedUser LoggedUser
-	loggedUser.UserId = uint64(roleLoggedser.Id)
+	loggedUser.UserId = p.MotionUserId
 	loggedUser.Name = p.Name
-	loggedUser.Role = roleLoggedser
+	loggedUser.Role = roleLoggedUser
+	loggedUser.SessionId = s.SessionId
 
 	c.Set("loggedUser", loggedUser)
 }
@@ -112,7 +113,8 @@ func CheckPassword(password string, storedPassword string) error {
 }
 
 type LoggedUser struct {
-	Name   string         `json:"name"`
-	UserId uint64         `json:"loggedId"`
-	Role   sqlDomain.Role `json:"role"`
+	Name      string         `json:"name"`
+	UserId    uint64         `json:"loggedId"`
+	SessionId string         `json:"sessionId"`
+	Role      sqlDomain.Role `json:"role"`
 }

@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
-	"github.com/ribeirosaimon/motion-go/scraping"
-
-	"github.com/ribeirosaimon/motion-go/src/pkg/dto"
+	"github.com/ribeirosaimon/motion-go/internal/dto"
+	"github.com/ribeirosaimon/motion-go/internal/service"
+	"github.com/ribeirosaimon/motion-go/src/scraping"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
@@ -15,7 +15,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/util"
-	"github.com/ribeirosaimon/motion-go/src/pkg/service"
 )
 
 func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser {
