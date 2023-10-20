@@ -36,6 +36,7 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 			CacheTime:    100,
 			ScrapingTime: 100,
 			HaveScraping: false,
+			InitialValue: 1000,
 		},
 	}
 

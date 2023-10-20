@@ -23,7 +23,7 @@ func newMotionSQLRepository[T Entity](gormConnection *gorm.DB) *MotionSQLReposit
 	}
 }
 
-func (m MotionSQLRepository[T]) ExistByField(field string, fieldvalue interface{}) bool {
+func (m *MotionSQLRepository[T]) ExistByField(field string, fieldvalue interface{}) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	var value T
@@ -36,7 +36,7 @@ func (m MotionSQLRepository[T]) ExistByField(field string, fieldvalue interface{
 	return false
 }
 
-func (m MotionSQLRepository[T]) FindWithPreloads(preloads string, s interface{}) (T, error) {
+func (m *MotionSQLRepository[T]) FindWithPreloads(preloads string, s interface{}) (T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	var value T
@@ -49,7 +49,7 @@ func (m MotionSQLRepository[T]) FindWithPreloads(preloads string, s interface{})
 	return value, nil
 }
 
-func (m MotionSQLRepository[T]) FindByField(field string, fieldvalue interface{}) (T, error) {
+func (m *MotionSQLRepository[T]) FindByField(field string, fieldvalue interface{}) (T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	var value T
@@ -62,7 +62,7 @@ func (m MotionSQLRepository[T]) FindByField(field string, fieldvalue interface{}
 	return value, nil
 }
 
-func (m MotionSQLRepository[T]) FindById(s interface{}) (T, error) {
+func (m *MotionSQLRepository[T]) FindById(s interface{}) (T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	var value T
@@ -75,7 +75,7 @@ func (m MotionSQLRepository[T]) FindById(s interface{}) (T, error) {
 	return value, nil
 }
 
-func (m MotionSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
+func (m *MotionSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	var values []T
@@ -87,7 +87,7 @@ func (m MotionSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
 	return values, nil
 }
 
-func (m MotionSQLRepository[T]) DeleteById(s interface{}) error {
+func (m *MotionSQLRepository[T]) DeleteById(s interface{}) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	value, err := m.FindById(s)
@@ -102,7 +102,7 @@ func (m MotionSQLRepository[T]) DeleteById(s interface{}) error {
 	return errors.New("values not found")
 }
 
-func (m MotionSQLRepository[T]) Save(structValue T) (T, error) {
+func (m *MotionSQLRepository[T]) Save(structValue T) (T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	var value T
@@ -114,6 +114,17 @@ func (m MotionSQLRepository[T]) Save(structValue T) (T, error) {
 		ctx.Done()
 		return value, fmt.Errorf(err.Error())
 	}
-	return m.FindById(structValue.GetId())
+	return m.FindByField("id", structValue.GetId())
+}
 
+func (m *MotionSQLRepository[T]) createNativeSQLQuery(query string, returnedObject interface{}, vargs ...string) (interface{}, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
+	defer cancel()
+	result := m.database.Raw(query, vargs).Scan(returnedObject)
+
+	if result.Error != nil {
+		ctx.Done()
+		return nil, result.Error
+	}
+	return result, nil
 }

@@ -38,4 +38,4 @@ func GenerateEmailCode() string {
 	return fmt.Sprintf("%06d", codigo)
 }
 
-// https://	mailtrap.io/
+// https://mailtrap.io/

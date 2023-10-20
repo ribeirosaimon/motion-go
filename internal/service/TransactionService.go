@@ -27,7 +27,11 @@ func NewTransactionService(conections *db.Connections) *TransactionService {
 func (s *TransactionService) Deposit(loggedUser middleware.LoggedUser, deposit dto.Deposit) (sqlDomain.Transaction, error) {
 
 	var transaction sqlDomain.Transaction
-	session, err := s.sessionRepository.FindById(loggedUser.SessionId)
+	session, err := s.sessionRepository.FindByField("id", loggedUser.SessionId)
+	if err != nil {
+		return transaction, err
+	}
+
 	profile, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
 	if err != nil {
 		return transaction, err
@@ -35,11 +39,29 @@ func (s *TransactionService) Deposit(loggedUser middleware.LoggedUser, deposit d
 
 	transaction.OperationType = sqlDomain.DEPOSIT
 	transaction.Value = deposit.Value
-	transaction.SessionId = session
-	transaction.ProfileId = profile
+	transaction.SessionId = session.Id
+	transaction.ProfileId = profile.Id
 	var today = time.Now()
 	transaction.CreatedAt = today
 	transaction.UpdatedAt = today
+	transaction, err = s.transactionRepository.Save(transaction)
+	if err != nil {
+		return sqlDomain.Transaction{}, err
+	}
 
 	return transaction, nil
+}
+
+func (s *TransactionService) Balance(loggedUser middleware.LoggedUser) error {
+
+	// var transaction sqlDomain.Transaction
+	// session, err := s.sessionRepository.FindById(loggedUser.SessionId)
+	// profile, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// var query = "SELECT SUM() FROM "
+
+	return nil
 }

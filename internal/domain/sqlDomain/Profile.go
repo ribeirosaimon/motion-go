@@ -4,7 +4,7 @@ type Profile struct {
 	Id           uint64        `json:"id" gorm:"primary_key"`
 	Name         string        `json:"name"`
 	MotionUserId uint64        `json:"-"  gorm:"foreignkey:Id"`
-	Code         string        `json:"code"`
+	Code         string        `json:"-"`
 	Status       ProfileStatus `json:"status"`
 	Roles        []Role        `json:"roles,omitempty" gorm:"many2many:profile_roles;"`
 	BasicSQL

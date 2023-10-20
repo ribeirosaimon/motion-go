@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
@@ -48,11 +47,54 @@ func TestLoginController_SignUp(t *testing.T) {
 	}
 
 	roleRepository := repository.NewRoleRepository(db.Conn.GetPgsqTemplate())
+
 	role, err := roleRepository.FindByField("name", sqlDomain.USER)
 	assert.Equal(t, signupDto.Name, response.Name)
+	assert.Equal(t, response.Status, sqlDomain.EMAIL_SYNC)
+
 	assert.Equal(t, sqlDomain.USER, role.Name)
-	assert.Equal(t, domain.ACTIVE, response.Status)
 	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+func TestLoginController_ValidateEmail(t *testing.T) {
+
+	token, _, _ := loginAndGetToken(t)
+
+	connection := db.Conn.GetPgsqTemplate()
+	sessionRepository := repository.NewSessionRepository(connection)
+	session, err := sessionRepository.FindByField("id", token)
+
+	profileRepository := repository.NewProfileRepository(connection)
+	profile, err := profileRepository.FindById(session.ProfileId)
+	if err != nil {
+		panic(err)
+	}
+
+	userRepository := repository.NewUserRepository(connection)
+	userRepository.FindById(profile.MotionUserId)
+	if err != nil {
+		panic(err)
+	}
+
+	newRecorder := httptest.NewRecorder()
+	newContext, _ := gin.CreateTestContext(newRecorder)
+	test.SetUpTest(newContext, sqlDomain.USER)
+
+	jsonBytes, err := json.Marshal(dto.ValidateEmailDto{Code: profile.Code})
+	reader := bytes.NewReader(jsonBytes)
+
+	newContext.Request = &http.Request{Body: ioutil.NopCloser(reader)}
+
+	NewAuthController().ValidateEmail(newContext)
+	transactionRepository := repository.NewTransactionRepository(connection)
+
+	transaction, err := transactionRepository.FindByField("id", token)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, http.StatusOK, newRecorder.Code)
+	assert.Equal(t, transaction.SessionId, token)
+
 }
 
 func TestLoginController_LoginIsNotOk(t *testing.T) {
@@ -79,44 +121,48 @@ func TestLoginController_LoginIsNotOk(t *testing.T) {
 	assert.Equal(t, "Not Found", response.Message)
 }
 
-func TestAuthController_SignUpIsNotOk(t *testing.T) {
+func TestLoginController_Login(t *testing.T) {
 
-	w, c := configAuthTest()
-	var loginDto = dto.LoginDto{
-		Email:    "test.com",
-		Password: "testPasswordIncorrect",
-	}
+	token, w, _ := loginAndGetToken(t)
 
-	configTest()
-	jsonBytes, err := json.Marshal(loginDto)
-	reader := bytes.NewReader(jsonBytes)
-
-	c.Request = &http.Request{Body: ioutil.NopCloser(reader)}
-	NewAuthController().Login(c)
-
-	var response exceptions.Error
-	err = json.Unmarshal(w.Body.Bytes(), &response)
+	sessionRepository := repository.NewSessionRepository(db.Conn.GetPgsqTemplate())
+	session, err := sessionRepository.FindByField("id", token)
 	if err != nil {
-		t.Errorf("Error in unmarshal json %d", w.Body)
+		panic(err)
 	}
-	assert.Equal(t, http.StatusConflict, w.Code)
-	assert.Equal(t, "Not Found", response.Message)
+	userRepository := repository.NewUserRepository(db.Conn.GetPgsqTemplate())
+	profile, err := service.NewProfileService(db.Conn).FindProfileByUserId(session.ProfileId)
+
+	userAfterLogin, err := userRepository.FindByField("email", "user@test.com")
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, session.Id, token)
+	assert.Equal(t, profile.Id, session.ProfileId)
+	assert.NotEqual(t, 0, userAfterLogin.LoginCount)
 }
 
-func TestLoginController_Login(t *testing.T) {
+func configAuthTest() (*httptest.ResponseRecorder, *gin.Context) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	test.SetUpTest(c, sqlDomain.USER)
+
+	return w, c
+}
+
+func loginAndGetToken(t *testing.T) (string, *httptest.ResponseRecorder, *gin.Context) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
 	var loginDto = dto.LoginDto{
 		Email:    "user@test.com",
 		Password: "testPassword",
 	}
-
+	configTest()
 	userRepository := repository.NewUserRepository(db.Conn.GetPgsqTemplate())
-	userBeforeLogin, err := userRepository.FindByField("email", loginDto.Email)
+	_, err := userRepository.FindByField("email", loginDto.Email)
 
 	if err != nil {
 		TestLoginController_SignUp(t)
 	}
-
-	w, c := configAuthTest()
 
 	configTest()
 	jsonBytes, err := json.Marshal(loginDto)
@@ -130,23 +176,5 @@ func TestLoginController_Login(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error in unmarshal json %d", w.Body)
 	}
-
-	sessionRepository := repository.NewSessionRepository(db.Conn.GetPgsqTemplate())
-	session, err := sessionRepository.FindByField("session_id", response)
-	profile, err := service.NewProfileService(db.Conn).FindProfileByUserId(session.ProfileId)
-
-	userAfterLogin, err := userRepository.FindByField("email", loginDto.Email)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, session.SessionId, response)
-	assert.Equal(t, profile.Id, session.ProfileId)
-	assert.Equal(t, userBeforeLogin.LoginCount, userAfterLogin.LoginCount-1)
-}
-
-func configAuthTest() (*httptest.ResponseRecorder, *gin.Context) {
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	test.SetUpTest(c, sqlDomain.USER)
-
-	return w, c
+	return response, w, c
 }

@@ -71,14 +71,15 @@ func (l *loginController) ValidateEmail(ctx *gin.Context) {
 		return
 	}
 
-	var code validateEmailDTO
+	var code dto.ValidateEmailDto
 	if err := ctx.BindJSON(&code); err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	l.service.ValidateEmail(user, code.Code)
-}
-
-type validateEmailDTO struct {
-	Code string `json:"code"`
+	err = l.service.ValidateEmail(user, code.Code)
+	if err != nil {
+		exceptions.MotionError("This code was wrong").Throw(ctx)
+		return
+	}
+	response.Entity(ctx, http.StatusOK, nil)
 }

@@ -25,7 +25,7 @@ func NewSessionService(conn *db.Connections) *SessionService {
 func (s *SessionService) SaveUserSession(user sqlDomain.Profile) (sqlDomain.Session, error) {
 	var session sqlDomain.Session
 
-	session.SessionId = fmt.Sprintf("%s-%s", uuid.New(), uuid.New())
+	session.Id = fmt.Sprintf("%s-%s", uuid.New(), uuid.New())
 	session.ProfileId = user.Id
 	session.LastLogin = time.Now()
 

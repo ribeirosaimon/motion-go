@@ -32,7 +32,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 				bearerToken := authToken[1]
 				// verify if exist Session for this user
 				savedSession, err := repository.NewSessionRepository(db.Conn.GetPgsqTemplate()).
-					FindByField("session_id", bearerToken)
+					FindByField("id", bearerToken)
 
 				if err != nil {
 					exceptions.FieldError("this user does not exist").Throw(c)
@@ -88,7 +88,7 @@ func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain.Role, p sql
 	loggedUser.UserId = p.MotionUserId
 	loggedUser.Name = p.Name
 	loggedUser.Role = roleLoggedUser
-	loggedUser.SessionId = s.SessionId
+	loggedUser.SessionId = s.Id
 
 	c.Set("loggedUser", loggedUser)
 }

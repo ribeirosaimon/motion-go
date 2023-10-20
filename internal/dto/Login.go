@@ -12,3 +12,7 @@ type LoginDto struct {
 	Email    string `json:"email"`
 	Password string `json:"password,omitempty"`
 }
+
+type ValidateEmailDto struct {
+	Code string `json:"code"`
+}

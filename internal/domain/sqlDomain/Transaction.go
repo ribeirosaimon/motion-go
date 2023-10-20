@@ -2,8 +2,8 @@ package sqlDomain
 
 type Transaction struct {
 	Id            uint64        `json:"id" gorm:"primary_key"`
-	SessionId     Session       `json:"sessionId" gorm:"foreignkey:Id"`
-	ProfileId     Profile       `json:"profileId" gorm:"foreignkey:Id"`
+	SessionId     string        `json:"-" gorm:"foreignkey:SessionID"`
+	ProfileId     uint64        `json:"-" gorm:"foreignkey:ProfileID"`
 	Value         float64       `json:"value"`
 	OperationType OperationType `json:"operationType"`
 	BasicSQL

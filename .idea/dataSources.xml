@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name=":testedb" uuid="58cd842b-3b85-46d1-9cc2-ab5d7b16a764">
-      <driver-ref>251547fe-e7cf-4ed5-91bf-e34acb3ea537</driver-ref>
+    <data-source source="LOCAL" name="Database" uuid="cbaf5961-148f-49aa-b11d-1f44b808fb84">
+      <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/baseapp/pkg/controller/:testedb</jdbc-url>
+      <jdbc-url>jdbc:sqlite:cache=shared</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+      </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
-      <libraries>
-        <library>
-          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.40.1/org/xerial/sqlite-jdbc/3.40.1.0/sqlite-jdbc-3.40.1.0.jar</url>
-        </library>
-      </libraries>
     </data-source>
   </component>
 </project>

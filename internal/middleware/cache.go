@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
-	scraping2 "github.com/ribeirosaimon/motion-go/src/scraping"
+	"github.com/ribeirosaimon/motion-go/src/scraping"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
 
@@ -14,7 +14,7 @@ import (
 )
 
 type MotionCache struct {
-	Service    *scraping2.Service
+	Service    *scraping.Service
 	Config     *config.MotionConfig
 	NextModify *int64
 	Company    map[string]*Store
@@ -33,7 +33,7 @@ func GetCache() *MotionCache {
 
 func NewMotionCache(conn *db.Connections, motionConfig *config.MotionConfig) *MotionCache {
 	if Cache == nil {
-		service := scraping2.NewScrapingService(conn)
+		service := scraping.NewScrapingService(conn)
 		Cache = &MotionCache{
 			Company:    make(map[string]*Store),
 			Service:    service,
@@ -80,7 +80,7 @@ func (m *MotionCache) Add(company nosqlDomain.SummaryStock) {
 
 func (m *MotionCache) cron() {
 
-	if scraping2.GetTimeOpenMarket() {
+	if scraping.GetTimeOpenMarket() {
 
 		if m.Config.HaveScraping {
 			for {

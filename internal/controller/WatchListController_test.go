@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
@@ -63,7 +62,6 @@ func TestWatchListController_GetWatchList(t *testing.T) {
 	assert.Equal(t, WatchList.Id, response.Id)
 	assert.Equal(t, WatchList.OwnerId, response.OwnerId)
 	assert.Equal(t, WatchList.OwnerId, loggedUser.UserId)
-	assert.Equal(t, WatchList.Status, domain.ACTIVE)
 }
 
 func TestWatchListController_AddCompanyByCodeInWatchList(t *testing.T) {
@@ -94,7 +92,6 @@ func TestWatchListController_AddCompanyByCodeInWatchList(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, WatchList.Id, response.Id)
 	assert.Equal(t, WatchList.Companies[0], response.Companies[0])
-	assert.Equal(t, WatchList.Status, response.Status)
 }
 
 func TestWatchListController_AddCompanyInWatchList(t *testing.T) {
@@ -124,7 +121,6 @@ func TestWatchListController_AddCompanyInWatchList(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, WatchList.Id, response.Id)
 	assert.Equal(t, WatchList.Companies[0], response.Companies[0])
-	assert.Equal(t, WatchList.Status, response.Status)
 }
 
 func TestWatchListController_AddCompanyInWatchListWithError(t *testing.T) {

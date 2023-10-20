@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
@@ -62,6 +61,7 @@ func TestCompanyController_GetCompany(t *testing.T) {
 	assert.Equal(t, stock1.Id.Hex(), response.Id.Hex())
 	assert.Equal(t, http.StatusOK, w.Code)
 }
+
 func TestCompanyController_GetCompanyNotfound(t *testing.T) {
 	w, c, _, _ := configTest()
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
@@ -101,8 +101,8 @@ func TestCompanyController_DeleteCompany(t *testing.T) {
 		panic(err)
 	}
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, foundCompany1.Status, domain.ACTIVE)
-	assert.Equal(t, string(foundCompany.Status), domain.INACTIVE)
+	assert.Equal(t, foundCompany1.Status, nosqlDomain.ACTIVE)
+	assert.Equal(t, foundCompany.Status, nosqlDomain.ACTIVE)
 }
 
 func saveSummaryStock() (nosqlDomain.SummaryStock, nosqlDomain.SummaryStock) {
@@ -118,7 +118,7 @@ func saveSummaryStock() (nosqlDomain.SummaryStock, nosqlDomain.SummaryStock) {
 			Id:          primitive.NewObjectID(),
 			CompanyName: "test1",
 			CompanyCode: "TEST1",
-			BasicNoSQL:  nosqlDomain.BasicNoSQL{Status: domain.ACTIVE},
+			Status:      nosqlDomain.ACTIVE,
 		}
 
 		stock1, err = stockRepository.Save(stock1)
@@ -136,7 +136,7 @@ func saveSummaryStock() (nosqlDomain.SummaryStock, nosqlDomain.SummaryStock) {
 			Id:          primitive.NewObjectID(),
 			CompanyName: "test2",
 			CompanyCode: "TEST2",
-			BasicNoSQL:  nosqlDomain.BasicNoSQL{Status: domain.ACTIVE},
+			Status:      nosqlDomain.ACTIVE,
 		}
 
 		stock2, err = stockRepository.Save(stock2)

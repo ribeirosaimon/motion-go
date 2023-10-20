@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
@@ -16,16 +17,18 @@ import (
 )
 
 type AuthService struct {
-	userRepository *repository.MotionSQLRepository[sqlDomain.MotionUser]
-	profileService *ProfileService
-	sessionService *SessionService
+	userRepository     *repository.MotionSQLRepository[sqlDomain.MotionUser]
+	profileService     *ProfileService
+	sessionService     *SessionService
+	transactionService *TransactionService
 }
 
 func NewAuthService(conn *db.Connections) AuthService {
 	return AuthService{
-		userRepository: repository.NewUserRepository(conn.GetPgsqTemplate()),
-		profileService: NewProfileService(conn),
-		sessionService: NewSessionService(conn),
+		userRepository:     repository.NewUserRepository(conn.GetPgsqTemplate()),
+		profileService:     NewProfileService(conn),
+		sessionService:     NewSessionService(conn),
+		transactionService: NewTransactionService(conn),
 	}
 }
 
@@ -56,7 +59,7 @@ func (l *AuthService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 	if err != nil {
 		return "", exceptions.InternalServer(err.Error())
 	}
-	return userSession.SessionId, nil
+	return userSession.Id, nil
 }
 
 func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *exceptions.Error) {
@@ -102,10 +105,13 @@ func (l *AuthService) WhoAmI(userId uint64) (sqlDomain.Profile, error) {
 	return user, nil
 }
 
-func (l *AuthService) ValidateEmail(user middleware.LoggedUser, code string) error {
-	profile, err := l.WhoAmI(user.UserId)
+func (l *AuthService) ValidateEmail(loggedUser middleware.LoggedUser, code string) error {
+	profile, err := l.WhoAmI(loggedUser.UserId)
 	if err != nil {
 		return err
+	}
+	if profile.Status == sqlDomain.ACTIVE {
+		return errors.New("this profile was active")
 	}
 	if profile.Code != code {
 		return errors.New("this code was wrong")
@@ -113,6 +119,7 @@ func (l *AuthService) ValidateEmail(user middleware.LoggedUser, code string) err
 	profile.Status = sqlDomain.ACTIVE
 	profile.UpdatedAt = time.Now()
 
+	l.transactionService.Deposit(loggedUser, dto.Deposit{Value: float64(config.GetMotionConfig().InitialValue)})
 	profile, err = l.profileService.profileRepository.Save(profile)
 	if err != nil {
 		return err

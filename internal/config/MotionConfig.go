@@ -12,6 +12,7 @@ type MotionConfig struct {
 	CacheTime    uint8
 	ScrapingTime uint8
 	HaveScraping bool
+	InitialValue float32
 }
 
 var config *MotionConfig
@@ -22,6 +23,10 @@ func NewMotionConfig(ctx context.Context, p *properties.Properties) *MotionConfi
 		config.getConfigurations(ctx, p)
 	}
 	return config
+}
+
+func GetMotionConfig() MotionConfig {
+	return *config
 }
 
 func (m *MotionConfig) getConfigurations(ctx context.Context, p *properties.Properties) {
@@ -42,6 +47,7 @@ func (m *MotionConfig) getConfigurations(ctx context.Context, p *properties.Prop
 			CacheTime:    5,
 			ScrapingTime: 3,
 			HaveScraping: true,
+			InitialValue: 1000,
 		}
 		collection.InsertOne(ctx, config)
 	}
