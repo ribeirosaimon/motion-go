@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -59,6 +60,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 						exceptions.Forbidden().Throw(c)
 						return
 					}
+					notAutenticateEmailSyncUser(c, profile)
 					for _, v := range roles {
 						if profile.HaveRole(v.Name) {
 							putLoggedUserInContext(c, motionLoggedRole, profile, savedSession)
@@ -67,8 +69,10 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 						}
 					}
 				}
+
 				profile, err := repository.NewProfileRepository(db.Conn.GetPgsqTemplate()).
 					FindWithPreloads("Roles", savedSession.ProfileId)
+				notAutenticateEmailSyncUser(c, profile)
 				putLoggedUserInContext(c, profile.Roles[0], profile, savedSession)
 				c.Next()
 				return
@@ -82,7 +86,17 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 		c.Next()
 	}
 }
+func notAutenticateEmailSyncUser(c *gin.Context, profile sqlDomain.Profile) {
+	fmt.Print(profile.Status == sqlDomain.ACTIVE)
+	fmt.Print(strings.Contains(c.Request.RequestURI, "validate"))
+	fmt.Print(strings.Contains(c.Request.RequestURI, "whoami"))
 
+	if profile.Status == sqlDomain.ACTIVE || strings.Contains(c.Request.RequestURI, "validate") ||
+		strings.Contains(c.Request.RequestURI, "whoami") {
+		return
+	}
+	exceptions.Forbidden().Throw(c)
+}
 func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain.Role, p sqlDomain.Profile, s sqlDomain.Session) {
 	var loggedUser LoggedUser
 	loggedUser.UserId = p.MotionUserId

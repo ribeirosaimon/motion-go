@@ -58,20 +58,16 @@ func TestLoginController_SignUp(t *testing.T) {
 
 func TestLoginController_ValidateEmail(t *testing.T) {
 
-	token, _, _ := loginAndGetToken(t)
+	configTest()
 
 	connection := db.Conn.GetPgsqTemplate()
-	sessionRepository := repository.NewSessionRepository(connection)
-	session, err := sessionRepository.FindByField("id", token)
-
-	profileRepository := repository.NewProfileRepository(connection)
-	profile, err := profileRepository.FindById(session.ProfileId)
-	if err != nil {
-		panic(err)
-	}
 
 	userRepository := repository.NewUserRepository(connection)
-	userRepository.FindById(profile.MotionUserId)
+	user, err := userRepository.FindByField("email", "teste@teste.com")
+
+	profileRepository := repository.NewProfileRepository(connection)
+	profile, err := profileRepository.FindByField("userId", user.Id)
+
 	if err != nil {
 		panic(err)
 	}
@@ -88,12 +84,16 @@ func TestLoginController_ValidateEmail(t *testing.T) {
 	NewAuthController().ValidateEmail(newContext)
 	transactionRepository := repository.NewTransactionRepository(connection)
 
-	transaction, err := transactionRepository.FindByField("id", token)
+	sessionRepository := repository.NewSessionRepository(connection)
+	session, err := sessionRepository.FindByField("profileId", profile.Id)
+	transaction, err := transactionRepository.FindByField("sessionId", session.Id)
 	if err != nil {
 		panic(err)
 	}
 	assert.Equal(t, http.StatusOK, newRecorder.Code)
-	assert.Equal(t, transaction.SessionId, token)
+	assert.Equal(t, transaction.SessionId, session.Id)
+	assert.Equal(t, transaction.ProfileId, session.ProfileId)
+	assert.Equal(t, transaction.OperationType, sqlDomain.DEPOSIT)
 
 }
 
@@ -164,7 +164,6 @@ func loginAndGetToken(t *testing.T) (string, *httptest.ResponseRecorder, *gin.Co
 		TestLoginController_SignUp(t)
 	}
 
-	configTest()
 	jsonBytes, err := json.Marshal(loginDto)
 	reader := bytes.NewReader(jsonBytes)
 
