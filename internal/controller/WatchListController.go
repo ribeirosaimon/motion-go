@@ -23,8 +23,8 @@ func NewWatchListController() *WatchListController {
 }
 
 func (s *WatchListController) CreateWatchList(c *gin.Context) {
-	loggedUser, err := middleware.GetLoggedUser(c)
-	_, err = s.watchListService.CreateWatchList(loggedUser)
+	loggedUser := middleware.GetLoggedUser(c)
+	_, err := s.watchListService.CreateWatchList(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -33,7 +33,7 @@ func (s *WatchListController) CreateWatchList(c *gin.Context) {
 }
 
 func (s *WatchListController) GetWatchList(c *gin.Context) {
-	loggedUser, err := middleware.GetLoggedUser(c)
+	loggedUser := middleware.GetLoggedUser(c)
 	cart, err := s.watchListService.GetWatchList(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
@@ -43,8 +43,8 @@ func (s *WatchListController) GetWatchList(c *gin.Context) {
 }
 
 func (s *WatchListController) ExcludeWatchList(c *gin.Context) {
-	loggedUser, err := middleware.GetLoggedUser(c)
-	err = s.watchListService.DeleteWatchList(loggedUser)
+	loggedUser := middleware.GetLoggedUser(c)
+	err := s.watchListService.DeleteWatchList(loggedUser)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(c)
 		return
@@ -53,12 +53,7 @@ func (s *WatchListController) ExcludeWatchList(c *gin.Context) {
 }
 
 func (s *WatchListController) AddCompanyInWatchList(c *gin.Context) {
-	loggedUser, err := middleware.GetLoggedUser(c)
-
-	if err != nil {
-		exceptions.BodyError().Throw(c)
-		return
-	}
+	loggedUser := middleware.GetLoggedUser(c)
 
 	cart, err := s.watchListService.AddCompanyInWatchListById(loggedUser, c.Param("id"))
 	if err != nil {
@@ -69,7 +64,7 @@ func (s *WatchListController) AddCompanyInWatchList(c *gin.Context) {
 }
 
 func (s *WatchListController) AddCompanyByCodeInWatchList(c *gin.Context) {
-	loggedUser, err := middleware.GetLoggedUser(c)
+	loggedUser := middleware.GetLoggedUser(c)
 
 	WatchList, err := s.watchListService.AddCompanyInWatchListByCode(loggedUser, c.Param("companyCode"))
 	if err != nil {

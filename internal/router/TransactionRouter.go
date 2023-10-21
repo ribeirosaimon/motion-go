@@ -14,5 +14,9 @@ func NewTransactionRouter() config.MotionController {
 	return config.NewMotionController(
 		"/transaction",
 		config.NewMotionRouter(http.MethodPost, "/deposit", controller.NewTransactionController().Deposit,
-			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})))
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+		config.NewMotionRouter(http.MethodGet, "/balance", controller.NewTransactionController().Balance,
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+	)
+
 }

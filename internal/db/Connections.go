@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"path/filepath"
 
 	"github.com/magiconair/properties"
+	"github.com/ribeirosaimon/motion-go/internal/util"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/postgres"
@@ -84,7 +86,18 @@ func (c *Connections) connectNoSQL(p *properties.Properties) {
 }
 
 func (c *Connections) InitializeTestDatabases(p *properties.Properties) {
-	db, err := gorm.Open(sqlite.Open(p.GetString("database.host", "")), &gorm.Config{})
+
+	inMemoryDb := p.GetBool("database.test.in-memory", false)
+
+	var file string
+	if !inMemoryDb {
+		dir, _ := util.FindRootDir()
+		file = filepath.Join(dir, p.GetString("database.host", ""))
+	} else {
+		file = p.GetString("database.in-memory.host", "")
+	}
+
+	db, err := gorm.Open(sqlite.Open(file), &gorm.Config{})
 	if err != nil {
 		panic("erro connection Db")
 	}

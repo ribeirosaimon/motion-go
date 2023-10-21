@@ -49,11 +49,11 @@ func (m *MotionSQLRepository[T]) FindWithPreloads(preloads string, s interface{}
 	return value, nil
 }
 
-func (m *MotionSQLRepository[T]) FindByField(field string, fieldvalue interface{}) (T, error) {
+func (m *MotionSQLRepository[T]) FindByField(field string, fieldValue interface{}) (T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
 	var value T
-	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldvalue).Find(&value)
+	tx := m.database.Where(fmt.Sprintf("%s = ?", field), fieldValue).Find(&value)
 	if tx.RowsAffected == 0 || tx.Error != nil {
 		ctx.Done()
 		return value, errors.New("values not found")
@@ -117,14 +117,27 @@ func (m *MotionSQLRepository[T]) Save(structValue T) (T, error) {
 	return m.FindByField("id", structValue.GetId())
 }
 
-func (m *MotionSQLRepository[T]) createNativeSQLQuery(query string, returnedObject interface{}, vargs ...string) (interface{}, error) {
+func (m *MotionSQLRepository[T]) CreateNativeSQLQuery(query string, response interface{}, vargs ...interface{}) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
-	result := m.database.Raw(query, vargs).Scan(returnedObject)
+	result := m.database.Raw(query, vargs).Scan(&response)
 
 	if result.Error != nil {
 		ctx.Done()
-		return nil, result.Error
+		return result.Error
 	}
-	return result, nil
+	return nil
 }
+
+//
+// func (m *MotionSQLRepository[T]) CreateNativeQuery(query interface{}, vargs ...interface{}) (interface{}, error) {
+// 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
+// 	defer cancel()
+// 	result := m.database.Raw(query, vargs).Scan(returnedObject)
+//
+// 	if result.Error != nil {
+// 		ctx.Done()
+// 		return nil, result.Error
+// 	}
+// 	return result, nil
+// }

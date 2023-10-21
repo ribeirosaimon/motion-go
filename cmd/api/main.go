@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
@@ -22,10 +21,9 @@ func main() {
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
 
-	motionConfig := config.NewMotionConfig(context.Background(), motionGo.PropertiesFile)
+	config.NewMotionConfig(motionGo.PropertiesFile)
 	setUpRoles()
-
-	go middleware.NewMotionCache(db.Conn, motionConfig)
+	go middleware.NewMotionCache(db.Conn)
 
 	motionGo.AddRouter(version1)
 	motionGo.CreateRouters(middleware.NewLogger)

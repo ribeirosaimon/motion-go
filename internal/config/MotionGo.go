@@ -34,7 +34,6 @@ func (m *MotionGo) AddRouter(version ...RoutersVersion) {
 }
 
 func (m *MotionGo) CreateRouters(logger func() gin.HandlerFunc) {
-	m.MotionEngine.Use(logger())
 	for _, routerVersions := range m.Routers {
 		apiVersion := m.MotionEngine.Group(fmt.Sprintf("/api/%s", routerVersions.Version))
 		for _, routersFunc := range routerVersions.Handlers {
@@ -55,7 +54,7 @@ func (m *MotionGo) CreateRouters(logger func() gin.HandlerFunc) {
 			}
 		}
 	}
-
+	m.MotionEngine.Use(logger())
 }
 
 func existRouter(routes gin.RoutesInfo, path string, method string) bool {

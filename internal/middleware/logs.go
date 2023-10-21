@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -50,8 +51,6 @@ func NewLogger() gin.HandlerFunc {
 			Latency: latency,
 		}
 
-		user, err := GetLoggedUser(c)
-
 		var motionLogger = motionLog{
 			Api:          c.Request.RequestURI,
 			Timestamp:    start,
@@ -59,7 +58,8 @@ func NewLogger() gin.HandlerFunc {
 			HttpResponse: httpResponse,
 		}
 
-		if err == nil {
+		if !strings.Contains(c.Request.RequestURI, "login") {
+			user := GetLoggedUser(c)
 			motionLogger.LoggedUser = &user
 		}
 

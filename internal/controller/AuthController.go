@@ -52,12 +52,9 @@ func (l *loginController) Login(ctx *gin.Context) {
 }
 
 func (l *loginController) WhoAmI(c *gin.Context) {
-	user, err := middleware.GetLoggedUser(c)
-	if err != nil {
-		exceptions.Forbidden().Throw(c)
-		return
-	}
-	i, err := l.service.WhoAmI(user.UserId)
+	loggedUser := middleware.GetLoggedUser(c)
+
+	i, err := l.service.WhoAmI(loggedUser.UserId)
 	if err != nil {
 		exceptions.Forbidden().Throw(c)
 		return
@@ -65,18 +62,14 @@ func (l *loginController) WhoAmI(c *gin.Context) {
 	response.Entity(c, http.StatusOK, i)
 }
 func (l *loginController) ValidateEmail(ctx *gin.Context) {
-	user, err := middleware.GetLoggedUser(ctx)
-	if err != nil {
-		exceptions.Forbidden().Throw(ctx)
-		return
-	}
+	loggedUser := middleware.GetLoggedUser(ctx)
 
 	var code dto.ValidateEmailDto
 	if err := ctx.BindJSON(&code); err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	err = l.service.ValidateEmail(user, code.Code)
+	err := l.service.ValidateEmail(loggedUser, code.Code)
 	if err != nil {
 		exceptions.MotionError("This code was wrong").Throw(ctx)
 		return

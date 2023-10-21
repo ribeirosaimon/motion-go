@@ -12,4 +12,5 @@ type MotionRepository[T Entity] interface {
 	DeleteById(interface{}) error
 	Save(T) (T, error)
 	FindWithPreloads(preloads string, s interface{}) (T, error)
+	// CreateNativeQuery(interface{}, ...interface{}) (interface{}, error)
 }

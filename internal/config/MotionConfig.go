@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"time"
 
 	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -17,10 +18,10 @@ type MotionConfig struct {
 
 var config *MotionConfig
 
-func NewMotionConfig(ctx context.Context, p *properties.Properties) *MotionConfig {
+func NewMotionConfig(p *properties.Properties) *MotionConfig {
 	if config == nil {
 		config = &MotionConfig{}
-		config.getConfigurations(ctx, p)
+		config.getConfigurations(p)
 	}
 	return config
 }
@@ -29,7 +30,10 @@ func GetMotionConfig() MotionConfig {
 	return *config
 }
 
-func (m *MotionConfig) getConfigurations(ctx context.Context, p *properties.Properties) {
+func (m *MotionConfig) getConfigurations(p *properties.Properties) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	collection := db.Conn.GetMongoTemplate().
 		Database(p.GetString("database.mongo.name", "motion")).
 		Collection("MotionConfig")
@@ -51,6 +55,7 @@ func (m *MotionConfig) getConfigurations(ctx context.Context, p *properties.Prop
 		}
 		collection.InsertOne(ctx, config)
 	}
+	ctx.Done()
 }
 
 func GetConfiguration() MotionConfig {

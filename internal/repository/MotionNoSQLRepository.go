@@ -26,7 +26,7 @@ func newMotionNoSQLRepository[T Entity](ctx context.Context, mongoConnection *mo
 	}
 }
 
-func (m MotionNoSQLRepository[T]) FindById(i interface{}) (T, error) {
+func (m *MotionNoSQLRepository[T]) FindById(i interface{}) (T, error) {
 	var myStruct T
 
 	id, ok := i.(string)
@@ -41,7 +41,7 @@ func (m MotionNoSQLRepository[T]) FindById(i interface{}) (T, error) {
 	return m.FindByField("_id", hex)
 }
 
-func (m MotionNoSQLRepository[T]) FindByField(s string, i interface{}) (T, error) {
+func (m *MotionNoSQLRepository[T]) FindByField(s string, i interface{}) (T, error) {
 	var myStruct T
 	filter := bson.D{primitive.E{Key: s, Value: i}}
 	err := m.collection.FindOne(m.context, filter).Decode(&myStruct)
@@ -51,7 +51,7 @@ func (m MotionNoSQLRepository[T]) FindByField(s string, i interface{}) (T, error
 	return myStruct, nil
 }
 
-func (m MotionNoSQLRepository[T]) ExistByField(s string, i interface{}) bool {
+func (m *MotionNoSQLRepository[T]) ExistByField(s string, i interface{}) bool {
 	filter := bson.D{primitive.E{Key: s, Value: i}}
 	count, err := m.collection.CountDocuments(m.context, filter)
 	if err != nil || count == 0 {
@@ -60,7 +60,7 @@ func (m MotionNoSQLRepository[T]) ExistByField(s string, i interface{}) bool {
 	return true
 }
 
-func (m MotionNoSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
+func (m *MotionNoSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
 	options := options.Find().SetSkip(int64(page)).SetLimit(int64(limit))
 
 	cursor, err := m.collection.Find(m.context, bson.M{}, options)
@@ -78,7 +78,7 @@ func (m MotionNoSQLRepository[T]) FindAll(limit, page int) ([]T, error) {
 	return results, nil
 }
 
-func (m MotionNoSQLRepository[T]) DeleteById(i interface{}) error {
+func (m *MotionNoSQLRepository[T]) DeleteById(i interface{}) error {
 	filter := bson.D{primitive.E{Key: "_id", Value: i}}
 	_, err := m.collection.DeleteOne(m.context, filter)
 	if err != nil {
@@ -87,7 +87,7 @@ func (m MotionNoSQLRepository[T]) DeleteById(i interface{}) error {
 	return nil
 }
 
-func (m MotionNoSQLRepository[T]) Save(t T) (T, error) {
+func (m *MotionNoSQLRepository[T]) Save(t T) (T, error) {
 	id, ok := t.GetId().(string)
 	hex, err := primitive.ObjectIDFromHex(id)
 	if !ok {
@@ -113,6 +113,6 @@ func (m MotionNoSQLRepository[T]) Save(t T) (T, error) {
 	return m.FindById(hex.Hex())
 }
 
-func (m MotionNoSQLRepository[T]) GetCollection() *mongo.Collection {
+func (m *MotionNoSQLRepository[T]) GetCollection() *mongo.Collection {
 	return m.collection
 }

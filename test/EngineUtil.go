@@ -27,19 +27,17 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 	dir := fmt.Sprintf("%s/%s", rootDir, propertiesFile)
 
 	db.Conn = &db.Connections{}
-	db.Conn.InitializeTestDatabases(properties.MustLoadFile(dir, properties.UTF8))
+	propertiesTestFile := properties.MustLoadFile(dir, properties.UTF8)
+	db.Conn.InitializeTestDatabases(propertiesTestFile)
 
+	motionConfig := config.NewMotionConfig(propertiesTestFile)
 	middleware.Cache = &middleware.MotionCache{
 		Company: make(map[string]*middleware.Store),
 		Service: scraping.NewScrapingService(db.Conn),
-		Config: &config.MotionConfig{
-			CacheTime:    100,
-			ScrapingTime: 100,
-			HaveScraping: false,
-			InitialValue: 1000,
-		},
+		Config:  motionConfig,
 	}
 
+	config.GetMotionConfig()
 	setUpRoles()
 	var roles []sqlDomain.RoleEnum
 
@@ -70,11 +68,15 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 
 	sessionService := service.NewSessionService(db.Conn)
 
-	sessionService.SaveUserSession(profile)
+	session, err := sessionService.SaveUserSession(profile)
+	if err != nil {
+		panic(err)
+	}
 
 	var loggedUser = middleware.LoggedUser{
-		Name:   profile.Name,
-		UserId: profile.MotionUserId,
+		Name:      profile.Name,
+		UserId:    profile.MotionUserId,
+		SessionId: session.Id,
 	}
 	ctx.Set("loggedUser", loggedUser)
 	return loggedUser

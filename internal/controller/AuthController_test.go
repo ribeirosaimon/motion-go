@@ -66,7 +66,7 @@ func TestLoginController_ValidateEmail(t *testing.T) {
 	user, err := userRepository.FindByField("email", "teste@teste.com")
 
 	profileRepository := repository.NewProfileRepository(connection)
-	profile, err := profileRepository.FindByField("userId", user.Id)
+	profile, err := profileRepository.FindByField("motion_user_id", user.Id)
 
 	if err != nil {
 		panic(err)
@@ -74,7 +74,7 @@ func TestLoginController_ValidateEmail(t *testing.T) {
 
 	newRecorder := httptest.NewRecorder()
 	newContext, _ := gin.CreateTestContext(newRecorder)
-	test.SetUpTest(newContext, sqlDomain.USER)
+	loggedUser := test.SetUpTest(newContext, sqlDomain.USER)
 
 	jsonBytes, err := json.Marshal(dto.ValidateEmailDto{Code: profile.Code})
 	reader := bytes.NewReader(jsonBytes)
@@ -84,17 +84,46 @@ func TestLoginController_ValidateEmail(t *testing.T) {
 	NewAuthController().ValidateEmail(newContext)
 	transactionRepository := repository.NewTransactionRepository(connection)
 
-	sessionRepository := repository.NewSessionRepository(connection)
-	session, err := sessionRepository.FindByField("profileId", profile.Id)
-	transaction, err := transactionRepository.FindByField("sessionId", session.Id)
+	transaction, err := transactionRepository.FindByField("session_id", loggedUser.SessionId)
 	if err != nil {
 		panic(err)
 	}
 	assert.Equal(t, http.StatusOK, newRecorder.Code)
-	assert.Equal(t, transaction.SessionId, session.Id)
-	assert.Equal(t, transaction.ProfileId, session.ProfileId)
+	assert.Equal(t, transaction.SessionId, loggedUser.SessionId)
+	assert.Equal(t, transaction.ProfileId, loggedUser.UserId)
 	assert.Equal(t, transaction.OperationType, sqlDomain.DEPOSIT)
+}
 
+func TestLoginController_ValidateEmailOnlyOneTime(t *testing.T) {
+
+	configTest()
+	connection := db.Conn.GetPgsqTemplate()
+
+	userRepository := repository.NewUserRepository(connection)
+	user, err := userRepository.FindByField("email", "teste@teste.com")
+
+	profileRepository := repository.NewProfileRepository(connection)
+	profile, err := profileRepository.FindByField("motion_user_id", user.Id)
+
+	if err != nil {
+		panic(err)
+	}
+
+	newRecorder := httptest.NewRecorder()
+	newContext, _ := gin.CreateTestContext(newRecorder)
+
+	jsonBytes, err := json.Marshal(dto.ValidateEmailDto{Code: profile.Code})
+	reader := bytes.NewReader(jsonBytes)
+
+	newContext.Request = &http.Request{Body: ioutil.NopCloser(reader)}
+
+	NewAuthController().ValidateEmail(newContext)
+
+	newRecorder = httptest.NewRecorder()
+	newContext, _ = gin.CreateTestContext(newRecorder)
+	NewAuthController().ValidateEmail(newContext)
+
+	assert.Equal(t, http.StatusForbidden, newRecorder.Code)
 }
 
 func TestLoginController_LoginIsNotOk(t *testing.T) {

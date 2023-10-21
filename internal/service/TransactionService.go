@@ -17,6 +17,7 @@ type TransactionService struct {
 }
 
 func NewTransactionService(conections *db.Connections) *TransactionService {
+
 	return &TransactionService{
 		transactionRepository: repository.NewTransactionRepository(conections.GetPgsqTemplate()),
 		sessionRepository:     repository.NewSessionRepository(conections.GetPgsqTemplate()),
@@ -52,16 +53,20 @@ func (s *TransactionService) Deposit(loggedUser middleware.LoggedUser, deposit d
 	return transaction, nil
 }
 
-func (s *TransactionService) Balance(loggedUser middleware.LoggedUser) error {
+func (s *TransactionService) Balance(loggedUser middleware.LoggedUser) (dto.Deposit, error) {
+	profile, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
+	var value *dto.Deposit
+	if err != nil {
+		return *value, err
+	}
 
-	// var transaction sqlDomain.Transaction
-	// session, err := s.sessionRepository.FindById(loggedUser.SessionId)
-	// profile, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// var query = "SELECT SUM() FROM "
+	var query = "SELECT COALESCE(SUM(t.value),0) FROM transactions t WHERE t.profile_id = ?"
 
-	return nil
+	var total float64
+	if err := repository.NewTransactionRepository(db.Conn.GetPgsqTemplate()).
+		CreateNativeSQLQuery(query, &total, profile.Id); err != nil {
+		return *value, err
+	}
+
+	return dto.Deposit{Value: total}, nil
 }

@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -12,15 +10,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 )
-
-func haveRole(role sqlDomain.Role, roles []sqlDomain.Role) bool {
-	for _, findRole := range roles {
-		if findRole == role {
-			return true
-		}
-	}
-	return false
-}
 
 func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -86,17 +75,15 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 		c.Next()
 	}
 }
-func notAutenticateEmailSyncUser(c *gin.Context, profile sqlDomain.Profile) {
-	fmt.Print(profile.Status == sqlDomain.ACTIVE)
-	fmt.Print(strings.Contains(c.Request.RequestURI, "validate"))
-	fmt.Print(strings.Contains(c.Request.RequestURI, "whoami"))
 
+func notAutenticateEmailSyncUser(c *gin.Context, profile sqlDomain.Profile) {
 	if profile.Status == sqlDomain.ACTIVE || strings.Contains(c.Request.RequestURI, "validate") ||
 		strings.Contains(c.Request.RequestURI, "whoami") {
 		return
 	}
 	exceptions.Forbidden().Throw(c)
 }
+
 func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain.Role, p sqlDomain.Profile, s sqlDomain.Session) {
 	var loggedUser LoggedUser
 	loggedUser.UserId = p.MotionUserId
@@ -106,11 +93,9 @@ func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain.Role, p sql
 
 	c.Set("loggedUser", loggedUser)
 }
-func GetLoggedUser(c *gin.Context) (LoggedUser, error) {
-	if _, ok := c.Get("loggedUser"); !ok {
-		return LoggedUser{}, errors.New("not exist loggedUser")
-	}
-	return c.MustGet("loggedUser").(LoggedUser), nil
+
+func GetLoggedUser(c *gin.Context) LoggedUser {
+	return c.MustGet("loggedUser").(LoggedUser)
 }
 
 func EncryptPassword(password string) (string, error) {

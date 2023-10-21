@@ -31,14 +31,15 @@ func GetCache() *MotionCache {
 	return Cache
 }
 
-func NewMotionCache(conn *db.Connections, motionConfig *config.MotionConfig) *MotionCache {
+func NewMotionCache(conn *db.Connections) *MotionCache {
+	motionConfig := config.GetMotionConfig()
 	if Cache == nil {
 		service := scraping.NewScrapingService(conn)
 		Cache = &MotionCache{
 			Company:    make(map[string]*Store),
 			Service:    service,
 			NextModify: nil,
-			Config:     motionConfig,
+			Config:     &motionConfig,
 		}
 		Cache.cron()
 		return Cache

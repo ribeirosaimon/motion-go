@@ -32,13 +32,17 @@ func getStockSummary(v string) nosqlDomain.SummaryStock {
 					} else if trCount == 1 {
 						summary.Open = transformToFloat(getTdValue(tr))
 					} else if trCount == 4 {
-						splitedValue := strings.Split(getTdValue(tr), "-")
-						summary.DayRange.Start = transformToFloat(splitedValue[0])
-						summary.DayRange.End = transformToFloat(splitedValue[1])
+						if !strings.Contains("N/A", getTdValue(tr)) {
+							splitedValue := strings.Split(getTdValue(tr), "-")
+							summary.DayRange.Start = transformToFloat(splitedValue[0])
+							summary.DayRange.End = transformToFloat(splitedValue[1])
+						}
 					} else if trCount == 5 {
-						splitedValue := strings.Split(getTdValue(tr), "-")
-						summary.YearRange.Start = transformToFloat(splitedValue[0])
-						summary.YearRange.End = transformToFloat(splitedValue[1])
+						if !strings.Contains("N/A", getTdValue(tr)) {
+							splitedValue := strings.Split(getTdValue(tr), "-")
+							summary.YearRange.Start = transformToFloat(splitedValue[0])
+							summary.YearRange.End = transformToFloat(splitedValue[1])
+						}
 					} else if trCount == 6 {
 						summary.Volume = uint64(transformToInteger(getTdValue(tr)))
 					} else if trCount == 7 {

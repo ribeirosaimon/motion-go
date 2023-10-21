@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/response"
 	"github.com/ribeirosaimon/motion-go/internal/service"
@@ -27,12 +26,8 @@ func (c *healthController) OpenHealth(ctx *gin.Context) {
 }
 
 func (c *healthController) CloseHealth(ctx *gin.Context) {
-	user, err := middleware.GetLoggedUser(ctx)
-	if err != nil {
-		exceptions.Forbidden().Throw(ctx)
-		return
-	}
-	health := c.service.GetHealthService(user)
+	loggedUser := middleware.GetLoggedUser(ctx)
+	health := c.service.GetHealthService(loggedUser)
 	response.Entity(ctx, http.StatusOK, health)
 }
 

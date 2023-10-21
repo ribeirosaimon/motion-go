@@ -23,20 +23,27 @@ func NewTransactionController() *TransactionController {
 }
 
 func (t *TransactionController) Deposit(ctx *gin.Context) {
-	loggedUser, err := middleware.GetLoggedUser(ctx)
+	loggedUser := middleware.GetLoggedUser(ctx)
 	var deposit dto.Deposit
 	if err := ctx.BindJSON(&deposit); err != nil {
 		exceptions.BodyError().Throw(ctx)
 		return
 	}
-	if err != nil {
-		exceptions.MotionError(err.Error()).Throw(ctx)
-		return
-	}
+
 	transaction, err := t.transactionService.Deposit(loggedUser, deposit)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
 	response.Entity(ctx, http.StatusCreated, transaction)
+}
+
+func (t *TransactionController) Balance(ctx *gin.Context) {
+	loggedUser := middleware.GetLoggedUser(ctx)
+	balance, err := t.transactionService.Balance(loggedUser)
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(ctx)
+		return
+	}
+	response.Entity(ctx, http.StatusCreated, balance)
 }
