@@ -86,7 +86,7 @@ func notAutenticateEmailSyncUser(c *gin.Context, profile sqlDomain.Profile) {
 
 func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain.Role, p sqlDomain.Profile, s sqlDomain.Session) {
 	var loggedUser LoggedUser
-	loggedUser.UserId = p.MotionUserId
+	loggedUser.ProfileId = p.Id
 	loggedUser.Name = p.Name
 	loggedUser.Role = roleLoggedUser
 	loggedUser.SessionId = s.Id
@@ -113,7 +113,7 @@ func CheckPassword(password string, storedPassword string) error {
 
 type LoggedUser struct {
 	Name      string         `json:"name"`
-	UserId    uint64         `json:"loggedId"`
+	ProfileId uint64         `json:"loggedId"`
 	SessionId string         `json:"sessionId"`
 	Role      sqlDomain.Role `json:"role"`
 }

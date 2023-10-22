@@ -54,7 +54,7 @@ func (l *loginController) Login(ctx *gin.Context) {
 func (l *loginController) WhoAmI(c *gin.Context) {
 	loggedUser := middleware.GetLoggedUser(c)
 
-	i, err := l.service.WhoAmI(loggedUser.UserId)
+	i, err := l.service.WhoAmI(loggedUser.ProfileId)
 	if err != nil {
 		exceptions.Forbidden().Throw(c)
 		return

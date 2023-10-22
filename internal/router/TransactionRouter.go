@@ -17,6 +17,8 @@ func NewTransactionRouter() config.MotionController {
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
 		config.NewMotionRouter(http.MethodGet, "/balance", controller.NewTransactionController().Balance,
 			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER})),
+		config.NewMotionRouter(http.MethodGet, "", controller.NewTransactionController().FindAllTransactions,
+			middleware.Authorization(sqlDomain.Role{Name: sqlDomain.USER}, sqlDomain.Role{Name: sqlDomain.ADMIN})),
 	)
 
 }

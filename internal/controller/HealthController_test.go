@@ -53,5 +53,5 @@ func TestHealthController_CloseHealth_ReturnOk(t *testing.T) {
 	}
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, true, response.Ready)
-	assert.Equal(t, loggedUser.UserId, response.LoggedUser.UserId)
+	assert.Equal(t, loggedUser.ProfileId, response.LoggedUser.ProfileId)
 }

@@ -61,11 +61,11 @@ func TestWatchListController_GetWatchList(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, WatchList.Id, response.Id)
 	assert.Equal(t, WatchList.OwnerId, response.OwnerId)
-	assert.Equal(t, WatchList.OwnerId, loggedUser.UserId)
+	assert.Equal(t, WatchList.OwnerId, loggedUser.ProfileId)
 }
 
 func TestWatchListController_AddCompanyByCodeInWatchList(t *testing.T) {
-	w, c, stock1, _ := configTest()
+	w, c, _, stock1, _ := configTest()
 	loggedUser := test.SetUpTest(c, sqlDomain.USER)
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	var param = &gin.Params{
@@ -95,7 +95,7 @@ func TestWatchListController_AddCompanyByCodeInWatchList(t *testing.T) {
 }
 
 func TestWatchListController_AddCompanyInWatchList(t *testing.T) {
-	w, c, stock1, _ := configTest()
+	w, c, _, stock1, _ := configTest()
 	loggedUser := test.SetUpTest(c, sqlDomain.USER)
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	var param = &gin.Params{
@@ -124,7 +124,7 @@ func TestWatchListController_AddCompanyInWatchList(t *testing.T) {
 }
 
 func TestWatchListController_AddCompanyInWatchListWithError(t *testing.T) {
-	w, c, stock1, _ := configTest()
+	w, c, _, stock1, _ := configTest()
 	test.SetUpTest(c, sqlDomain.USER)
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	var param = &gin.Params{
@@ -142,7 +142,7 @@ func TestWatchListController_AddCompanyInWatchListWithError(t *testing.T) {
 }
 
 func TestWatchListController_ExcludeWatchList(t *testing.T) {
-	w, c, _, _ := configTest()
+	w, c, _, _, _ := configTest()
 	loggedUser := test.SetUpTest(c, sqlDomain.USER)
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	WatchListService := service.NewWatchListService(c, db.Conn)
@@ -153,7 +153,7 @@ func TestWatchListController_ExcludeWatchList(t *testing.T) {
 }
 
 func TestWatchListController_ExcludeWatchListDoesNotExist(t *testing.T) {
-	w, c, _, _ := configTest()
+	w, c, _, _, _ := configTest()
 	test.SetUpTest(c, sqlDomain.USER)
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 

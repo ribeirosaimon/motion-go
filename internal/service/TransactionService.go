@@ -33,7 +33,7 @@ func (s *TransactionService) Deposit(loggedUser middleware.LoggedUser, deposit d
 		return transaction, err
 	}
 
-	profile, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
+	profile, err := s.profileService.FindProfileByUserId(loggedUser.ProfileId)
 	if err != nil {
 		return transaction, err
 	}
@@ -54,7 +54,7 @@ func (s *TransactionService) Deposit(loggedUser middleware.LoggedUser, deposit d
 }
 
 func (s *TransactionService) Balance(loggedUser middleware.LoggedUser) (dto.Deposit, error) {
-	profile, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
+	profile, err := s.profileService.FindProfileByUserId(loggedUser.ProfileId)
 	var value *dto.Deposit
 	if err != nil {
 		return *value, err
@@ -63,10 +63,29 @@ func (s *TransactionService) Balance(loggedUser middleware.LoggedUser) (dto.Depo
 	var query = "SELECT COALESCE(SUM(t.value),0) FROM transactions t WHERE t.profile_id = ?"
 
 	var total float64
-	if err := repository.NewTransactionRepository(db.Conn.GetPgsqTemplate()).
-		CreateNativeSQLQuery(query, &total, profile.Id); err != nil {
-		return *value, err
+	_, err = repository.NewTransactionRepository(db.Conn.GetPgsqTemplate()).CreateNativeSQLQuery(query, &total, profile.Id)
+	if err != nil {
+		return dto.Deposit{}, err
 	}
 
 	return dto.Deposit{Value: total}, nil
+}
+
+func (s *TransactionService) FindAllTransactions(loggedUser middleware.LoggedUser) ([]sqlDomain.Transaction, error) {
+	if loggedUser.Role.Name == sqlDomain.ADMIN {
+		allTransactions, err := s.transactionRepository.FindAll(10, 0)
+		if err != nil {
+			return []sqlDomain.Transaction{}, err
+		}
+		return allTransactions, nil
+	}
+	var query = "SELECT t.* FROM transactions t WHERE t.profile_id = ?"
+	transactionRepository := repository.NewTransactionRepository(db.Conn.GetPgsqTemplate())
+	transactions := []sqlDomain.Transaction{}
+	originalSlice, err := transactionRepository.CreateNativeSQLQuery(query, transactions, loggedUser.ProfileId)
+	if err != nil {
+		return []sqlDomain.Transaction{}, err
+	}
+
+	return originalSlice.([]sqlDomain.Transaction), nil
 }

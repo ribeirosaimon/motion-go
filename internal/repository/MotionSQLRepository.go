@@ -117,27 +117,14 @@ func (m *MotionSQLRepository[T]) Save(structValue T) (T, error) {
 	return m.FindByField("id", structValue.GetId())
 }
 
-func (m *MotionSQLRepository[T]) CreateNativeSQLQuery(query string, response interface{}, vargs ...interface{}) error {
+func (m *MotionSQLRepository[T]) CreateNativeSQLQuery(query string, respType interface{}, vargs ...interface{}) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
 	defer cancel()
-	result := m.database.Raw(query, vargs).Scan(&response)
+	result := m.database.Raw(query, vargs...).Scan(&respType)
 
 	if result.Error != nil {
 		ctx.Done()
-		return result.Error
+		return nil, result.Error
 	}
-	return nil
+	return respType, nil
 }
-
-//
-// func (m *MotionSQLRepository[T]) CreateNativeQuery(query interface{}, vargs ...interface{}) (interface{}, error) {
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(m.timeDone))
-// 	defer cancel()
-// 	result := m.database.Raw(query, vargs).Scan(returnedObject)
-//
-// 	if result.Error != nil {
-// 		ctx.Done()
-// 		return nil, result.Error
-// 	}
-// 	return result, nil
-// }

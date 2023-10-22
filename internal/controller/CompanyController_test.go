@@ -20,7 +20,7 @@ import (
 )
 
 func TestCompanyController_GetAllCompany_ReturnOk(t *testing.T) {
-	w, c, stock1, stock2 := configTest()
+	w, c, _, stock1, stock2 := configTest()
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 
 	NewCompanyController().GetAllCompany(c)
@@ -41,7 +41,7 @@ func TestCompanyController_GetAllCompany_ReturnOk(t *testing.T) {
 }
 
 func TestCompanyController_GetCompany(t *testing.T) {
-	w, c, stock1, _ := configTest()
+	w, c, _, stock1, _ := configTest()
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	var param = &gin.Params{
 		{
@@ -63,7 +63,7 @@ func TestCompanyController_GetCompany(t *testing.T) {
 }
 
 func TestCompanyController_GetCompanyNotfound(t *testing.T) {
-	w, c, _, _ := configTest()
+	w, c, _, _, _ := configTest()
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	var param = &gin.Params{
 		{
@@ -84,7 +84,7 @@ func TestCompanyController_GetCompanyNotfound(t *testing.T) {
 }
 
 func TestCompanyController_DeleteCompany(t *testing.T) {
-	w, c, stock1, stock2 := configTest()
+	w, c, _, stock1, stock2 := configTest()
 	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
 	var param = &gin.Params{
 		{
@@ -152,13 +152,13 @@ func saveSummaryStock() (nosqlDomain.SummaryStock, nosqlDomain.SummaryStock) {
 	return stock1, stock2
 }
 
-func configTest() (*httptest.ResponseRecorder, *gin.Context, nosqlDomain.SummaryStock, nosqlDomain.SummaryStock) {
+func configTest() (*httptest.ResponseRecorder, *gin.Context, middleware.LoggedUser, nosqlDomain.SummaryStock, nosqlDomain.SummaryStock) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	test.SetUpTest(c, sqlDomain.USER)
+	loggedUser := test.SetUpTest(c, sqlDomain.USER)
 
 	stock1, stock2 := saveSummaryStock()
 	middleware.Cache.Add(stock1)
 	middleware.Cache.Add(stock2)
-	return w, c, stock1, stock2
+	return w, c, loggedUser, stock1, stock2
 }

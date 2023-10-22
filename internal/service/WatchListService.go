@@ -28,11 +28,11 @@ func NewWatchListService(ctx context.Context, c *db.Connections) WatchListServic
 }
 
 func (s WatchListService) GetWatchList(user middleware.LoggedUser) (nosqlDomain.WatchList, error) {
-	exist := s.watchListRepository.ExistByField("ownerId", user.UserId)
+	exist := s.watchListRepository.ExistByField("ownerId", user.ProfileId)
 	if !exist {
 		return nosqlDomain.WatchList{}, errors.New("not found")
 	}
-	cart, err := s.watchListRepository.FindByField("ownerId", user.UserId)
+	cart, err := s.watchListRepository.FindByField("ownerId", user.ProfileId)
 	if err != nil {
 		return nosqlDomain.WatchList{}, err
 	}
@@ -44,13 +44,13 @@ func (s WatchListService) CreateWatchList(loggedUser middleware.LoggedUser) (nos
 	if err == nil {
 		return nosqlDomain.WatchList{}, errors.New("error in loggedUser")
 	}
-	if s.watchListRepository.ExistByField("ownerId", loggedUser.UserId) {
+	if s.watchListRepository.ExistByField("ownerId", loggedUser.ProfileId) {
 		return nosqlDomain.WatchList{}, errors.New("you already have a shopping cart")
 	}
 
 	var portfolio nosqlDomain.WatchList
 
-	user, err := s.profileService.FindProfileByUserId(loggedUser.UserId)
+	user, err := s.profileService.FindProfileByUserId(loggedUser.ProfileId)
 	if err != nil {
 		return nosqlDomain.WatchList{}, err
 	}

@@ -45,5 +45,15 @@ func (t *TransactionController) Balance(ctx *gin.Context) {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
 	}
-	response.Entity(ctx, http.StatusCreated, balance)
+	response.Entity(ctx, http.StatusOK, balance)
+}
+
+func (t *TransactionController) FindAllTransactions(ctx *gin.Context) {
+	loggedUser := middleware.GetLoggedUser(ctx)
+	balance, err := t.transactionService.FindAllTransactions(loggedUser)
+	if err != nil {
+		exceptions.MotionError(err.Error()).Throw(ctx)
+		return
+	}
+	response.Entity(ctx, http.StatusOK, balance)
 }

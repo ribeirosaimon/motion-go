@@ -90,7 +90,7 @@ func TestLoginController_ValidateEmail(t *testing.T) {
 	}
 	assert.Equal(t, http.StatusOK, newRecorder.Code)
 	assert.Equal(t, transaction.SessionId, loggedUser.SessionId)
-	assert.Equal(t, transaction.ProfileId, loggedUser.UserId)
+	assert.Equal(t, transaction.ProfileId, loggedUser.ProfileId)
 	assert.Equal(t, transaction.OperationType, sqlDomain.DEPOSIT)
 }
 

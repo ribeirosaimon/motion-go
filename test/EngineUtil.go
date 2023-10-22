@@ -75,7 +75,7 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 
 	var loggedUser = middleware.LoggedUser{
 		Name:      profile.Name,
-		UserId:    profile.MotionUserId,
+		ProfileId: profile.MotionUserId,
 		SessionId: session.Id,
 	}
 	ctx.Set("loggedUser", loggedUser)

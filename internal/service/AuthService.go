@@ -106,7 +106,7 @@ func (l *AuthService) WhoAmI(userId uint64) (sqlDomain.Profile, error) {
 }
 
 func (l *AuthService) ValidateEmail(loggedUser middleware.LoggedUser, code string) error {
-	profile, err := l.WhoAmI(loggedUser.UserId)
+	profile, err := l.WhoAmI(loggedUser.ProfileId)
 	if err != nil {
 		return err
 	}
