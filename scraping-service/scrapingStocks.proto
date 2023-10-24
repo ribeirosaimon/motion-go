@@ -1,0 +1,51 @@
+syntax = "proto3";
+option go_package = "github.com/ribeirosaimon/motion-go/scraping-service/pb";
+
+message StockCode {
+  string code = 1;
+  bool national = 2;
+}
+
+message SummaryStock {
+  string id = 1;
+  string company_name = 2;
+  string company_code = 3;
+  SumarryStockValue stock_value = 4;
+  Summary summary = 5;
+  SummaryStatus status = 6;
+  BasicNoSQL basic_nosql = 7;
+}
+
+message SumarryStockValue {
+  double price = 1;
+  double range_day = 2;
+  double percent_range = 3;
+}
+
+message Summary {
+  double previous_close = 1;
+  double open = 2;
+  RangePrice day_range = 3;
+  RangePrice year_range = 4;
+  uint64 volume = 5;
+  uint64 avg_vol = 6;
+}
+
+message RangePrice {
+  double start = 1;
+  double end = 2;
+}
+
+enum SummaryStatus {
+  ACTIVE = 0;
+  INACTIVE = 1;
+}
+
+message BasicNoSQL {
+  int64 created_at = 1;
+  int64 updated_at = 2;
+}
+service ScrapingService {
+  rpc GetCompany(StockCode) returns (SummaryStock);
+}
+
