@@ -35,7 +35,7 @@ func (m *MotionGo) AddRouter(version ...RoutersVersion) {
 
 func (m *MotionGo) CreateRouters(logger func() gin.HandlerFunc) {
 	for _, routerVersions := range m.Routers {
-		apiVersion := m.MotionEngine.Group(fmt.Sprintf("/api/%s", routerVersions.Version))
+		apiVersion := m.MotionEngine.Group(fmt.Sprintf("/api-service/%s", routerVersions.Version))
 		for _, routersFunc := range routerVersions.Handlers {
 			routers := routersFunc()
 			pathEngineer := apiVersion.Group(routers.Path)

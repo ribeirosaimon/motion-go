@@ -12,7 +12,7 @@ import (
 )
 
 type motionLog struct {
-	Api          string      `json:"api"`
+	Api          string      `json:"api-service"`
 	HttpRequest  request     `json:"httpRequest"`
 	HttpResponse response    `json:"response"`
 	LoggedUser   *LoggedUser `json:"loggedUser,omitempty"`

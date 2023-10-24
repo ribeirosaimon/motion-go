@@ -15,7 +15,7 @@ spec:
         app: go-motion-api
     spec:
       containers:
-        - name: go-motion-api
+        - name: go-motion-api-service
           image: saimonribeiros/motion-app:latest
           ports:
             - containerPort: 8080
