@@ -6,6 +6,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/grpcconnection"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/router"
@@ -17,9 +18,12 @@ func main() {
 	dir, _ := util.FindRootDir()
 
 	motionGo := config.NewMotionGo(fmt.Sprintf("%s/%s", dir, propertiesFile))
+
 	motionGo.MotionEngine.Use(middleware.CorsMiddleware)
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
+	grpcconnection.NewConnection(motionGo.PropertiesFile.GetString("grpc.host", ""),
+		motionGo.PropertiesFile.GetString("grpc.port", ""))
 
 	config.NewMotionConfig(motionGo.PropertiesFile)
 	setUpRoles()

@@ -9,6 +9,7 @@ import (
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/domain/pb"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -29,6 +30,12 @@ func (s *Service) GetSummaryStock(stock string) (nosqlDomain.SummaryStock, error
 	foundCompany, err := companyRepository.FindByField("companyCode", stock)
 
 	if err != nil {
+		client := pb.NewScrapingServiceClient(grp)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		response, err := client.YourRPCMethod(ctx, &request)
+
 		stockSummary := getStockSummary(stock)
 
 		if stockSummary.StockValue.Price == float64(0) {

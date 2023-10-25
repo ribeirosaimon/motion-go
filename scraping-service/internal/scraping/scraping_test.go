@@ -7,6 +7,6 @@ import (
 )
 
 func TestScrapingReturnError(t *testing.T) {
-	summary := getStockSummary("test")
+	summary := GetStockSummary("test")
 	assert.Equal(t, summary.Summary.Open, float64(0))
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/ribeirosaimon/motion-go/scraping-service/pb"
 )
 
-func getStockSummary(v string) pb.SummaryStock {
+func GetStockSummary(v string) pb.SummaryStock {
 	url := fmt.Sprintf("%s/quote/%s", domain, v)
 	c := prepareColly()
 
@@ -28,20 +28,20 @@ func getStockSummary(v string) pb.SummaryStock {
 				tbody.ForEach("tr", func(trCount int, tr *colly.HTMLElement) {
 					if trCount == 0 {
 						getTdValue(tr)
-						summary.PreviousClose = float32(transformToFloat(getTdValue(tr)))
+						summary.PreviousClose = transformToFloat(getTdValue(tr))
 					} else if trCount == 1 {
-						summary.Open = float32(transformToFloat(getTdValue(tr)))
+						summary.Open = transformToFloat(getTdValue(tr))
 					} else if trCount == 4 {
 						if !strings.Contains("N/A", getTdValue(tr)) {
 							splitedValue := strings.Split(getTdValue(tr), "-")
-							summary.DayRange.Start = float32(transformToFloat(splitedValue[0]))
-							summary.DayRange.End = float32(transformToFloat(splitedValue[1]))
+							summary.DayRange.Start = transformToFloat(splitedValue[0])
+							summary.DayRange.End = transformToFloat(splitedValue[1])
 						}
 					} else if trCount == 5 {
 						if !strings.Contains("N/A", getTdValue(tr)) {
 							splitedValue := strings.Split(getTdValue(tr), "-")
-							summary.YearRange.Start = float32(transformToFloat(splitedValue[0]))
-							summary.YearRange.End = float32(transformToFloat(splitedValue[1]))
+							summary.YearRange.Start = transformToFloat(splitedValue[0])
+							summary.YearRange.End = transformToFloat(splitedValue[1])
 						}
 					} else if trCount == 6 {
 						summary.Volume = uint64(transformToInteger(getTdValue(tr)))
@@ -73,11 +73,11 @@ func getSummaryStockValue(v *colly.HTMLElement) *pb.SumarryStockValue {
 	var sumarryStockValue pb.SumarryStockValue
 	v.ForEach("fin-streamer", func(countValue int, value *colly.HTMLElement) {
 		if countValue == 0 {
-			sumarryStockValue.Price = float32(transformToFloat(value.Text))
+			sumarryStockValue.Price = transformToFloat(value.Text)
 		} else if countValue == 1 {
-			sumarryStockValue.RangeDay = float32(transformToFloat(value.Text))
+			sumarryStockValue.RangeDay = transformToFloat(value.Text)
 		} else if countValue == 2 {
-			sumarryStockValue.PercentRange = float32(transformToFloat(value.Text))
+			sumarryStockValue.PercentRange = transformToFloat(value.Text)
 		}
 	})
 
