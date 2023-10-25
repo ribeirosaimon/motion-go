@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"github.com/ribeirosaimon/motion-go/config/pb"
 	"log"
 	"net"
 
 	"github.com/ribeirosaimon/motion-go/scraping-service/internal/scraping"
-	"github.com/ribeirosaimon/motion-go/scraping-service/pb"
 	"google.golang.org/grpc"
 )
 
@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("Canot create listener :%s ", err)
 	}
 	grpcServer := grpc.NewServer()
-	pb.RegisterScrapingServiceServer(grpcServer, &server{})
+	pb2.RegisterScrapingServiceServer(grpcServer, &server{})
 
 	if err := grpcServer.Serve(lis); err != nil {
 		panic(err)

@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/gocolly/colly v1.2.0
-	github.com/ribeirosaimon/motion-go v0.0.0-20230531173203-65df244acd93
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.12.1

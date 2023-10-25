@@ -2,10 +2,10 @@ package scraping
 
 import (
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/config/pb"
 	"strings"
 
 	"github.com/gocolly/colly"
-	"github.com/ribeirosaimon/motion-go/scraping-service/pb"
 )
 
 func GetStockSummary(v string) pb.SummaryStock {
