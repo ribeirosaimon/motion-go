@@ -15,6 +15,7 @@ type server struct {
 }
 
 func (s server) GetCompany(ctx context.Context, code *pb.StockCode) (*pb.SummaryStock, error) {
+
 	stock := scraping.GetStockSummary(code.Code)
 	return &stock, nil
 }
