@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/grpcconnection"
 	"log"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
-	"github.com/ribeirosaimon/motion-go/internal/domain/pb"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,20 +30,17 @@ func (s *Service) GetSummaryStock(stock string) (nosqlDomain.SummaryStock, error
 	foundCompany, err := companyRepository.FindByField("companyCode", stock)
 
 	if err != nil {
-		client := pb.NewScrapingServiceClient(grp)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+		newStock, err := grpcconnection.GetStock(stock, true)
+		if err != nil {
+			return nosqlDomain.SummaryStock{}, err
+		}
 
-		response, err := client.YourRPCMethod(ctx, &request)
-
-		stockSummary := getStockSummary(stock)
-
-		if stockSummary.StockValue.Price == float64(0) {
+		if newStock.StockValue.Price == float64(0) {
 			return nosqlDomain.SummaryStock{}, errors.New("this stock does not exist")
 		}
 
-		summary := stockSummary
-		summary.Id = primitive.NewObjectID()
+		summary := newStock
+		summary.Id = primitive.NewObjectID().Hex()
 		summary.CreatedAt = time.Now()
 		summary.UpdatedAt = time.Now()
 		foundCompany, _ = companyRepository.Save(summary)

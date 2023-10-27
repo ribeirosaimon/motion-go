@@ -1,6 +1,7 @@
 package nosqlDomain
 
 import (
+	"github.com/ribeirosaimon/motion-go/config/pb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -8,6 +9,7 @@ type SummaryStock struct {
 	Id          primitive.ObjectID `json:"id"  bson:"_id" gorm:"primary_key"`
 	CompanyName string             `json:"companyName" bson:"companyName"`
 	CompanyCode string             `json:"companyCode" bson:"companyCode"`
+	IsNational  bool               `json:"isNational" bson:"isNational"`
 	StockValue  SumarryStockValue  `json:"stockValue" bson:"stockValue"`
 	Summary     Summary            `json:"summary" bson:"summary"`
 	Status      SummaryStatus      `json:"status" bson:"status"`
@@ -44,3 +46,20 @@ const (
 	ACTIVE   SummaryStatus = "ACTIVE"
 	INACTIVE SummaryStatus = "INACTIVE"
 )
+
+func ChangeProtoToMongo(protoDomain pb.SummaryStock) SummaryStock {
+	protoDomain.GetSummary()
+	getSummary(*protoDomain.GetSummary())
+}
+
+func getSummary(protoSum pb.Summary) *Summary {
+
+	return &Summary{
+		AvgVol:        protoSum.GetAvgVol(),
+		Volume:        protoSum.GetVolume(),
+		Open:          protoSum.GetOpen(),
+		PreviousClose: protoSum.GetPreviousClose(),
+		DayR.Start:    protoSum.GetDayRange().GetStart(),
+		DayRange.End:  protoSum.GetDayRange().GetEnd(),
+	}
+}

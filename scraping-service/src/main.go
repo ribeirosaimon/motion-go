@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("Canot create listener :%s ", err)
 	}
 	grpcServer := grpc.NewServer()
-	pb2.RegisterScrapingServiceServer(grpcServer, &server{})
+	pb.RegisterScrapingServiceServer(grpcServer, &server{})
 
 	if err := grpcServer.Serve(lis); err != nil {
 		panic(err)

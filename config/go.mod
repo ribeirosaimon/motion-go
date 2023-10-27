@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/golang/protobuf v1.5.3
+	go.mongodb.org/mongo-driver v1.12.1
 	google.golang.org/grpc v1.59.0
 )
 

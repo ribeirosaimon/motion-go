@@ -3,14 +3,14 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
+	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/service"
 	"github.com/ribeirosaimon/motion-go/test"

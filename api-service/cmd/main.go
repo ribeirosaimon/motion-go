@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/grpcconnection"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"

@@ -2,11 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
 	"github.com/ribeirosaimon/motion-go/test"
 

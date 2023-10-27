@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
+import (
+	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
+)
 
 type SignUpDto struct {
 	LoginDto

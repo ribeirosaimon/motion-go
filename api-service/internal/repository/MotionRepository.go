@@ -2,75 +2,75 @@ package repository
 
 import (
 	"context"
+	nosqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 
-	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 )
 
 var (
-	userRepository         *MotionSQLRepository[sqlDomain.MotionUser]
-	sessionRepository      *MotionSQLRepository[sqlDomain.Session]
-	profileRepository      *MotionSQLRepository[sqlDomain.Profile]
-	roleRepository         *MotionSQLRepository[sqlDomain.Role]
-	transactionRepository  *MotionSQLRepository[sqlDomain.Transaction]
-	watchListRepository    *MotionNoSQLRepository[nosqlDomain.WatchList]
-	summaryStockRepository *MotionNoSQLRepository[nosqlDomain.SummaryStock]
+	userRepository         *MotionSQLRepository[sqlDomain2.MotionUser]
+	sessionRepository      *MotionSQLRepository[sqlDomain2.Session]
+	profileRepository      *MotionSQLRepository[sqlDomain2.Profile]
+	roleRepository         *MotionSQLRepository[sqlDomain2.Role]
+	transactionRepository  *MotionSQLRepository[sqlDomain2.Transaction]
+	watchListRepository    *MotionNoSQLRepository[nosqlDomain2.WatchList]
+	summaryStockRepository *MotionNoSQLRepository[nosqlDomain2.SummaryStock]
 )
 
-func NewUserRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.MotionUser] {
+func NewUserRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain2.MotionUser] {
 	if userRepository != nil {
 		return userRepository
 	}
-	userRepository := newMotionSQLRepository[sqlDomain.MotionUser](conn)
+	userRepository := newMotionSQLRepository[sqlDomain2.MotionUser](conn)
 	return userRepository
 }
 
-func NewSessionRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Session] {
+func NewSessionRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain2.Session] {
 	if sessionRepository != nil {
 		return sessionRepository
 	}
-	sessionRepository := newMotionSQLRepository[sqlDomain.Session](conn)
+	sessionRepository := newMotionSQLRepository[sqlDomain2.Session](conn)
 	return sessionRepository
 }
 
-func NewProfileRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Profile] {
+func NewProfileRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain2.Profile] {
 	if profileRepository != nil {
 		return profileRepository
 	}
-	profileRepository := newMotionSQLRepository[sqlDomain.Profile](conn)
+	profileRepository := newMotionSQLRepository[sqlDomain2.Profile](conn)
 	return profileRepository
 }
 
-func NewRoleRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Role] {
+func NewRoleRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain2.Role] {
 	if roleRepository != nil {
 		return roleRepository
 	}
-	roleRepository := newMotionSQLRepository[sqlDomain.Role](conn)
+	roleRepository := newMotionSQLRepository[sqlDomain2.Role](conn)
 	return roleRepository
 }
 
-func NewWatchListRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain.WatchList] {
+func NewWatchListRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain2.WatchList] {
 	if watchListRepository != nil {
 		return watchListRepository
 	}
-	watchListRepository := newMotionNoSQLRepository[nosqlDomain.WatchList](ctx, mongoConnection)
+	watchListRepository := newMotionNoSQLRepository[nosqlDomain2.WatchList](ctx, mongoConnection)
 	return watchListRepository
 }
 
-func NewSummaryStockRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain.SummaryStock] {
+func NewSummaryStockRepository(ctx context.Context, mongoConnection *mongo.Client) *MotionNoSQLRepository[nosqlDomain2.SummaryStock] {
 	if summaryStockRepository != nil {
 		return summaryStockRepository
 	}
-	summaryStockRepository := newMotionNoSQLRepository[nosqlDomain.SummaryStock](ctx, mongoConnection)
+	summaryStockRepository := newMotionNoSQLRepository[nosqlDomain2.SummaryStock](ctx, mongoConnection)
 	return summaryStockRepository
 }
 
-func NewTransactionRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain.Transaction] {
+func NewTransactionRepository(conn *gorm.DB) *MotionSQLRepository[sqlDomain2.Transaction] {
 	if transactionRepository != nil {
 		return transactionRepository
 	}
-	transactionRepository := newMotionSQLRepository[sqlDomain.Transaction](conn)
+	transactionRepository := newMotionSQLRepository[sqlDomain2.Transaction](conn)
 	return transactionRepository
 }

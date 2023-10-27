@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 )
 

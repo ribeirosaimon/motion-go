@@ -1,11 +1,11 @@
 package router
 
 import (
+	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"net/http"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/controller"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 )
 

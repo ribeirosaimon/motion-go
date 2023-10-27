@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
 	"log"
 	"time"
 
@@ -9,8 +10,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/src/scraping"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-
-	"github.com/ribeirosaimon/motion-go/internal/domain/nosqlDomain"
 )
 
 type MotionCache struct {

@@ -3,12 +3,12 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/stretchr/testify/assert"

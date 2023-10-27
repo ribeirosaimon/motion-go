@@ -3,6 +3,7 @@ module github.com/ribeirosaimon/motion-go/scraping-service
 go 1.19
 
 require (
+	github.com/ribeirosaimon/motion-go/config v0.0.0
 	github.com/gocolly/colly v1.2.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.4
@@ -52,3 +53,4 @@ require (
 	gorm.io/driver/sqlite v1.4.4 // indirect
 	gorm.io/gorm v1.24.6 // indirect
 )
+replace github.com/ribeirosaimon/motion-go/config => ../config

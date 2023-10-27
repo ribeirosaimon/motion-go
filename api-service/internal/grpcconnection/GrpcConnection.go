@@ -3,10 +3,10 @@ package grpcconnection
 import (
 	"context"
 	"fmt"
+	"github.com/ribeirosaimon/motion-go/config/pb"
 	"log"
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/internal/domain/pb"
 	"google.golang.org/grpc"
 )
 
@@ -29,7 +29,7 @@ func NewConnection(serverAddress, port string) (*connection, error) {
 	return myGrpcConn, nil
 }
 
-func GetConnection(code string, national bool) (pb.SummaryStock, error) {
+func GetStock(code string, national bool) (pb.SummaryStock, error) {
 	client := pb.NewScrapingServiceClient(myGrpcConn.clientConn)
 	defer myGrpcConn.Close()
 

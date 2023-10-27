@@ -1,17 +1,17 @@
 package middleware
 
 import (
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
+func Authorization(roles ...sqlDomain2.Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		motionValues := c.GetHeader("MotionRole")
@@ -76,15 +76,15 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 	}
 }
 
-func notAutenticateEmailSyncUser(c *gin.Context, profile sqlDomain.Profile) {
-	if profile.Status == sqlDomain.ACTIVE || strings.Contains(c.Request.RequestURI, "validate") ||
+func notAutenticateEmailSyncUser(c *gin.Context, profile sqlDomain2.Profile) {
+	if profile.Status == sqlDomain2.ACTIVE || strings.Contains(c.Request.RequestURI, "validate") ||
 		strings.Contains(c.Request.RequestURI, "whoami") {
 		return
 	}
 	exceptions.Forbidden().Throw(c)
 }
 
-func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain.Role, p sqlDomain.Profile, s sqlDomain.Session) {
+func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain2.Role, p sqlDomain2.Profile, s sqlDomain2.Session) {
 	var loggedUser LoggedUser
 	loggedUser.ProfileId = p.Id
 	loggedUser.Name = p.Name
@@ -112,8 +112,8 @@ func CheckPassword(password string, storedPassword string) error {
 }
 
 type LoggedUser struct {
-	Name      string         `json:"name"`
-	ProfileId uint64         `json:"loggedId"`
-	SessionId string         `json:"sessionId"`
-	Role      sqlDomain.Role `json:"role"`
+	Name      string          `json:"name"`
+	ProfileId uint64          `json:"loggedId"`
+	SessionId string          `json:"sessionId"`
+	Role      sqlDomain2.Role `json:"role"`
 }

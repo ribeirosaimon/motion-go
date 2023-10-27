@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
@@ -11,13 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
-func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser {
+func SetUpTest(ctx *gin.Context, role sqlDomain2.RoleEnum) middleware.LoggedUser {
 	propertiesFile := "config.test.properties"
 
 	// var err error
@@ -39,7 +39,7 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 
 	config.GetMotionConfig()
 	setUpRoles()
-	var roles []sqlDomain.RoleEnum
+	var roles []sqlDomain2.RoleEnum
 
 	roles = append(roles, role)
 
@@ -56,7 +56,7 @@ func SetUpTest(ctx *gin.Context, role sqlDomain.RoleEnum) middleware.LoggedUser 
 
 	userRepository := repository.NewUserRepository(db.Conn.GetPgsqTemplate())
 	loginService := service.NewAuthService(db.Conn)
-	var profile sqlDomain.Profile
+	var profile sqlDomain2.Profile
 
 	if !userRepository.ExistByField("email", loginDto.Email) {
 		profile, _ = loginService.SignUp(signUp)
@@ -87,11 +87,11 @@ func setUpRoles() {
 	defer db.Conn.ClosePostgreSQL()
 
 	roleRepository := repository.NewRoleRepository(connect)
-	allRoles := []sqlDomain.RoleEnum{sqlDomain.USER, sqlDomain.ADMIN}
+	allRoles := []sqlDomain2.RoleEnum{sqlDomain2.USER, sqlDomain2.ADMIN}
 	for _, i := range allRoles {
 		existByName := roleRepository.ExistByField("name", i)
 		if !existByName {
-			roleRepository.Save(sqlDomain.Role{Name: i})
+			roleRepository.Save(sqlDomain2.Role{Name: i})
 		}
 
 	}
@@ -99,14 +99,14 @@ func setUpRoles() {
 
 type SignUpTestDto struct {
 	loginTestDto
-	Name  string               `json:"name"`
-	Roles []sqlDomain.RoleEnum `json:"roles"`
+	Name  string                `json:"name"`
+	Roles []sqlDomain2.RoleEnum `json:"roles"`
 }
 
 type loginTestDto struct {
-	Email      string             `json:"email"`
-	Password   string             `json:"password,omitempty"`
-	Token      string             `json:"token"`
-	LoggedId   uint32             `json:"id"`
-	LoggedRole sqlDomain.RoleEnum `json:"loggedRole"`
+	Email      string              `json:"email"`
+	Password   string              `json:"password,omitempty"`
+	Token      string              `json:"token"`
+	LoggedId   uint32              `json:"id"`
+	LoggedRole sqlDomain2.RoleEnum `json:"loggedRole"`
 }

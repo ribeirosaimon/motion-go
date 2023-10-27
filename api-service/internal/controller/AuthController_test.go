@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
@@ -25,7 +25,7 @@ func TestLoginController_SignUp(t *testing.T) {
 
 	var signupDto = dto.SignUpDto{
 		Name:  "testUser",
-		Roles: []sqlDomain.RoleEnum{sqlDomain.USER},
+		Roles: []sqlDomain2.RoleEnum{sqlDomain2.USER},
 		LoginDto: dto.LoginDto{
 			Email:    "user@test.com",
 			Password: "testPassword",
@@ -40,7 +40,7 @@ func TestLoginController_SignUp(t *testing.T) {
 
 	NewAuthController().SignUp(c)
 
-	var response sqlDomain.Profile
+	var response sqlDomain2.Profile
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	if err != nil {
 		t.Errorf("Error in unmarshal json %d", w.Body)
@@ -48,11 +48,11 @@ func TestLoginController_SignUp(t *testing.T) {
 
 	roleRepository := repository.NewRoleRepository(db.Conn.GetPgsqTemplate())
 
-	role, err := roleRepository.FindByField("name", sqlDomain.USER)
+	role, err := roleRepository.FindByField("name", sqlDomain2.USER)
 	assert.Equal(t, signupDto.Name, response.Name)
-	assert.Equal(t, response.Status, sqlDomain.EMAIL_SYNC)
+	assert.Equal(t, response.Status, sqlDomain2.EMAIL_SYNC)
 
-	assert.Equal(t, sqlDomain.USER, role.Name)
+	assert.Equal(t, sqlDomain2.USER, role.Name)
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
 
@@ -74,7 +74,7 @@ func TestLoginController_ValidateEmail(t *testing.T) {
 
 	newRecorder := httptest.NewRecorder()
 	newContext, _ := gin.CreateTestContext(newRecorder)
-	loggedUser := test.SetUpTest(newContext, sqlDomain.USER)
+	loggedUser := test.SetUpTest(newContext, sqlDomain2.USER)
 
 	jsonBytes, err := json.Marshal(dto.ValidateEmailDto{Code: profile.Code})
 	reader := bytes.NewReader(jsonBytes)
@@ -91,7 +91,7 @@ func TestLoginController_ValidateEmail(t *testing.T) {
 	assert.Equal(t, http.StatusOK, newRecorder.Code)
 	assert.Equal(t, transaction.SessionId, loggedUser.SessionId)
 	assert.Equal(t, transaction.ProfileId, loggedUser.ProfileId)
-	assert.Equal(t, transaction.OperationType, sqlDomain.DEPOSIT)
+	assert.Equal(t, transaction.OperationType, sqlDomain2.DEPOSIT)
 }
 
 func TestLoginController_ValidateEmailOnlyOneTime(t *testing.T) {
@@ -173,7 +173,7 @@ func TestLoginController_Login(t *testing.T) {
 func configAuthTest() (*httptest.ResponseRecorder, *gin.Context) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	test.SetUpTest(c, sqlDomain.USER)
+	test.SetUpTest(c, sqlDomain2.USER)
 
 	return w, c
 }

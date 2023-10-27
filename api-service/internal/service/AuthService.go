@@ -2,12 +2,12 @@ package service
 
 import (
 	"errors"
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"time"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
 
-	"github.com/ribeirosaimon/motion-go/internal/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/internal/dto"
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
@@ -17,7 +17,7 @@ import (
 )
 
 type AuthService struct {
-	userRepository     *repository.MotionSQLRepository[sqlDomain.MotionUser]
+	userRepository     *repository.MotionSQLRepository[sqlDomain2.MotionUser]
 	profileService     *ProfileService
 	sessionService     *SessionService
 	transactionService *TransactionService
@@ -48,7 +48,7 @@ func (l *AuthService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 		return "", exceptions.Unauthorized()
 	}
 	profileUser, err := l.profileService.FindProfileByUserId(savedUser.Id)
-	if profileUser.Status == sqlDomain.INACTIVE {
+	if profileUser.Status == sqlDomain2.INACTIVE {
 		return "", exceptions.Unauthorized()
 	}
 	if err != nil {
@@ -62,20 +62,20 @@ func (l *AuthService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 	return userSession.Id, nil
 }
 
-func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *exceptions.Error) {
+func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain2.Profile, *exceptions.Error) {
 
 	if signupDto.Email == "" || !util.ValidateEmail(signupDto.Email) {
-		return sqlDomain.Profile{}, exceptions.FieldError("email")
+		return sqlDomain2.Profile{}, exceptions.FieldError("email")
 	}
 
 	if signupDto.Email == "" {
-		return sqlDomain.Profile{}, exceptions.FieldError("password")
+		return sqlDomain2.Profile{}, exceptions.FieldError("password")
 	}
 
-	var user sqlDomain.MotionUser
+	var user sqlDomain2.MotionUser
 	password, err := middleware.EncryptPassword(signupDto.Password)
 	if err != nil {
-		return sqlDomain.Profile{}, exceptions.BodyError()
+		return sqlDomain2.Profile{}, exceptions.BodyError()
 	}
 	user.Name = signupDto.Name
 	user.Password = password
@@ -83,7 +83,7 @@ func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *excep
 
 	savedUser, err := l.userRepository.Save(user)
 	if err != nil {
-		return sqlDomain.Profile{}, exceptions.InternalServer(err.Error())
+		return sqlDomain2.Profile{}, exceptions.InternalServer(err.Error())
 	}
 
 	profileUser, err := l.profileService.SaveProfileUser(savedUser, signupDto.Roles)
@@ -91,16 +91,16 @@ func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *excep
 	go emailSender.SendEmail(profileUser.Code)
 
 	if err != nil {
-		return sqlDomain.Profile{}, exceptions.InternalServer(err.Error())
+		return sqlDomain2.Profile{}, exceptions.InternalServer(err.Error())
 	}
 	return profileUser, nil
 }
 
-func (l *AuthService) WhoAmI(userId uint64) (sqlDomain.Profile, error) {
+func (l *AuthService) WhoAmI(userId uint64) (sqlDomain2.Profile, error) {
 
 	user, err := l.profileService.FindProfileByUserId(userId)
 	if err != nil {
-		return sqlDomain.Profile{}, err
+		return sqlDomain2.Profile{}, err
 	}
 	return user, nil
 }
@@ -110,13 +110,13 @@ func (l *AuthService) ValidateEmail(loggedUser middleware.LoggedUser, code strin
 	if err != nil {
 		return err
 	}
-	if profile.Status == sqlDomain.ACTIVE {
+	if profile.Status == sqlDomain2.ACTIVE {
 		return errors.New("this profile was active")
 	}
 	if profile.Code != code {
 		return errors.New("this code was wrong")
 	}
-	profile.Status = sqlDomain.ACTIVE
+	profile.Status = sqlDomain2.ACTIVE
 	profile.UpdatedAt = time.Now()
 
 	l.transactionService.Deposit(loggedUser, dto.Deposit{Value: float64(config.GetMotionConfig().InitialValue)})
