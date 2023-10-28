@@ -23,7 +23,7 @@ func (s SummaryStock) GetId() interface{} {
 type SumarryStockValue struct {
 	Price        float64 `json:"price" bson:"price"`
 	RangeDay     float64 `json:"rangeDay" bson:"rangeDay"`
-	PersentRange float64 `json:"percentRange" bson:"persentRange"`
+	PersentRange float64 `json:"percentRange" bson:"percentRange"`
 }
 
 type Summary struct {
@@ -48,18 +48,28 @@ const (
 )
 
 func ChangeProtoToMongo(protoDomain pb.SummaryStock) SummaryStock {
-	protoDomain.GetSummary()
-	getSummary(*protoDomain.GetSummary())
+	summary := createSummary(*protoDomain.GetSummary())
+
 }
 
-func getSummary(protoSum pb.Summary) *Summary {
+func createSummary(protoSum pb.Summary) *Summary {
+
+	var rangeDayPrice = RangePrice{
+		Start: protoSum.GetDayRange().GetStart(),
+		End:   protoSum.GetDayRange().GetEnd(),
+	}
+
+	var rangeYearPrice = RangePrice{
+		Start: protoSum.GetYearRange().GetStart(),
+		End:   protoSum.GetYearRange().GetEnd(),
+	}
 
 	return &Summary{
 		AvgVol:        protoSum.GetAvgVol(),
 		Volume:        protoSum.GetVolume(),
 		Open:          protoSum.GetOpen(),
 		PreviousClose: protoSum.GetPreviousClose(),
-		DayR.Start:    protoSum.GetDayRange().GetStart(),
-		DayRange.End:  protoSum.GetDayRange().GetEnd(),
+		DayRange:      rangeDayPrice,
+		YearRange:     rangeYearPrice,
 	}
 }
