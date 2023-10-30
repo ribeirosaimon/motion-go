@@ -2,8 +2,9 @@ package scraping
 
 import (
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/config/pb"
 	"strings"
+
+	"github.com/ribeirosaimon/motion-go/config/pb"
 
 	"github.com/gocolly/colly"
 )
@@ -24,6 +25,11 @@ func GetStockSummary(v string) pb.SummaryStock {
 	c.OnHTML("#quote-summary", func(e *colly.HTMLElement) {
 		e.ForEach("tbody", func(tbodyNumber int, tbody *colly.HTMLElement) {
 			var summary pb.Summary
+			var dayRange pb.RangePrice
+			var yearRange pb.RangePrice
+			summary.DayRange = &dayRange
+			summary.YearRange = &yearRange
+
 			if tbodyNumber == 0 {
 				tbody.ForEach("tr", func(trCount int, tr *colly.HTMLElement) {
 					if trCount == 0 {

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -58,10 +57,8 @@ func NewLogger() gin.HandlerFunc {
 			HttpResponse: httpResponse,
 		}
 
-		if !strings.Contains(c.Request.RequestURI, "login") {
-			user := GetLoggedUser(c)
-			motionLogger.LoggedUser = &user
-		}
+		user := GetLoggedUser(c)
+		motionLogger.LoggedUser = &user
 
 		jsonData, err := json.Marshal(motionLogger)
 		if err != nil {

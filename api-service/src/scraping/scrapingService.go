@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
-	"github.com/ribeirosaimon/motion-go/internal/grpcconnection"
 	"log"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
+	"github.com/ribeirosaimon/motion-go/internal/grpcconnection"
 
 	"github.com/ribeirosaimon/motion-go/internal/db"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
@@ -30,37 +31,43 @@ func (s *Service) GetSummaryStock(stock string) (nosqlDomain.SummaryStock, error
 	foundCompany, err := companyRepository.FindByField("companyCode", stock)
 
 	if err != nil {
-		newStock, err := grpcconnection.GetStock(stock, true)
+		mongoSummaryStock, err := GetStockSummary(stock)
 		if err != nil {
 			return nosqlDomain.SummaryStock{}, err
 		}
 
-		if newStock.StockValue.Price == float64(0) {
-			return nosqlDomain.SummaryStock{}, errors.New("this stock does not exist")
-		}
-
-		summary := newStock
-		summary.Id = primitive.NewObjectID().Hex()
-		summary.CreatedAt = time.Now()
-		summary.UpdatedAt = time.Now()
-		foundCompany, _ = companyRepository.Save(summary)
+		foundCompany, _ = companyRepository.Save(mongoSummaryStock)
 		return foundCompany, nil
 	}
 
 	add := time.Now().Add(time.Minute * 2)
 	if add.After(foundCompany.UpdatedAt) {
 		log.Printf(fmt.Sprintf("\033[0m Scraping:\033[0m Create scraping in stock: %s.\"", stock))
-		stockSummary := getStockSummary(stock)
-		if stockSummary.StockValue.Price == float64(0) {
-			return nosqlDomain.SummaryStock{}, errors.New("this stock does not exist")
+		mongoSummaryStock, err := GetStockSummary(stock)
+		if err != nil {
+			return nosqlDomain.SummaryStock{}, err
 		}
-		summary := stockSummary
-		summary.Id = foundCompany.Id
-		summary.UpdatedAt = time.Now()
-		foundCompany, _ = companyRepository.Save(summary)
+
+		foundCompany, _ = companyRepository.Save(mongoSummaryStock)
 		return foundCompany, nil
 	}
 	return foundCompany, nil
+}
+
+func GetStockSummary(stock string) (nosqlDomain.SummaryStock, error) {
+	newStock, err := grpcconnection.GetStock(stock, false)
+	if err != nil {
+		return nosqlDomain.SummaryStock{}, err
+	}
+
+	if newStock.StockValue.GetPrice() == float64(0) {
+		return nosqlDomain.SummaryStock{}, errors.New("this stock does not exist")
+	}
+
+	summary := newStock
+	summary.Id = primitive.NewObjectID().Hex()
+	mongoSummaryStock := nosqlDomain.ChangeProtoToMongo(summary)
+	return *mongoSummaryStock, nil
 }
 
 func (s *Service) GetAllStocks() []string {

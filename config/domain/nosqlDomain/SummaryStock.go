@@ -1,6 +1,8 @@
 package nosqlDomain
 
 import (
+	"time"
+
 	"github.com/ribeirosaimon/motion-go/config/pb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -23,7 +25,7 @@ func (s SummaryStock) GetId() interface{} {
 type SumarryStockValue struct {
 	Price        float64 `json:"price" bson:"price"`
 	RangeDay     float64 `json:"rangeDay" bson:"rangeDay"`
-	PersentRange float64 `json:"percentRange" bson:"percentRange"`
+	PercentRange float64 `json:"percentRange" bson:"percentRange"`
 }
 
 type Summary struct {
@@ -47,9 +49,35 @@ const (
 	INACTIVE SummaryStatus = "INACTIVE"
 )
 
-func ChangeProtoToMongo(protoDomain pb.SummaryStock) SummaryStock {
+func ChangeProtoToMongo(protoDomain pb.SummaryStock) *SummaryStock {
+	status := protoDomain.Status
+	summaryStatus := SummaryStatus(status.String())
 	summary := createSummary(*protoDomain.GetSummary())
+	summaryStockValue := craeteSummaryStockValue(*protoDomain.StockValue)
+	hex, err := primitive.ObjectIDFromHex(protoDomain.Id)
+	var objectId primitive.ObjectID
+	if err != nil {
+		objectId = hex
+	} else {
+		objectId = primitive.NewObjectID()
+	}
+	return &SummaryStock{
+		Id:          objectId,
+		Summary:     *summary,
+		Status:      summaryStatus,
+		StockValue:  *summaryStockValue,
+		BasicNoSQL:  BasicNoSQL{CreatedAt: time.Now()},
+		CompanyCode: protoDomain.CompanyCode,
+		CompanyName: protoDomain.CompanyName,
+	}
+}
 
+func craeteSummaryStockValue(protoValue pb.SumarryStockValue) *SumarryStockValue {
+	return &SumarryStockValue{
+		Price:        protoValue.Price,
+		RangeDay:     protoValue.RangeDay,
+		PercentRange: protoValue.PercentRange,
+	}
 }
 
 func createSummary(protoSum pb.Summary) *Summary {

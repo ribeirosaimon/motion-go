@@ -3,15 +3,15 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
-	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ribeirosaimon/motion-go/config/domain/nosqlDomain"
+	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/test"
@@ -60,27 +60,6 @@ func TestCompanyController_GetCompany(t *testing.T) {
 	}
 	assert.Equal(t, stock1.Id.Hex(), response.Id.Hex())
 	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestCompanyController_GetCompanyNotfound(t *testing.T) {
-	w, c, _, _, _ := configTest()
-	defer db.Conn.GetMongoTemplate().Database(db.Conn.GetMongoDatabase()).Drop(context.Background())
-	var param = &gin.Params{
-		{
-			Key:   "companyName",
-			Value: "notfound",
-		},
-	}
-	c.Params = *param
-
-	NewCompanyController().GetCompanyInfo(c)
-
-	var response exceptions.Error
-	err := json.Unmarshal(w.Body.Bytes(), &response)
-	if err != nil {
-		t.Errorf("Error in unmarshal json %d", w.Body)
-	}
-	assert.Equal(t, http.StatusConflict, w.Code)
 }
 
 func TestCompanyController_DeleteCompany(t *testing.T) {

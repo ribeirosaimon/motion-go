@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/magiconair/properties"
-	"github.com/ribeirosaimon/motion-go/internal/util"
+	"github.com/ribeirosaimon/motion-go/config/util"
 	"gopkg.in/gomail.v2"
 )
 

@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
-	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"time"
+
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/config/util"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -12,7 +14,6 @@ import (
 	"github.com/ribeirosaimon/motion-go/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
-	"github.com/ribeirosaimon/motion-go/internal/util"
 	"github.com/ribeirosaimon/motion-go/src/emailSender"
 )
 

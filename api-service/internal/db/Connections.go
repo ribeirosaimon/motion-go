@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/magiconair/properties"
-	"github.com/ribeirosaimon/motion-go/internal/util"
+	"github.com/ribeirosaimon/motion-go/config/util"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/postgres"

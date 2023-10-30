@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"strings"
+
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -95,7 +96,11 @@ func putLoggedUserInContext(c *gin.Context, roleLoggedUser sqlDomain2.Role, p sq
 }
 
 func GetLoggedUser(c *gin.Context) LoggedUser {
-	return c.MustGet("loggedUser").(LoggedUser)
+	if loggedUser, exists := c.Get("loggedUser"); exists {
+		return loggedUser.(LoggedUser)
+	} else {
+		return LoggedUser{}
+	}
 }
 
 func EncryptPassword(password string) (string, error) {

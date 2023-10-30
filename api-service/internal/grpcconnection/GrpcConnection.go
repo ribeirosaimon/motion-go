@@ -3,9 +3,10 @@ package grpcconnection
 import (
 	"context"
 	"fmt"
-	"github.com/ribeirosaimon/motion-go/config/pb"
-	"log"
 	"time"
+
+	"github.com/ribeirosaimon/motion-go/config/pb"
+	"github.com/ribeirosaimon/motion-go/internal/config"
 
 	"google.golang.org/grpc"
 )
@@ -16,25 +17,42 @@ type connection struct {
 
 var myGrpcConn *connection
 
-func NewConnection(serverAddress, port string) (*connection, error) {
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", serverAddress, port), grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Failed to connect to the gRPC server: %v", err)
-		return nil, err
-	}
+func NewConnection() (*connection, error) {
+	configurations := config.GetConfigurations()
+
 	if myGrpcConn == nil {
-		myGrpcConn = &connection{clientConn: conn}
-		return myGrpcConn, nil
+		myGrpcConn = &connection{}
 	}
-	return myGrpcConn, nil
+	var err error
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+			myGrpcConn.clientConn, err = grpc.DialContext(ctx,
+				fmt.Sprintf("%s:%s", configurations.GetString("grpc.host", ""),
+					configurations.GetString("grpc.port", "")), grpc.WithInsecure())
+			if err == nil {
+				return myGrpcConn, nil
+			}
+		}
+	}
 }
 
 func GetStock(code string, national bool) (pb.SummaryStock, error) {
-	client := pb.NewScrapingServiceClient(myGrpcConn.clientConn)
-	defer myGrpcConn.Close()
-
+	newConnection, err := NewConnection()
+	if err != nil {
+		panic(err)
+	}
+	client := pb.NewScrapingServiceClient(newConnection.clientConn)
+	defer func() {
+		newConnection.Close()
+	}()
 	stockCode := pb.StockCode{Code: code, National: national}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 	company, err := client.GetCompany(ctx, &stockCode)
 	if err != nil {

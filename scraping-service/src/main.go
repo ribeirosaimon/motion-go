@@ -2,9 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/ribeirosaimon/motion-go/config/pb"
+	"fmt"
 	"log"
 	"net"
+
+	"github.com/magiconair/properties"
+	"github.com/ribeirosaimon/motion-go/config/pb"
+	"github.com/ribeirosaimon/motion-go/config/util"
 
 	"github.com/ribeirosaimon/motion-go/scraping-service/internal/scraping"
 	"google.golang.org/grpc"
@@ -21,7 +25,9 @@ func (s server) GetCompany(ctx context.Context, code *pb.StockCode) (*pb.Summary
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":8089")
+	file := getProperties()
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", file.GetString("server.port.src", "")))
 	if err != nil {
 		log.Fatalf("Canot create listener :%s ", err)
 	}
@@ -31,4 +37,12 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		panic(err)
 	}
+}
+
+func getProperties() *properties.Properties {
+	propertiesFile := "config.properties"
+	dir, _ := util.FindRootDir()
+
+	return properties.MustLoadFile(fmt.Sprintf("%s/%s", dir, propertiesFile), properties.UTF8)
+
 }

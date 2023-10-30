@@ -3,11 +3,12 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
-	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	sqlDomain2 "github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ribeirosaimon/motion-go/internal/db"
@@ -123,7 +124,7 @@ func TestLoginController_ValidateEmailOnlyOneTime(t *testing.T) {
 	newContext, _ = gin.CreateTestContext(newRecorder)
 	NewAuthController().ValidateEmail(newContext)
 
-	assert.Equal(t, http.StatusForbidden, newRecorder.Code)
+	assert.Equal(t, http.StatusBadRequest, newRecorder.Code)
 }
 
 func TestLoginController_LoginIsNotOk(t *testing.T) {

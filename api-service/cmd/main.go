@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/ribeirosaimon/motion-go/config/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/config/util"
 
 	"github.com/ribeirosaimon/motion-go/internal/config"
 	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/grpcconnection"
 	"github.com/ribeirosaimon/motion-go/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/internal/repository"
 	"github.com/ribeirosaimon/motion-go/internal/router"
-	"github.com/ribeirosaimon/motion-go/internal/util"
 )
 
 func main() {
@@ -22,8 +22,6 @@ func main() {
 	motionGo.MotionEngine.Use(middleware.CorsMiddleware)
 	db.Conn = &db.Connections{}
 	db.Conn.InitializeDatabases(motionGo.PropertiesFile)
-	grpcconnection.NewConnection(motionGo.PropertiesFile.GetString("grpc.host", ""),
-		motionGo.PropertiesFile.GetString("grpc.port", ""))
 
 	config.NewMotionConfig(motionGo.PropertiesFile)
 	setUpRoles()
@@ -31,7 +29,7 @@ func main() {
 
 	motionGo.AddRouter(version1)
 	motionGo.CreateRouters(middleware.NewLogger)
-	motionGo.RunEngine(motionGo.PropertiesFile.GetInt("server.port.src", 0))
+	motionGo.RunEngine(motionGo.PropertiesFile.GetString("server.port.src", ""))
 }
 
 func setUpRoles() {
@@ -46,7 +44,6 @@ func setUpRoles() {
 			roleRepository.Save(sqlDomain.Role{Name: i})
 		}
 	}
-
 }
 
 var version1 = config.RoutersVersion{

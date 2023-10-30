@@ -7,7 +7,6 @@ func CorsMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, MotionRole")
 
-	// Handle preflight requests
 	if c.Request.Method == "OPTIONS" {
 		c.AbortWithStatus(200)
 		return

@@ -39,7 +39,7 @@ func (c *companyController) GetCompany(ctx *gin.Context) {
 }
 
 func (c *companyController) GetCompanyInfo(ctx *gin.Context) {
-	companyName, err := c.companyService.FindByCompanyByCodeOrName(ctx.Param("companyCode"), false)
+	companyName, err := c.companyService.FindByCompanyByCodeOrName(ctx.Param("companyCode"), true)
 	if err != nil {
 		exceptions.MotionError(err.Error()).Throw(ctx)
 		return
