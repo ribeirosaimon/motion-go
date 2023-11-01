@@ -8,15 +8,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ribeirosaimon/motion-go/api/internal/db"
+	"github.com/ribeirosaimon/motion-go/api/internal/dto"
+	"github.com/ribeirosaimon/motion-go/api/internal/exceptions"
+	"github.com/ribeirosaimon/motion-go/api/internal/repository"
+	"github.com/ribeirosaimon/motion-go/api/internal/service"
+	"github.com/ribeirosaimon/motion-go/api/test"
 	sqlDomain2 "github.com/ribeirosaimon/motion-go/confighub/domain/sqlDomain"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ribeirosaimon/motion-go/internal/db"
-	"github.com/ribeirosaimon/motion-go/internal/dto"
-	"github.com/ribeirosaimon/motion-go/internal/exceptions"
-	"github.com/ribeirosaimon/motion-go/internal/repository"
-	"github.com/ribeirosaimon/motion-go/internal/service"
-	"github.com/ribeirosaimon/motion-go/test"
 	"github.com/stretchr/testify/assert"
 )
 

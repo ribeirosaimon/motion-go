@@ -3,30 +3,23 @@ package main
 import (
 	"fmt"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/IBM/sarama"
 )
 
 func main() {
-	fmt.Println("hello word")
 	Consume()
 }
 
 func Consume() {
-	kafkaConsumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "host.docker.internal:9094",
-		"group.id":          "motion-go",
-		"auto.offset.reset": "earliest",
-	})
-	if err != nil {
-		panic(err)
-	}
-	kafkaConsumer.SubscribeTopics([]string{"teste"}, nil)
-	for {
-		msg, err := kafkaConsumer.ReadMessage(-1)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		fmt.Println(msg)
+	consumer, _ := sarama.NewConsumer([]string{"localhost:9092"}, nil)
 
+	partitionConsumer, _ := consumer.ConsumePartition("motion", 0, sarama.OffsetNewest)
+
+	channel := partitionConsumer.Messages()
+
+	for {
+		msg := <-channel
+		fmt.Println(string(msg.Value))
 	}
+
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"time"
 
+	"github.com/ribeirosaimon/motion-go/api/internal/akafka"
 	"github.com/ribeirosaimon/motion-go/api/internal/db"
 	"github.com/ribeirosaimon/motion-go/api/internal/dto"
 	"github.com/ribeirosaimon/motion-go/api/internal/middleware"
@@ -13,7 +14,8 @@ import (
 type TransactionService struct {
 	transactionRepository repository.MotionRepository[sqlDomain.Transaction]
 	sessionRepository     repository.MotionRepository[sqlDomain.Session]
-	profileService        ProfileService
+	profileService        *ProfileService
+	motionKafka           *akafka.MotionKafka
 }
 
 func NewTransactionService(conections *db.Connections) *TransactionService {
@@ -21,7 +23,8 @@ func NewTransactionService(conections *db.Connections) *TransactionService {
 	return &TransactionService{
 		transactionRepository: repository.NewTransactionRepository(conections.GetPgsqTemplate()),
 		sessionRepository:     repository.NewSessionRepository(conections.GetPgsqTemplate()),
-		profileService:        *NewProfileService(db.Conn),
+		profileService:        NewProfileService(db.Conn),
+		motionKafka:           akafka.GetMotionKafka(),
 	}
 }
 
@@ -46,6 +49,7 @@ func (s *TransactionService) Deposit(loggedUser middleware.LoggedUser, deposit d
 	transaction.CreatedAt = today
 	transaction.UpdatedAt = today
 	transaction, err = s.transactionRepository.Save(transaction)
+	s.motionKafka.SendMessage(transaction)
 	if err != nil {
 		return sqlDomain.Transaction{}, err
 	}

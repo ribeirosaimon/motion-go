@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/ribeirosaimon/motion-go/api/internal/akafka"
 	"github.com/ribeirosaimon/motion-go/api/internal/config"
 	"github.com/ribeirosaimon/motion-go/api/internal/db"
 	"github.com/ribeirosaimon/motion-go/api/internal/middleware"
@@ -17,6 +18,8 @@ func main() {
 	dir, _ := util.FindRootDir()
 
 	motionGo := config.NewMotionGo(fmt.Sprintf("%s/%s", dir, propertiesFile))
+
+	akafka.NewMotionKafka(*motionGo.PropertiesFile)
 
 	motionGo.MotionEngine.Use(middleware.CorsMiddleware)
 	db.Conn = &db.Connections{}

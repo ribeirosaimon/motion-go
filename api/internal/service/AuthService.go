@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ribeirosaimon/motion-go/api/internal/akafka"
 	"github.com/ribeirosaimon/motion-go/api/internal/config"
 	"github.com/ribeirosaimon/motion-go/api/internal/db"
 	"github.com/ribeirosaimon/motion-go/api/internal/dto"
@@ -96,8 +97,8 @@ func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain2.Profile, *exce
 }
 
 func (l *AuthService) WhoAmI(userId uint64) (sqlDomain2.Profile, error) {
-
 	user, err := l.profileService.FindProfileByUserId(userId)
+	akafka.GetMotionKafka().SendMessage(user)
 	if err != nil {
 		return sqlDomain2.Profile{}, err
 	}
