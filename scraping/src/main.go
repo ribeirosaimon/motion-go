@@ -9,8 +9,8 @@ import (
 	"github.com/magiconair/properties"
 	"github.com/ribeirosaimon/motion-go/confighub/pb"
 	"github.com/ribeirosaimon/motion-go/confighub/util"
+	"github.com/ribeirosaimon/motion-go/scraping/internal/scraping"
 
-	"github.com/ribeirosaimon/motion-go/scraping-service/internal/scraping"
 	"google.golang.org/grpc"
 )
 

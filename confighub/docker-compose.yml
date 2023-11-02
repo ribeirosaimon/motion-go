@@ -1,38 +1,38 @@
 version: "3.9"
 
 volumes:
-  zookeeper-aula-data:
+  zookeeper-data:
     external: false
-  kafka-aula-data:
+  kafka-data:
     external: false
 
 services:
-  zookeeper-aula:
+  zookeeper:
     platform: linux/amd64
-    container_name: zookeeper-aula
+    container_name: zookeeper
     image: confluentinc/cp-zookeeper:5.3.1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     volumes:
-      - zookeeper-aula-data:/data
+      - zookeeper-data:/data
 
-  kafka-aula:
+  kafka:
     platform: linux/amd64
-    container_name: kafka-aula
+    container_name: kafka
     image: confluentinc/cp-kafka:5.3.1
     restart: always
     depends_on:
-      - zookeeper-aula
+      - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-aula:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-aula:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSERTS_TOPICS_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     volumes:
-      - kafka-aula-data:/var/lib/kafka/data
+      - kafka-data:/var/lib/kafka/data
     ports:
       - "9092:9092"
