@@ -4,20 +4,18 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ribeirosaimon/motion-go/api/internal/akafka"
 	"github.com/ribeirosaimon/motion-go/api/internal/config"
 	"github.com/ribeirosaimon/motion-go/api/internal/db"
 	"github.com/ribeirosaimon/motion-go/api/internal/dto"
 	"github.com/ribeirosaimon/motion-go/api/internal/exceptions"
 	"github.com/ribeirosaimon/motion-go/api/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/api/internal/repository"
-	"github.com/ribeirosaimon/motion-go/api/src/emailSender"
-	sqlDomain2 "github.com/ribeirosaimon/motion-go/confighub/domain/sqlDomain"
+	"github.com/ribeirosaimon/motion-go/confighub/domain/sqlDomain"
 	"github.com/ribeirosaimon/motion-go/confighub/util"
 )
 
 type AuthService struct {
-	userRepository     *repository.MotionSQLRepository[sqlDomain2.MotionUser]
+	userRepository     *repository.MotionSQLRepository[sqlDomain.MotionUser]
 	profileService     *ProfileService
 	sessionService     *SessionService
 	transactionService *TransactionService
@@ -48,7 +46,7 @@ func (l *AuthService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 		return "", exceptions.Unauthorized()
 	}
 	profileUser, err := l.profileService.FindProfileByUserId(savedUser.Id)
-	if profileUser.Status == sqlDomain2.INACTIVE {
+	if profileUser.Status == sqlDomain.ProfileInactive {
 		return "", exceptions.Unauthorized()
 	}
 	if err != nil {
@@ -62,20 +60,20 @@ func (l *AuthService) Login(loginDto dto.LoginDto) (string, *exceptions.Error) {
 	return userSession.Id, nil
 }
 
-func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain2.Profile, *exceptions.Error) {
+func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain.Profile, *exceptions.Error) {
 
 	if signupDto.Email == "" || !util.ValidateEmail(signupDto.Email) {
-		return sqlDomain2.Profile{}, exceptions.FieldError("email")
+		return sqlDomain.Profile{}, exceptions.FieldError("email")
 	}
 
 	if signupDto.Email == "" {
-		return sqlDomain2.Profile{}, exceptions.FieldError("password")
+		return sqlDomain.Profile{}, exceptions.FieldError("password")
 	}
 
-	var user sqlDomain2.MotionUser
+	var user sqlDomain.MotionUser
 	password, err := middleware.EncryptPassword(signupDto.Password)
 	if err != nil {
-		return sqlDomain2.Profile{}, exceptions.BodyError()
+		return sqlDomain.Profile{}, exceptions.BodyError()
 	}
 	user.Name = signupDto.Name
 	user.Password = password
@@ -83,24 +81,21 @@ func (l *AuthService) SignUp(signupDto dto.SignUpDto) (sqlDomain2.Profile, *exce
 
 	savedUser, err := l.userRepository.Save(user)
 	if err != nil {
-		return sqlDomain2.Profile{}, exceptions.InternalServer(err.Error())
+		return sqlDomain.Profile{}, exceptions.InternalServer(err.Error())
 	}
 
 	profileUser, err := l.profileService.SaveProfileUser(savedUser, signupDto.Roles)
 
-	go emailSender.SendEmail(profileUser.Code)
-
 	if err != nil {
-		return sqlDomain2.Profile{}, exceptions.InternalServer(err.Error())
+		return sqlDomain.Profile{}, exceptions.InternalServer(err.Error())
 	}
 	return profileUser, nil
 }
 
-func (l *AuthService) WhoAmI(userId uint64) (sqlDomain2.Profile, error) {
+func (l *AuthService) WhoAmI(userId uint64) (sqlDomain.Profile, error) {
 	user, err := l.profileService.FindProfileByUserId(userId)
-	akafka.GetMotionKafka().SendMessage(user)
 	if err != nil {
-		return sqlDomain2.Profile{}, err
+		return sqlDomain.Profile{}, err
 	}
 	return user, nil
 }
@@ -110,13 +105,13 @@ func (l *AuthService) ValidateEmail(loggedUser middleware.LoggedUser, code strin
 	if err != nil {
 		return err
 	}
-	if profile.Status == sqlDomain2.ACTIVE {
+	if profile.Status == sqlDomain.ProfileActive {
 		return errors.New("this profile was active")
 	}
 	if profile.Code != code {
 		return errors.New("this code was wrong")
 	}
-	profile.Status = sqlDomain2.ACTIVE
+	profile.Status = sqlDomain.ProfileActive
 	profile.UpdatedAt = time.Now()
 
 	l.transactionService.Deposit(loggedUser, dto.Deposit{Value: float64(config.GetMotionConfig().InitialValue)})

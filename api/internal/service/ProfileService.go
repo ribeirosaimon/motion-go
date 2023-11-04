@@ -34,7 +34,7 @@ func (l *ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlD
 		profile.Roles = append(profile.Roles, field)
 	}
 
-	profile.Status = sqlDomain.EMAIL_SYNC
+	profile.Status = sqlDomain.ProfileEmailSync
 	profile.CreatedAt = time.Now()
 	profile.MotionUserId = user.Id
 	code := emailSender.GenerateEmailCode()

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties"
@@ -48,16 +47,15 @@ func (m *MotionGo) CreateRouters(logger func() gin.HandlerFunc) {
 					path := fmt.Sprintf("%s%s", pathEngineer.BasePath(), controller.Path)
 
 					if !existRouter(m.MotionEngine.Routes(), path, controller.Method) {
-						addHandlerToEngine(controller, pathEngineer)
+						addHandlerToEngine(controller, pathEngineer, logger)
 					}
 				} else {
-					addHandlerToEngine(controller, pathEngineer)
+					addHandlerToEngine(controller, pathEngineer, logger)
 				}
-
 			}
 		}
 	}
-	m.MotionEngine.Use(logger())
+
 }
 
 func existRouter(routes gin.RoutesInfo, path string, method string) bool {
@@ -69,12 +67,14 @@ func existRouter(routes gin.RoutesInfo, path string, method string) bool {
 	return false
 }
 
-func addHandlerToEngine(controller MotionRouter, pathEngineer *gin.RouterGroup) {
+func addHandlerToEngine(controller MotionRouter, pathEngineer *gin.RouterGroup, logger func() gin.HandlerFunc) {
 	handlerFunc := gin.HandlerFunc(controller.Service)
 
+	controller.Middleware = append(controller.Middleware, logger())
 	controller.Middleware = append(controller.Middleware, handlerFunc)
 	pathEngineer.Handle(controller.Method, controller.Path, controller.Middleware...)
-	log.Printf("Add %s with path: %s", controller.Method, controller.Path)
+
+	// log.Printf("Add %s with path: %s", controller.Method, controller.Path)
 }
 
 func (m *MotionGo) RunEngine(serverPort string) {

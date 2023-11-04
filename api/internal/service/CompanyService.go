@@ -8,11 +8,11 @@ import (
 	"github.com/ribeirosaimon/motion-go/api/internal/middleware"
 	"github.com/ribeirosaimon/motion-go/api/internal/repository"
 	"github.com/ribeirosaimon/motion-go/api/src/scraping"
-	nosqlDomain2 "github.com/ribeirosaimon/motion-go/confighub/domain/nosqlDomain"
+	"github.com/ribeirosaimon/motion-go/confighub/domain/nosqlDomain"
 )
 
 type CompanyService struct {
-	summaryStockRepository *repository.MotionNoSQLRepository[nosqlDomain2.SummaryStock]
+	summaryStockRepository *repository.MotionNoSQLRepository[nosqlDomain.SummaryStock]
 	close                  *sql.DB
 }
 
@@ -22,11 +22,11 @@ func NewCompanyService(conn *db.Connections) *CompanyService {
 	}
 }
 
-func (s *CompanyService) GetCompany(id string) (nosqlDomain2.SummaryStock, error) {
+func (s *CompanyService) GetCompany(id string) (nosqlDomain.SummaryStock, error) {
 
 	byId, err := s.summaryStockRepository.FindById(id)
-	if err != nil || byId.Status == nosqlDomain2.INACTIVE {
-		return nosqlDomain2.SummaryStock{}, err
+	if err != nil || byId.Status == nosqlDomain.INACTIVE {
+		return nosqlDomain.SummaryStock{}, err
 	}
 	return byId, nil
 }
@@ -37,7 +37,7 @@ func (s *CompanyService) DeleteCompany(id string) bool {
 		return false
 	}
 
-	product.BasicNoSQL = nosqlDomain2.BasicNoSQL{
+	product.BasicNoSQL = nosqlDomain.BasicNoSQL{
 		UpdatedAt: time.Now(),
 	}
 
@@ -48,7 +48,7 @@ func (s *CompanyService) DeleteCompany(id string) bool {
 	return true
 }
 
-func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool) (nosqlDomain2.SummaryStock, error) {
+func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool) (nosqlDomain.SummaryStock, error) {
 	var foundField string
 	if code {
 		foundField = "companyCode"
@@ -66,7 +66,7 @@ func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool
 		}
 		return summaryStock, nil
 	}
-	name := nosqlDomain2.SummaryStock{}
+	name := nosqlDomain.SummaryStock{}
 	var err error
 	if code {
 		name, err = middleware.GetCache().GetByCompanyCode(companyName)
@@ -83,10 +83,10 @@ func (s *CompanyService) FindByCompanyByCodeOrName(companyName string, code bool
 	return name, nil
 }
 
-func (s *CompanyService) FindAllCompany(limit, page uint32) ([]nosqlDomain2.SummaryStock, error) {
+func (s *CompanyService) FindAllCompany(limit, page uint32) ([]nosqlDomain.SummaryStock, error) {
 	allCompany, err := s.summaryStockRepository.FindAll(int(limit), int(page))
 	if err != nil {
-		return []nosqlDomain2.SummaryStock{}, nil
+		return []nosqlDomain.SummaryStock{}, nil
 	}
 	return allCompany, nil
 }

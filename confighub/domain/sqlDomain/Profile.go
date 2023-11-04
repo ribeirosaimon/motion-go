@@ -28,7 +28,7 @@ type RoleList []string
 type ProfileStatus string
 
 const (
-	ACTIVE     ProfileStatus = "ACTIVE"
-	INACTIVE   ProfileStatus = "INACTIVE"
-	EMAIL_SYNC ProfileStatus = "EMAIL_SYNC"
+	ProfileActive    ProfileStatus = "ACTIVE"
+	ProfileInactive  ProfileStatus = "INACTIVE"
+	ProfileEmailSync ProfileStatus = "EMAIL_SYNC"
 )

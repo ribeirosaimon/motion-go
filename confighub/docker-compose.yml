@@ -21,7 +21,6 @@ services:
     platform: linux/amd64
     container_name: kafka
     image: confluentinc/cp-kafka:5.3.1
-    restart: always
     depends_on:
       - zookeeper
     environment:

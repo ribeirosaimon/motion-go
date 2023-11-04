@@ -51,7 +51,7 @@ func TestLoginController_SignUp(t *testing.T) {
 
 	role, err := roleRepository.FindByField("name", sqlDomain2.USER)
 	assert.Equal(t, signupDto.Name, response.Name)
-	assert.Equal(t, response.Status, sqlDomain2.EMAIL_SYNC)
+	assert.Equal(t, response.Status, sqlDomain2.ProfileEmailSync)
 
 	assert.Equal(t, sqlDomain2.USER, role.Name)
 	assert.Equal(t, http.StatusCreated, w.Code)

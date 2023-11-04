@@ -11,15 +11,12 @@ import (
 type MotionKafka struct {
 	producer    sarama.SyncProducer
 	senderTopic string
+	kafkaHost   string
 }
 
 var kafkaProducer *MotionKafka
 
-func NewMotionKafka(configurations properties.Properties) *MotionKafka {
-	if kafkaProducer != nil {
-		return kafkaProducer
-	}
-
+func NewMotionKafka(configurations properties.Properties) {
 	host := configurations.GetString("kafka.host", "")
 	port := configurations.GetString("kafka.port", "")
 	topic := configurations.GetString("kafka.topic", "")
@@ -28,11 +25,20 @@ func NewMotionKafka(configurations properties.Properties) *MotionKafka {
 
 	producer, err := getProducer(kafkaHost)
 	if err != nil {
-		syncProducer, _ := getProducer("localhost:9092")
-		kafkaProducer = &MotionKafka{producer: syncProducer, senderTopic: "default"}
+		kafkaDefault := "localhost:9092"
+		syncProducer, _ := getProducer(kafkaDefault)
+		kafkaProducer = &MotionKafka{producer: syncProducer, kafkaHost: kafkaDefault, senderTopic: "default"}
 	}
-	kafkaProducer = &MotionKafka{producer: producer, senderTopic: topic}
-	return kafkaProducer
+	kafkaProducer = &MotionKafka{producer: producer, kafkaHost: kafkaHost, senderTopic: topic}
+}
+
+func (k *MotionKafka) openConn() error {
+	syncProducer, err := getProducer(k.kafkaHost)
+	k.producer = syncProducer
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetMotionKafka() *MotionKafka {
@@ -40,6 +46,9 @@ func GetMotionKafka() *MotionKafka {
 }
 
 func (k *MotionKafka) SendMessage(message interface{}) error {
+	if err := k.openConn(); err != nil {
+		return err
+	}
 	defer k.producer.Close()
 	jsonData, err := json.Marshal(message)
 	if err != nil {

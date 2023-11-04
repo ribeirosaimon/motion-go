@@ -44,5 +44,4 @@ func getProperties() *properties.Properties {
 	dir, _ := util.FindRootDir()
 
 	return properties.MustLoadFile(fmt.Sprintf("%s/%s", dir, propertiesFile), properties.UTF8)
-
 }

@@ -78,7 +78,7 @@ func Authorization(roles ...sqlDomain.Role) gin.HandlerFunc {
 }
 
 func notAutenticateEmailSyncUser(c *gin.Context, profile sqlDomain.Profile) {
-	if profile.Status == sqlDomain.ACTIVE || strings.Contains(c.Request.RequestURI, "validate") ||
+	if profile.Status == sqlDomain.ProfileActive || strings.Contains(c.Request.RequestURI, "validate") ||
 		strings.Contains(c.Request.RequestURI, "whoami") {
 		return
 	}

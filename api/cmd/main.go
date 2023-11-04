@@ -56,6 +56,7 @@ var version1 = config.RoutersVersion{
 		router.NewCompanyRouter,
 		router.NewPortfolioRouter,
 		router.NewTransactionRouter,
+		router.NewOrderRouter,
 	},
 }
 
