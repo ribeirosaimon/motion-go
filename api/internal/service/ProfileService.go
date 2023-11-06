@@ -38,6 +38,7 @@ func (l *ProfileService) SaveProfileUser(user sqlDomain.MotionUser, roles []sqlD
 	profile.CreatedAt = time.Now()
 	profile.MotionUserId = user.Id
 	code := emailSender.GenerateEmailCode()
+	emailSender.SendEmail(code)
 	profile.Code = code
 
 	save, err := l.profileRepository.Save(profile)

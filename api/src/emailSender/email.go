@@ -35,7 +35,7 @@ func emailValue(code string) string {
     </head>
     <body>
     <div class="container">
-    <h1>Binary Code</h1>
+    <h1>Activation Code</h1>
     <p>%s</p>
     </div>
     </body>
